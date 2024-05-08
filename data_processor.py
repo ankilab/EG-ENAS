@@ -1,7 +1,7 @@
 import torch
 import torchvision.transforms as transforms
 import numpy as np
-from utils.transforms import get_train_transforms, get_test_transforms
+from utils.transforms import get_train_transform, get_test_transform
 
 
 class Dataset(torch.utils.data.Dataset):
@@ -15,7 +15,13 @@ class Dataset(torch.utils.data.Dataset):
             self.y = torch.tensor(y)
 
         # example transform
-        self.transform = transform
+        if train:
+            self.mean = torch.mean(self.x, [0, 2, 3])
+            self.std = torch.std(self.x, [0, 2, 3])
+            self.transform = transforms.Compose(transform + [transforms.Normalize(self.mean, self.std)])
+        else:
+            self.transform=transform
+        
 
     def __len__(self):
         return len(self.x)
@@ -75,8 +81,8 @@ class DataProcessor:
     """
     def process(self):
         ############
-        train_transform = get_train_transform(dataset_name=None)
-        test_transform =get_test_transform(dataset_name=None)
+        train_transform = get_train_transform(self.metadata)
+        test_transform =get_test_transform(self.metadata)
         ############
         
         # create train, valid, and test datasets

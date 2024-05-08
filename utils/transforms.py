@@ -193,17 +193,17 @@ class RandAugment:
         return img
 
 ############################## Transforms by dataset ############################################
-def get_train_transform(dataset_name=None):
-    if dataset_name=="CIFAR100":
-        return get_cifar100_train_transform()
-    else:
-        return get_cifar100_train_transform()
+def get_train_transform(metadata):
+    return [
+            transforms.RandomCrop((metadata['input_shape'][2],metadata['input_shape'][3]), padding=4),
+            transforms.RandomHorizontalFlip(),
+            #transforms.ToTensor(),
+            ]
 
-def get_test_transform(dataset_name=None):
-    if dataset_name=="CIFAR100":
-        return get_cifar100_test_transform()
-    else:
-        return get_cifar100_test_transform()
+def get_test_transform(metadata):
+    return [
+             #       transforms.ToTensor(),
+            ]  
 
 
 def get_cifar100_train_transform():
