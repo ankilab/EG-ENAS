@@ -18,7 +18,8 @@ class Dataset(torch.utils.data.Dataset):
         if train:
             self.mean = torch.mean(self.x, [0, 2, 3])
             self.std = torch.std(self.x, [0, 2, 3])
-            self.transform = transforms.Compose(transform + [transforms.Normalize(self.mean, self.std)])
+            self.transform_normalization=transforms.Normalize(self.mean, self.std)
+            self.transform = transforms.Compose(transform + [self.transform_normalization])
         else:
             self.transform=transform
         
@@ -82,13 +83,13 @@ class DataProcessor:
     def process(self):
         ############
         train_transform = get_train_transform(self.metadata)
-        test_transform =get_test_transform(self.metadata)
+        #test_transform =get_test_transform(self.metadata)
         ############
         
         # create train, valid, and test datasets
         train_ds = Dataset(self.train_x, self.train_y, train=True, transform=train_transform)
-        valid_ds = Dataset(self.valid_x, self.valid_y, train=False, transform=test_transform)
-        test_ds = Dataset(self.test_x, None, transform=test_transform)
+        valid_ds = Dataset(self.valid_x, self.valid_y, train=False, transform=train_ds.transform_normalization)
+        test_ds = Dataset(self.test_x, None, transform=train_ds.transform_normalization)
 
         batch_size = 64
 

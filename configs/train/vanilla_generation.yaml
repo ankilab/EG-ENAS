@@ -1,0 +1,17 @@
+EXPERIMENT:
+  NAME: ""
+  TAG: "vanilla,nas,ind1"
+  PROJECT: "test_regnet_cifar100/Generation_1_kinh"
+DISTILLER:
+  TYPE: "NONE"
+  TEACHER: "NONE"
+  STUDENT: "ind1"
+SOLVER:
+  BATCH_SIZE: 64
+  EPOCHS: 20
+  LR: 0.01
+  LR_DECAY_STAGES: [5,10,15,20]
+  LR_DECAY_RATE: 0.75
+  WEIGHT_DECAY: 0.0005
+  MOMENTUM: 0.9
+  TYPE: "SGD"
