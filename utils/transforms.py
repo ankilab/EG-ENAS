@@ -1,6 +1,6 @@
 import os
 import numpy as np
-from torchvision import transforms
+from torchvision.transforms import v2
 from PIL import ImageOps, ImageEnhance, ImageDraw, Image
 import random
 
@@ -178,9 +178,9 @@ def augment_list():
 
 
 class RandAugment:
-    def __init__(self, n, m):
+    def __init__(self, n):
         self.n = n
-        self.m = m  # [0, 30] in fixmatch, deprecated.
+        #self.m = m  # [0, 30] in fixmatch, deprecated.
         self.augment_list = augment_list()
 
     def __call__(self, img):
@@ -194,34 +194,16 @@ class RandAugment:
 
 ############################## Transforms by dataset ############################################
 def get_train_transform(metadata):
-    return [
-            transforms.RandomCrop((metadata['input_shape'][2],metadata['input_shape'][3]), padding=4),
-            transforms.RandomHorizontalFlip(),
+    if metadata["rand_augment"]:
+        return [
+            v2.ToPILImage(),
+            v2.RandAugment(1,5),
+            v2.ToTensor()
+        ]
+    else:
+        return [
+            v2.RandomCrop((metadata['input_shape'][2],metadata['input_shape'][3]), padding=4),
+            v2.RandomHorizontalFlip(),
             #transforms.ToTensor(),
             ]
 
-def get_test_transform(metadata):
-    return [
-             #       transforms.ToTensor(),
-            ]  
-
-
-def get_cifar100_train_transform():
-    train_transform = transforms.Compose(
-        [
-            transforms.RandomCrop(32, padding=4),
-            transforms.RandomHorizontalFlip(),
-            transforms.ToTensor(),
-            transforms.Normalize((0.5071, 0.4867, 0.4408), (0.2675, 0.2565, 0.2761)),
-        ]
-    )
-
-    return train_transform
-
-def get_cifar100_test_transform():
-    return transforms.Compose(
-        [
-            transforms.ToTensor(),
-            transforms.Normalize((0.5071, 0.4867, 0.4408), (0.2675, 0.2565, 0.2761)),
-        ]
-    )

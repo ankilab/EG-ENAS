@@ -24,7 +24,7 @@ class RegNet:
     Example:
         >>> regnet = RegNet(metadata)
     """
-    def __init__(self, metadata, W0=[8, 56, 8], WA=[8, 48, 8],WM=[2.0,2.9,0.05],D=[6,20,1], base_config="../configs/search_space/config.yaml"):
+    def __init__(self, metadata, W0=[16, 64, 8], WA=[8, 48, 8],WM=[2.05,2.9,0.05],D=[8,22,1],G=[8,16,8], base_config="../configs/search_space/config.yaml"):
         """
         Initializes the RegNet class with default or specified parameters. By default we use a reduced version of the RegNet for testing, but W0, WA and D are usually bigger depending on the dataset specified in metadata.
 
@@ -34,17 +34,24 @@ class RegNet:
             WA (list): A list containing the width factor parameter options: [start, end, step].
             WM (list): A list containing the slope parameter options: [start, end, step].
             D (list): A list containing the depth parameter options: [start, end, step].
+            G (list): A list containing the group width parameter options: [start, end, step].
         """
         reset_cfg()
         cfg.merge_from_file(base_config)
+        cfg.MODEL.NUM_CLASSES=metadata["num_classes"]
+        cfg.REGNET.STEM_W=metadata["input_shape"][-1]
         self.cfg=cfg
+        
+        self.WA_STEP=WA[2]
+        self.W0_STEP=W0[2]
         self.WA_OPTIONS=np.arange(WA[0],WA[1]+WA[2], WA[2])
         self.W0_OPTIONS=np.arange(W0[0],W0[1]+W0[2], W0[2])
         self.WM_OPTIONS=np.arange(WM[0],WM[1]+WM[2], WM[2])
         self.D_OPTIONS=np.arange(D[0],D[1]+D[2],D[2])
+        self.G_OPTIONS=np.arange(G[0],G[1]+G[2],G[2])
         self.device=torch.device("cuda" if torch.cuda.is_available() else "cpu")
         
-    def create_model(self, params=None, save_folder=None, name=None, gen=None):
+    def create_model(self, params=None, save_folder=None, name=None, gen=None, config_updates=None):
         """
         Constructs a model either randomly or based on the specified parameters (WA,W0,WM,D).
 
@@ -83,11 +90,37 @@ class RegNet:
             cfg.REGNET.WA=float(random.choice(self.WA_OPTIONS))
             cfg.REGNET.W0=int(random.choice(self.W0_OPTIONS))
             cfg.REGNET.WM=float(random.choice(self.WM_OPTIONS))
-            cfg.REGNET.DEPTH=int(random.choice(self.D_OPTIONS)) 
+            cfg.REGNET.DEPTH=int(random.choice(self.D_OPTIONS))
+            cfg.REGNET.GROUP_W=int(random.choice(self.G_OPTIONS))
         else:
-            cfg.REGNET.WA, cfg.REGNET.W0, cfg.REGNET.WM, cfg.REGNET.DEPTH = params
+            cfg.REGNET.WA, cfg.REGNET.W0, cfg.REGNET.WM, cfg.REGNET.DEPTH, cfg.REGNET.GROUP_W = params
             #cfg.REGNET.GROUP_W=8
-
+        
+        if cfg.REGNET.WA>cfg.REGNET.W0:
+            cfg.REGNET.W0=int(random.choice([option for option in self.W0_OPTIONS if option >= cfg.REGNET.WA]))
+            print("Corrected W0: ", cfg.REGNET.W0)
+        
+        _, _, num_stages, _,_,_=self._generate_regnet(cfg.REGNET.WA,cfg.REGNET.W0,cfg.REGNET.WM,cfg.REGNET.DEPTH, q=8)         
+        i=0
+        while num_stages>5:
+            print("Num stages: ", num_stages)
+            print("WM: ",cfg.REGNET.WM)
+            print("DEPTH: ",cfg.REGNET.DEPTH)
+            print("WA: ",cfg.REGNET.WA)
+            print("W0: ",cfg.REGNET.W0)
+            cfg.REGNET.WM=min(cfg.REGNET.WM+0.1,max(self.WM_OPTIONS))
+            cfg.REGNET.DEPTH=max(cfg.REGNET.DEPTH-2,min(self.D_OPTIONS))
+            if i==3:
+              cfg.REGNET.WA=max(cfg.REGNET.WA-self.WA_STEP,min(self.WA_OPTIONS))
+              cfg.REGNET.W0=min(cfg.REGNET.W0+self.W0_STEP,max(self.W0_OPTIONS))
+            _, _, num_stages, _,_,_=self._generate_regnet(cfg.REGNET.WA,cfg.REGNET.W0,cfg.REGNET.WM,cfg.REGNET.DEPTH, q=8) 
+            
+            i=i+1
+    
+        
+        if config_updates is not None:
+            cfg.merge_from_list(config_updates)
+            
         # Write the dictionary to a YAML file
         if save_folder is not None:
             if name is None:
@@ -118,9 +151,10 @@ class RegNet:
         info["W0"]=cfg.REGNET.W0
         info["WM"]=cfg.REGNET.WM
         info["DEPTH"]=cfg.REGNET.DEPTH
+        info["GROUP_W"]=cfg.REGNET.GROUP_W
         return model, info
 
-    def load_model(self,config_file, weights_file=None):
+    def load_model(self,config_file, weights_file=None,  config_updates=None):
         """
         Constructs a predefined model based on the specified configuration file and optionally loads pretrained weights.
 
@@ -142,6 +176,9 @@ class RegNet:
         reset_cfg()
         cfg.merge_from_file(config_file)
 
+        if config_updates is not None:
+            cfg.merge_from_list(config_updates)
+
         # Construct model
         model=regnet.RegNet().to(self.device)
         print("Loading model:", config_file)
@@ -159,9 +196,10 @@ class RegNet:
         info["W0"]=cfg.REGNET.W0
         info["WM"]=cfg.REGNET.WM
         info["DEPTH"]=cfg.REGNET.DEPTH
+        info["GROUP_W"]=cfg.REGNET.GROUP_W
         return model, info
 
-    def create_random_generation(self, save_folder,gen, size):
+    def create_random_generation(self, save_folder,gen, size, config_updates=None):
         """
         Creates a random generation of models with specified size and saves them to the specified folder.
 
@@ -178,12 +216,12 @@ class RegNet:
         chromosomes={}
         for ind in range(size):
             random_name = generate_slug(2).replace("-", "_")
-            model, info=self.create_model(save_folder=save_folder, name=random_name, gen=gen)
+            model, info=self.create_model(save_folder=save_folder, name=random_name, gen=gen, config_updates=config_updates)
             models[random_name]=model
             chromosomes[random_name]=info
         return models, chromosomes
 
-    def load_generation(self,folder):
+    def load_generation(self,folder, config_updates=None):
         """
         Loads a generation of models from the specified folder.
 
@@ -201,7 +239,7 @@ class RegNet:
         individuals=[ind for ind in individuals if os.path.isdir(os.path.join(folder, ind))]
         for ind in individuals:
             ind_config=f"{folder}/{ind}/config.yaml"
-            models[ind], chromosomes[ind]=self.load_model(ind_config)
+            models[ind], chromosomes[ind]=self.load_model(config_file=ind_config, config_updates=config_updates)
         return models,chromosomes
 
 

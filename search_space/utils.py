@@ -1,5 +1,6 @@
 import pandas as pd
-
+import plotly.graph_objects as go
+import numpy as np
 def compute_model_size(model):
     """
     Computes the size of the PyTorch model in megabytes (MB) based on the sizes of its parameters.
@@ -9,11 +10,11 @@ def compute_model_size(model):
 
     Returns:
         float: The size of the model in megabytes (MB).
+    """
     total_size = sum(p.numel() * p.element_size() for p in model.parameters())
     # Convert size to megabytes (optional)
     total_size_mb = total_size / (1024 ** 2)
     return  total_size_mb
-    """
 
 def load_checkpoint(path):
     """
@@ -67,7 +68,7 @@ def create_widths_plot(chromosomes):
     return fig
 
 
-def scatter_flops(chromosomes,column):
+def scatter_results(chromosomes,columny,columnx="FLOPS",results_path=None):
     """
     Creates a scatter plot of FLOPS (Floating Point Operations Per Second) versus a specified column's values
     for each chromosome.
@@ -83,9 +84,12 @@ def scatter_flops(chromosomes,column):
 
     """
     chromosomes_df=pd.DataFrame(chromosomes).T.reset_index().rename(columns={"index":"name"})
+    if results_path is not None:
+        results_df=pd.read_csv(results_path, index_col=0)[["name","best_acc","epoch_time"]]
+        chromosomes_df=pd.merge(chromosomes_df,results_df, on="name", how="left")
     fig = go.Figure(data=go.Scatter(
-        x=chromosomes_df['flops']/1000000,
-        y=chromosomes_df[column],
+        x=chromosomes_df[columnx],
+        y=chromosomes_df[columny],
         mode='markers',
         #marker=dict(
         #    size=2,
@@ -100,8 +104,8 @@ def scatter_flops(chromosomes,column):
     ))
     layout = go.Layout(
         title='',
-        xaxis=dict(title='FLOPS (Millions)'),
-        yaxis=dict(title=column),
+        xaxis=dict(title=columnx),
+        yaxis=dict(title=columny),
         template="presentation"
     )
     fig.layout=layout

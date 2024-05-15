@@ -11,6 +11,7 @@ import numpy as np
 import search_space.models.blocks as bk
 from search_space.config import cfg
 from .anynet import AnyNet
+#from .anynet_modified import AnyNet
 
 
 def generate_regnet(w_a, w_0, w_m, d, q=8):
@@ -67,6 +68,7 @@ class RegNet(AnyNet):
     def get_params():
         """Get AnyNet parameters that correspond to the RegNet."""
         ws, ds, ss, bs, gs = generate_regnet_full()
+        print(cfg.REGNET.BLOCK_TYPE)
         return {
             "stem_type": cfg.REGNET.STEM_TYPE,
             "stem_w": cfg.REGNET.STEM_W,
@@ -79,6 +81,8 @@ class RegNet(AnyNet):
             "head_w": cfg.REGNET.HEAD_W,
             "se_r": cfg.REGNET.SE_R if cfg.REGNET.SE_ON else 0,
             "num_classes": cfg.MODEL.NUM_CLASSES,
+            "downsample": cfg.REGNET.DOWNSAMPLE,
+            "drop_path_rate": cfg.REGNET.DROP_RATE
         }
 
     def __init__(self):

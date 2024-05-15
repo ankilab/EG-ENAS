@@ -519,7 +519,8 @@ class RegNet(nn.Module):
             drop_path_rate=drop_path_rate,
         )
         #assert len(per_stage_args) == 4
-        self.num_stages=len(per_stage_ars)
+        self.num_stages=len(per_stage_args)
+        print(self.num_stages)
         block_fn = PreBottleneck if cfg.preact else Bottleneck
         for i, stage_args in enumerate(per_stage_args):
             stage_name = "s{}".format(i + 1)
@@ -688,6 +689,7 @@ class RegNet(nn.Module):
         #x = self.s3(x)
         #x = self.s4(x)
         #x = self.s5(x)
+        #x = self.s6(x)
         x = self.final_conv(x)
         return x
 

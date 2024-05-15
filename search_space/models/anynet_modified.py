@@ -15,6 +15,7 @@ from .blocks import (
     gap2d,
     gap2d_cx,
     init_weights,
+    init_weights_he,
     linear,
     linear_cx,
     norm2d,
@@ -24,6 +25,8 @@ from .blocks import (
     SE,
 )
 from torch.nn import Module
+import torch.nn as nn
+import torch
 
 
 def get_stem_fun(stem_type):
@@ -129,7 +132,7 @@ class BasicTransform(Module):
         return x
 
     @staticmethod
-    def complexity(cx, w_in, w_out, stride, _params):
+    def complexity(cx, w_in, w_out, stride, params):
         w_se = int(round(w_in * params["se_r"]))
         cx = conv2d_cx(cx, w_in, w_out, 3, stride=stride)
         cx = norm2d_cx(cx, w_out)
@@ -142,18 +145,37 @@ class BasicTransform(Module):
 class ResBasicBlock(Module):
     """Residual basic block: x + f(x), f = basic transform."""
 
-    def __init__(self, w_in, w_out, stride, params):
+    def __init__(self, w_in, w_out, stride, params,  norm_layer=nn.BatchNorm2d, dilation=(1, 1)):
         super(ResBasicBlock, self).__init__()
-        self.proj, self.bn = None, None
-        if (w_in != w_out) or (stride != 1):
-            self.proj = conv2d(w_in, w_out, 1, stride=stride)
-            self.bn = norm2d(w_out)
+        #self.proj, self.bn = None, None
+        #if (w_in != w_out) or (stride != 1):
+        #    self.proj = conv2d(w_in, w_out, 1, stride=stride)
+        #    self.bn = norm2d(w_out)
         self.f = BasicTransform(w_in, w_out, stride, params)
         self.af = activation()
 
+        self.downsample = create_shortcut(
+            params["downsample"],
+            w_in,
+            w_out,
+            kernel_size=1,
+            stride=stride,
+            dilation=dilation,
+            norm_layer=norm_layer,
+        )
+        self.drop_path = DropPath(params["drop_path_rate"]) if params["drop_path_rate"] > 0 else nn.Identity()
+
+
     def forward(self, x):
-        x_p = self.bn(self.proj(x)) if self.proj else x
-        return self.af(x_p + self.f(x))
+        #x_p = self.bn(self.proj(x)) if self.proj else x
+        #return self.af(x_p + self.f(x))
+        shortcut=x
+        x=self.f(x)
+        if self.downsample is not None:
+            # NOTE stuck with downsample as the attr name due to weight compatibility
+            # now represents the shortcut, no shortcut if None, and non-downsample shortcut == nn.Identity()
+            x = self.drop_path(x) + self.downsample(shortcut)
+        return self.af(x)
 
     @staticmethod
     def complexity(cx, w_in, w_out, stride, params):
@@ -208,18 +230,35 @@ class BottleneckTransform(Module):
 class ResBottleneckBlock(Module):
     """Residual bottleneck block: x + f(x), f = bottleneck transform."""
 
-    def __init__(self, w_in, w_out, stride, params):
+    def __init__(self, w_in, w_out, stride, params, norm_layer=nn.BatchNorm2d, dilation=(1, 1)):
         super(ResBottleneckBlock, self).__init__()
-        self.proj, self.bn = None, None
-        if (w_in != w_out) or (stride != 1):
-            self.proj = conv2d(w_in, w_out, 1, stride=stride)
-            self.bn = norm2d(w_out)
+        #self.proj, self.bn = None, None
+        #if (w_in != w_out) or (stride != 1):
+        #    self.proj = conv2d(w_in, w_out, 1, stride=stride)
+        #    self.bn = norm2d(w_out)
         self.f = BottleneckTransform(w_in, w_out, stride, params)
         self.af = activation()
+        
+        self.downsample = create_shortcut(
+            params["downsample"],
+            w_in,
+            w_out,
+            kernel_size=1,
+            stride=stride,
+            dilation=dilation,
+            norm_layer=norm_layer,
+        )
+        self.drop_path = DropPath(params["drop_path_rate"]) if params["drop_path_rate"] > 0 else nn.Identity()
 
     def forward(self, x):
-        x_p = self.bn(self.proj(x)) if self.proj else x
-        return self.af(x_p + self.f(x))
+        #x_p = self.bn(self.proj(x)) if self.proj else x
+        shortcut=x
+        x=self.f(x)
+        if self.downsample is not None:
+            # NOTE stuck with downsample as the attr name due to weight compatibility
+            # now represents the shortcut, no shortcut if None, and non-downsample shortcut == nn.Identity()
+            x = self.drop_path(x) + self.downsample(shortcut)
+        return self.af(x)
 
     @staticmethod
     def complexity(cx, w_in, w_out, stride, params):
@@ -354,6 +393,7 @@ class AnyNet(Module):
             "head_w": cfg.ANYNET.HEAD_W,
             "se_r": cfg.ANYNET.SE_R if cfg.ANYNET.SE_ON else 0,
             "num_classes": cfg.MODEL.NUM_CLASSES,
+
         }
 
     def __init__(self, params=None):
@@ -365,10 +405,12 @@ class AnyNet(Module):
         prev_w = p["stem_w"]
         keys = ["depths", "widths", "strides", "bot_muls", "group_ws"]
         for i, (d, w, s, b, g) in enumerate(zip(*[p[k] for k in keys])):
-            params = {"bot_mul": b, "group_w": g, "se_r": p["se_r"]}
+            params = {"bot_mul": b, "group_w": g, "se_r": p["se_r"], "downsample":p["downsample"], "drop_path_rate":p["drop_path_rate"]}
+            print(params)
             stage = AnyStage(prev_w, w, s, d, block_fun, params)
             self.add_module("s{}".format(i + 1), stage)
             prev_w = w
+        print(p)
         self.head = AnyHead(prev_w, p["head_w"], p["num_classes"])
         self.apply(init_weights)
 
@@ -394,6 +436,9 @@ class AnyNet(Module):
         return cx
     
 #############################################################
+from timm.layers import ClassifierHead, AvgPool2dSame, ConvNormAct, SEModule, DropPath, GroupNormAct
+from timm.layers import create_conv2d
+
 class DropPath(nn.Module):
     """
     Implementation of paper https://arxiv.org/pdf/1603.09382v3.pdf
@@ -413,3 +458,80 @@ class DropPath(nn.Module):
         rand_tensor = rand_tensor.floor_()
         out = x.div(keep_prob) * rand_tensor
         return out
+
+def downsample_avg(
+        in_chs,
+        out_chs,
+        kernel_size=1,
+        stride=1,
+        dilation=1,
+        norm_layer=None,
+        preact=False,
+):
+    """ AvgPool Downsampling as in 'D' ResNet variants. This is not in RegNet space but I might experiment."""
+    norm_layer = norm_layer or nn.BatchNorm2d
+    avg_stride = stride if dilation == 1 else 1
+    pool = nn.Identity()
+    if stride > 1 or dilation > 1:
+        avg_pool_fn = AvgPool2dSame if avg_stride == 1 and dilation > 1 else nn.AvgPool2d
+        pool = avg_pool_fn(2, avg_stride, ceil_mode=True, count_include_pad=False)
+    if preact:
+        conv = create_conv2d(in_chs, out_chs, 1, stride=1)
+    else:
+        conv = ConvNormAct(in_chs, out_chs, 1, stride=1, norm_layer=norm_layer, apply_act=False)
+    return nn.Sequential(*[pool, conv])
+
+
+def downsample_conv(
+        in_chs,
+        out_chs,
+        kernel_size=1,
+        stride=1,
+        dilation=1,
+        norm_layer=None,
+        preact=False,
+):
+    norm_layer = norm_layer or nn.BatchNorm2d
+    kernel_size = 1 if stride == 1 and dilation == 1 else kernel_size
+    dilation = dilation if kernel_size > 1 else 1
+    if preact:
+        return create_conv2d(
+            in_chs,
+            out_chs,
+            kernel_size,
+            stride=stride,
+            dilation=dilation,
+        )
+    else:
+        return ConvNormAct(
+            in_chs,
+            out_chs,
+            kernel_size,
+            stride=stride,
+            dilation=dilation,
+            norm_layer=norm_layer,
+            apply_act=False,
+        )
+
+
+def create_shortcut(
+        downsample_type,
+        in_chs,
+        out_chs,
+        kernel_size,
+        stride,
+        dilation=(1, 1),
+        norm_layer=None,
+        preact=False,
+):
+    assert downsample_type in ('avg', 'conv1x1', '', None)
+    if in_chs != out_chs or stride != 1 or dilation[0] != dilation[1]:
+        dargs = dict(stride=stride, dilation=dilation[0], norm_layer=norm_layer, preact=preact)
+        if not downsample_type:
+            return None  # no shortcut, no downsample
+        elif downsample_type == 'avg':
+            return downsample_avg(in_chs, out_chs, **dargs)
+        else:
+            return downsample_conv(in_chs, out_chs, kernel_size=kernel_size, **dargs)
+    else:
+        return nn.Identity()  # identity shortcut (no downsample)

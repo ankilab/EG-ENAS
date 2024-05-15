@@ -14,7 +14,6 @@ def show_cfg(cfg):
     dump_cfg.DATASET = cfg.DATASET
     dump_cfg.DISTILLER = cfg.DISTILLER
     dump_cfg.SOLVER = cfg.SOLVER
-    dump_cfg.LOG = cfg.LOG
     if cfg.DISTILLER.TYPE in cfg:
         dump_cfg.update({cfg.DISTILLER.TYPE: cfg.get(cfg.DISTILLER.TYPE)})
     print(log_msg("CONFIG:\n{}".format(dump_cfg.dump()), "INFO"))
@@ -22,22 +21,24 @@ def show_cfg(cfg):
 def get_cfg():
     CFG = CN()
 
-    CFG.device = 0
-    CFG.if_test = False
-    CFG.if_Augment = False
-    CFG.if_useFactor = False
-    CFG.if_self_train = False
+    #CFG.device = 0
+    #CFG.if_test = False
+    #CFG.if_Augment = False
+    #CFG.if_useFactor = False
+    #CFG.if_self_train = False
    
     # Experiment
     CFG.EXPERIMENT = CN()
-    CFG.EXPERIMENT.PROJECT = "distill"
+    CFG.EXPERIMENT.PROJECT = "NAS"
     CFG.EXPERIMENT.NAME = ""
-    CFG.EXPERIMENT.TAG = "default"
+    #CFG.EXPERIMENT.TAG = "default"
     CFG.EXPERIMENT.LOGIT_STAND = False
 
     # Dataset
     CFG.DATASET = CN()
-    CFG.DATASET.TYPE = "cifar100"
+    CFG.DATASET.TYPE = ""
+    CFG.DATASET.CLASSES = 0
+    CFG.DATASET.INPUT_SHAPE = ()
     CFG.DATASET.NUM_WORKERS = 2
     CFG.DATASET.TEST = CN()
     CFG.DATASET.TEST.BATCH_SIZE = 64
@@ -54,11 +55,13 @@ def get_cfg():
     CFG.SOLVER.BATCH_SIZE = 64
     CFG.SOLVER.EPOCHS = 240
     CFG.SOLVER.LR = 0.05
-    CFG.SOLVER.LR_DECAY_STAGES = [150, 180, 210]
-    CFG.SOLVER.LR_DECAY_RATE = 0.1
+    CFG.SOLVER.LR_SCHEDULER = "cosine_annealing"
+    #CFG.SOLVER.LR_DECAY_STAGES = [150, 180, 210]
+    #CFG.SOLVER.LR_DECAY_RATE = 0.1
     CFG.SOLVER.WEIGHT_DECAY = 0.0001
     CFG.SOLVER.MOMENTUM = 0.9
     CFG.SOLVER.TYPE = "SGD"
+    CFG.SOLVER.TOPK=5
 
     CFG.KD = CN()
     CFG.KD.TEMPERATURE = 2
@@ -93,7 +96,7 @@ class AverageMeter(object):
         self.avg = self.sum / self.count
 
 
-def validate(val_loader, distiller):
+def validate(val_loader, distiller, k=5):
     batch_time, losses, top1, top5 = [AverageMeter() for _ in range(4)]
     criterion = nn.CrossEntropyLoss()
     num_iter = len(val_loader)
@@ -108,7 +111,7 @@ def validate(val_loader, distiller):
             target = target.cuda(non_blocking=True)
             output = distiller(image=image)
             loss = criterion(output, target)
-            acc1, acc5 = accuracy(output, target, topk=(1, 5))
+            acc1, acc5 = accuracy(output, target, topk=(1, k))
             batch_size = image.size(0)
             losses.update(loss.cpu().detach().numpy().mean(), batch_size)
             top1.update(acc1[0], batch_size)
@@ -117,8 +120,8 @@ def validate(val_loader, distiller):
             # measure elapsed time
             batch_time.update(time.time() - start_time)
             start_time = time.time()
-            msg = "Top-1:{top1.avg:.3f}| Top-5:{top5.avg:.3f}".format(
-                top1=top1, top5=top5
+            msg = "Top-1:{top1.avg:.3f}| Top-{k}:{top5.avg:.3f}".format(
+                top1=top1,k=k, top5=top5
             )
             pbar.set_description(log_msg(msg, "EVAL"))
             pbar.update()

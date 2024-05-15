@@ -150,16 +150,24 @@ class TrainerDistillation:
     """
     def __init__(self, model, device, train_dataloader, valid_dataloader, metadata):
         self.cfg = get_cfg()
-        cfg_path="../configs/train/vanilla_generation.yaml"
+        cfg_path=metadata["train_config_path"]
         self.cfg.merge_from_file(cfg_path)
+        self.cfg.DATASET.TYPE=metadata["codename"]
+        self.cfg.DATASET.CLASSES=metadata["num_classes"]
+        self.cfg.DATASET.INPUT_SHAPE=metadata["input_shape"]
+        self.cfg.EXPERIMENT.NAME=metadata["experiment_name"]
+        
         self.device=device
         
         self.distiller = Vanilla(model) #No distillation at the moment
         self.distiller= torch.nn.DataParallel(self.distiller.cuda())
         self.train_loader = train_dataloader
         self.val_loader = valid_dataloader
-        self.optimizer = self.init_optimizer(self.cfg) #Load from cfg. SGD by default.
-        self.scheduler = optim.lr_scheduler.CosineAnnealingLR(self.optimizer, T_max=self.cfg.SOLVER.EPOCHS) # CosineAnnealingLR replacing the scheduler defined in the cfg file.
+        self.optimizer = self.init_optimizer() #Load from cfg. SGD by default.
+        if self.cfg.SOLVER.LR_SCHEDULER=="cosine_annealing":
+            self.scheduler = optim.lr_scheduler.CosineAnnealingLR(self.optimizer, T_max=self.cfg.SOLVER.EPOCHS) # CosineAnnealingLR replacing the scheduler defined in the cfg file.
+        else:
+            raise NotImplementedError(self.cfg.SOLVER.LR_SCHEDULER)
         self.best_acc = -1
 
         # init loggers
@@ -168,16 +176,16 @@ class TrainerDistillation:
             os.makedirs(self.log_path)
 
        
-    def init_optimizer(self, cfg):
-        if cfg.SOLVER.TYPE == "SGD":
+    def init_optimizer(self):
+        if self.cfg.SOLVER.TYPE == "SGD":
             optimizer = optim.SGD(
                 self.distiller.module.get_learnable_parameters(),
-                lr=cfg.SOLVER.LR,
-                momentum=cfg.SOLVER.MOMENTUM,
-                weight_decay=cfg.SOLVER.WEIGHT_DECAY,
+                lr=self.cfg.SOLVER.LR,
+                momentum=self.cfg.SOLVER.MOMENTUM,
+                weight_decay=self.cfg.SOLVER.WEIGHT_DECAY,
             )
         else:
-            raise NotImplementedError(cfg.SOLVER.TYPE)
+            raise NotImplementedError(self.cfg.SOLVER.TYPE)
         return optimizer
 
     def log(self, lr, epoch, log_dict):
@@ -232,7 +240,7 @@ class TrainerDistillation:
         
         self.scheduler.step()
         # validate
-        test_acc, test_acc_top5, test_loss = validate(self.val_loader, self.distiller)
+        test_acc, test_acc_top5, test_loss = validate(self.val_loader, self.distiller, self.cfg.SOLVER.TOPK)
 
         # log
         log_dict = OrderedDict(
@@ -276,17 +284,18 @@ class TrainerDistillation:
         train_meters["training_time"].update(time.time() - train_start_time)
         # collect info
         batch_size = image.size(0)
-        acc1, acc5 = accuracy(preds, target, topk=(1, 5))
+        acc1, acc5 = accuracy(preds, target, topk=(1, self.cfg.SOLVER.TOPK))
         train_meters["losses"].update(loss.cpu().detach().numpy().mean(), batch_size)
         train_meters["top1"].update(acc1[0], batch_size)
         train_meters["top5"].update(acc5[0], batch_size)
         # print info
-        msg = "Epoch:{}| Time(data):{:.3f}| Time(train):{:.3f}| Loss:{:.4f}| Top-1:{:.3f}| Top-5:{:.3f}".format(
+        msg = "Epoch:{}| Time(data):{:.3f}| Time(train):{:.3f}| Loss:{:.4f}| Top-1:{:.3f}| Top-{}:{:.3f}".format(
             epoch,
             train_meters["data_time"].avg,
             train_meters["training_time"].avg,
             train_meters["losses"].avg,
             train_meters["top1"].avg,
+            self.cfg.SOLVER.TOPK,
             train_meters["top5"].avg,
         )
         return msg
