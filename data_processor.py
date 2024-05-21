@@ -63,12 +63,13 @@ class DataProcessor:
     You can modify or add anything into the metadata that you wish, if you want to pass messages between your classes
 
     """
-    def __init__(self, train_x, train_y, valid_x, valid_y, test_x, metadata):
+    def __init__(self, train_x, train_y, valid_x, valid_y, test_x, metadata, test_y=None):
         self.train_x = train_x
         self.train_y = train_y
         self.valid_x = valid_x
         self.valid_y = valid_y
         self.test_x = test_x
+        self.test_y=test_y
         self.metadata = metadata
 
     """
@@ -91,7 +92,7 @@ class DataProcessor:
         
         train_ds = Dataset(self.train_x, self.train_y, train=True, transform=train_transform)
         valid_ds = Dataset(self.valid_x, self.valid_y, train=False, transform=train_ds.transform_normalization)
-        test_ds = Dataset(self.test_x, None, transform=train_ds.transform_normalization)
+        test_ds = Dataset(self.test_x, self.test_y, transform=train_ds.transform_normalization)
 
         batch_size = 64
 

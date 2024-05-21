@@ -46,9 +46,10 @@ class Distiller(nn.Module):
 
 
 class Vanilla(nn.Module):
-    def __init__(self, student):
+    def __init__(self, student, label_smoothing=0.0):
         super(Vanilla, self).__init__()
         self.student = student
+        self.label_smoothing=label_smoothing
 
     def get_learnable_parameters(self):
         return [v for k, v in self.student.named_parameters()]
@@ -56,7 +57,7 @@ class Vanilla(nn.Module):
     def forward_train(self, image, target, **kwargs):
         #logits_student, _ = self.student(image)
         logits_student = self.student(image)
-        loss = F.cross_entropy(logits_student, target)
+        loss = F.cross_entropy(input=logits_student, target=target, label_smoothing=self.label_smoothing)
         return logits_student, {"ce": loss}
 
     def forward(self, **kwargs):

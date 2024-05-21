@@ -56,6 +56,8 @@ def get_cfg():
     CFG.SOLVER.EPOCHS = 240
     CFG.SOLVER.LR = 0.05
     CFG.SOLVER.LR_SCHEDULER = "cosine_annealing"
+    CFG.SOLVER.LABEL_SMOOTHING=0.0
+    CFG.SOLVER.WARMUP=False
     #CFG.SOLVER.LR_DECAY_STAGES = [150, 180, 210]
     #CFG.SOLVER.LR_DECAY_RATE = 0.1
     CFG.SOLVER.WEIGHT_DECAY = 0.0001
@@ -107,8 +109,9 @@ def validate(val_loader, distiller, k=5):
         start_time = time.time()
         for idx, (image, target) in enumerate(val_loader):
             image = image.float()
-            image = image.cuda(non_blocking=True)
-            target = target.cuda(non_blocking=True)
+            if torch.cuda.is_available():
+                image = image.cuda(non_blocking=True)
+                target = target.cuda(non_blocking=True)
             output = distiller(image=image)
             loss = criterion(output, target)
             acc1, acc5 = accuracy(output, target, topk=(1, k))
@@ -141,8 +144,9 @@ def validate_npy(val_loader, distiller):
         start_eval = True
         for idx, (image, target) in enumerate(val_loader):
             image = image.float()
-            image = image.cuda(non_blocking=True)
-            target = target.cuda(non_blocking=True)
+            if torch.cuda.is_available():
+                image = image.cuda(non_blocking=True)
+                target = target.cuda(non_blocking=True)
             output = distiller(image=image)
             loss = criterion(output, target)
             acc1, acc5 = accuracy(output, target, topk=(1, 5))

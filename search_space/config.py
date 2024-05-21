@@ -87,6 +87,8 @@ _C.REGNET.HEAD_W = 0
 _C.REGNET.DOWNSAMPLE = "avg"
 #Stochastic drop path rate. Works as regularization
 _C.REGNET.DROP_RATE=0.0
+#Dropout in last layer
+_C.REGNET.DROPOUT=0.0
 
 
 

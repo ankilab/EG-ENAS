@@ -1,0 +1,31 @@
+BN:
+  EPS: 1.0e-05
+  MOM: 0.1
+  ZERO_INIT_FINAL_GAMMA: false
+DESC: ''
+LN:
+  EPS: 1.0e-05
+MODEL:
+  ACTIVATION_FUN: relu
+  ACTIVATION_INPLACE: true
+  NUM_CLASSES: 20
+  SCALING_FACTOR: 1.0
+  SCALING_TYPE: ''
+  TYPE: regnet
+REGNET:
+  BLOCK_TYPE: res_bottleneck_block
+  BOT_MUL: 1.0
+  DEPTH: 12
+  DOWNSAMPLE: avg
+  DROPOUT: 0.1
+  DROP_RATE: 0.01
+  GROUP_W: 8
+  HEAD_W: 0
+  SE_ON: true
+  SE_R: 0.25
+  STEM_TYPE: res_stem_cifar
+  STEM_W: 28
+  STRIDE: 2
+  W0: 56
+  WA: 48.0
+  WM: 2.4

@@ -57,7 +57,7 @@ def get_block_fun(block_type):
 class AnyHead(Module):
     """AnyNet head: optional conv, AvgPool, 1x1."""
 
-    def __init__(self, w_in, head_width, num_classes):
+    def __init__(self, w_in, head_width, num_classes, dropout_rate=0.0):
         super(AnyHead, self).__init__()
         self.head_width = head_width
         if head_width > 0:
@@ -67,11 +67,13 @@ class AnyHead(Module):
             w_in = head_width
         self.avg_pool = gap2d(w_in)
         self.fc = linear(w_in, num_classes, bias=True)
+        self.dropout = nn.Dropout(dropout_rate)  # Dropout layer
 
     def forward(self, x):
         x = self.af(self.bn(self.conv(x))) if self.head_width > 0 else x
         x = self.avg_pool(x)
         x = x.view(x.size(0), -1)
+        x = self.dropout(x) 
         x = self.fc(x)
         return x
 
@@ -405,13 +407,13 @@ class AnyNet(Module):
         prev_w = p["stem_w"]
         keys = ["depths", "widths", "strides", "bot_muls", "group_ws"]
         for i, (d, w, s, b, g) in enumerate(zip(*[p[k] for k in keys])):
-            params = {"bot_mul": b, "group_w": g, "se_r": p["se_r"], "downsample":p["downsample"], "drop_path_rate":p["drop_path_rate"]}
+            params = {"bot_mul": b, "group_w": g, "se_r": p["se_r"], "downsample":p["downsample"], "drop_path_rate":p["drop_path_rate"], "dropout_rate":p["dropout_rate"]}
             print(params)
             stage = AnyStage(prev_w, w, s, d, block_fun, params)
             self.add_module("s{}".format(i + 1), stage)
             prev_w = w
         print(p)
-        self.head = AnyHead(prev_w, p["head_w"], p["num_classes"])
+        self.head = AnyHead(prev_w, p["head_w"], p["num_classes"], p["dropout_rate"])
         self.apply(init_weights)
 
     def forward(self, x):

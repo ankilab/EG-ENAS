@@ -2,12 +2,14 @@ import os
 from .config import cfg, load_cfg, reset_cfg
 from search_space.models import regnet
 from coolname import generate_slug
+import torch
 import random
 import yaml
 import torch
 import numpy as np
 import plotly.graph_objects as go
 from .utils import compute_model_size, load_checkpoint
+from itertools import product
 
 class RegNet:
     """
@@ -44,6 +46,8 @@ class RegNet:
         
         self.WA_STEP=WA[2]
         self.W0_STEP=W0[2]
+        self.WM_STEP=WM[2]
+        self.D_STEP=D[2]
         self.WA_OPTIONS=np.arange(WA[0],WA[1]+WA[2], WA[2])
         self.W0_OPTIONS=np.arange(W0[0],W0[1]+W0[2], W0[2])
         self.WM_OPTIONS=np.arange(WM[0],WM[1]+WM[2], WM[2])
@@ -199,6 +203,45 @@ class RegNet:
         info["GROUP_W"]=cfg.REGNET.GROUP_W
         return model, info
 
+    def create_first_generation(self, save_folder,gen, size, config_updates=None):
+        # Create the Cartesian product of these values
+        all_combinations = list(product(self.WA_OPTIONS, self.WM_OPTIONS, self.D_OPTIONS))
+        # Calculate the step sizes based on the desired number of samples
+        step_size = len(all_combinations) // size
+        # Select evenly spaced combinations
+        selected_combinations = all_combinations[::step_size][:size]
+        print(selected_combinations)
+        
+        random_names=[]
+        for ind in range(size):
+            random_names.append(generate_slug(2).replace("-", "_"))
+        random_names=sorted(random_names)
+        models={}
+        chromosomes={}
+        for ind in range(size):
+            wa,wm,d=selected_combinations[ind]
+            w0=int(random.choice([option for option in self.W0_OPTIONS if option >= wa]))
+            group_w=int(random.choice(self.G_OPTIONS))
+            model, info=self.create_model(params=[float(wa),int(w0),float(wm),int(d), int(group_w)],save_folder=save_folder, name=random_names[ind], gen=gen, config_updates=config_updates)
+            models[random_names[ind]]=model
+            chromosomes[random_names[ind]]=info
+            
+        return models, chromosomes
+    
+    def create_generation(self,params, save_folder,gen, config_updates=None):
+        models={}
+        chromosomes={}
+        for name,param in params.items():
+            wa,w0,wm,d=param
+            group_w=int(random.choice(self.G_OPTIONS))
+            #random_name = generate_slug(2).replace("-", "_")
+            model, info=self.create_model(params=[float(wa),int(w0),float(wm),int(d), int(group_w)],save_folder=save_folder, name=name, gen=gen, config_updates=config_updates)
+            models[name]=model
+            chromosomes[name]=info
+            
+        return models, chromosomes
+    
+    
     def create_random_generation(self, save_folder,gen, size, config_updates=None):
         """
         Creates a random generation of models with specified size and saves them to the specified folder.
@@ -236,13 +279,21 @@ class RegNet:
         chromosomes={}
         #configs={}
         individuals=os.listdir(folder)
-        individuals=[ind for ind in individuals if os.path.isdir(os.path.join(folder, ind))]
+        individuals=[ind for ind in individuals if os.path.isdir(os.path.join(folder, ind)) and ".ipynb" not in ind]
         for ind in individuals:
             ind_config=f"{folder}/{ind}/config.yaml"
             models[ind], chromosomes[ind]=self.load_model(config_file=ind_config, config_updates=config_updates)
         return models,chromosomes
 
-
+    def compare_chromosomes(self, c1, c2):
+        #wa,w0,wm,D
+        max_range=[max(self.WA_OPTIONS), max(self.W0_OPTIONS), max(self.WM_OPTIONS), max(self.D_OPTIONS)]
+        min_range=[min(self.WA_OPTIONS), min(self.W0_OPTIONS),min(self.WM_OPTIONS),min(self.D_OPTIONS)]
+        ranges=np.array(max_range)-np.array(min_range)
+        diff=np.abs(np.array(c1)-np.array(c2))/ranges
+        diff[2]=np.sqrt(diff[2])
+        return diff.mean()
+    
     def _adjust_block_compatibility(self, ws, bs, gs):
         """Adjusts the compatibility of widths, bottlenecks, and groups."""
         assert len(ws) == len(bs) == len(gs)

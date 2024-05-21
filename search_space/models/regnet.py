@@ -10,8 +10,8 @@
 import numpy as np
 import search_space.models.blocks as bk
 from search_space.config import cfg
-from .anynet import AnyNet
-#from .anynet_modified import AnyNet
+#from .anynet import AnyNet
+from .anynet_modified import AnyNet
 
 
 def generate_regnet(w_a, w_0, w_m, d, q=8):
@@ -82,7 +82,8 @@ class RegNet(AnyNet):
             "se_r": cfg.REGNET.SE_R if cfg.REGNET.SE_ON else 0,
             "num_classes": cfg.MODEL.NUM_CLASSES,
             "downsample": cfg.REGNET.DOWNSAMPLE,
-            "drop_path_rate": cfg.REGNET.DROP_RATE
+            "drop_path_rate": cfg.REGNET.DROP_RATE,
+            "dropout_rate": cfg.REGNET.DROPOUT
         }
 
     def __init__(self):

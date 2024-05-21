@@ -130,6 +130,22 @@ from utils.distillers import Vanilla
 from tqdm import tqdm
 from collections import OrderedDict
 import os
+from torch.optim.lr_scheduler import _LRScheduler
+
+
+
+
+class BatchWarmupScheduler(_LRScheduler):
+    def __init__(self, optimizer, warmup_batches, last_epoch=-1):
+        self.warmup_batches = warmup_batches
+        super(BatchWarmupScheduler, self).__init__(optimizer, last_epoch)
+
+    def get_lr(self):
+        if self.last_epoch < self.warmup_batches:
+            warmup_factor = (self.last_epoch + 1) / self.warmup_batches
+            return [base_lr * warmup_factor for base_lr in self.base_lrs]
+        else:
+            return self.base_lrs
 
 
 class TrainerDistillation:
@@ -148,7 +164,7 @@ class TrainerDistillation:
             'time_remaining': The amount of compute time left for your submission
             plus anything else you added in the DataProcessor or NAS classes
     """
-    def __init__(self, model, device, train_dataloader, valid_dataloader, metadata):
+    def __init__(self, model, device, train_dataloader, valid_dataloader, metadata, test_loader=None):
         self.cfg = get_cfg()
         cfg_path=metadata["train_config_path"]
         self.cfg.merge_from_file(cfg_path)
@@ -159,11 +175,16 @@ class TrainerDistillation:
         
         self.device=device
         
-        self.distiller = Vanilla(model) #No distillation at the moment
-        self.distiller= torch.nn.DataParallel(self.distiller.cuda())
+        self.distiller = Vanilla(model, self.cfg.SOLVER.LABEL_SMOOTHING) #No distillation at the moment
+        if torch.cuda.is_available():
+            self.distiller= torch.nn.DataParallel(self.distiller.cuda())
         self.train_loader = train_dataloader
         self.val_loader = valid_dataloader
+        self.test_loader=test_loader
+        
         self.optimizer = self.init_optimizer() #Load from cfg. SGD by default.
+        if self.cfg.SOLVER.WARMUP==True:
+            self.warmup_scheduler = BatchWarmupScheduler(self.optimizer, warmup_batches=int(len(train_dataloader)/2))
         if self.cfg.SOLVER.LR_SCHEDULER=="cosine_annealing":
             self.scheduler = optim.lr_scheduler.CosineAnnealingLR(self.optimizer, T_max=self.cfg.SOLVER.EPOCHS) # CosineAnnealingLR replacing the scheduler defined in the cfg file.
         else:
@@ -179,7 +200,7 @@ class TrainerDistillation:
     def init_optimizer(self):
         if self.cfg.SOLVER.TYPE == "SGD":
             optimizer = optim.SGD(
-                self.distiller.module.get_learnable_parameters(),
+                self.distiller.module.get_learnable_parameters() if torch.cuda.is_available() else self.distiller.get_learnable_parameters(),
                 lr=self.cfg.SOLVER.LR,
                 momentum=self.cfg.SOLVER.MOMENTUM,
                 weight_decay=self.cfg.SOLVER.WEIGHT_DECAY,
@@ -192,7 +213,7 @@ class TrainerDistillation:
         if log_dict["test_acc"] > self.best_acc:
             self.best_acc = log_dict["test_acc"]
         # worklog.txt
-        with open(os.path.join(self.log_path, "worklog.txt"), "a") as writer:
+        with open(os.path.join(self.log_path, "worklog.txt"), "w") as writer:
             lines = [
                 "-" * 25 + os.linesep,
                 "epoch: {}".format(epoch) + os.linesep,
@@ -212,7 +233,7 @@ class TrainerDistillation:
         with open(os.path.join(self.log_path, "worklog.txt"), "a") as writer:
             writer.write("best_acc\t" + "{:.2f}".format(float(self.best_acc)))
         # Return trained student
-        return self.distiller.module.student
+        return self.distiller.module.student if torch.cuda.is_available() else self.distiller.student
 
     def train_epoch(self, epoch):
         #lr = adjust_learning_rate(epoch, self.cfg, self.optimizer)
@@ -236,11 +257,19 @@ class TrainerDistillation:
             msg = self.train_iter(data, epoch, train_meters)
             pbar.set_description(log_msg(msg, "TRAIN"))
             pbar.update()
+            if epoch==1 and self.cfg.SOLVER.WARMUP:
+                self.warmup_scheduler.step()
+                #print(self.optimizer.param_groups[0]['lr'])
         pbar.close()
-        
-        self.scheduler.step()
+        if (epoch>1) or (self.cfg.SOLVER.WARMUP==False):
+            self.scheduler.step()
         # validate
-        test_acc, test_acc_top5, test_loss = validate(self.val_loader, self.distiller, self.cfg.SOLVER.TOPK)
+        if self.test_loader is None:
+            test_acc, test_acc_top5, test_loss = validate(self.val_loader, self.distiller, self.cfg.SOLVER.TOPK)
+        else:      
+            print("Test_accuracy")
+            test_acc, test_acc_top5, test_loss = validate(self.test_loader, self.distiller, self.cfg.SOLVER.TOPK)
+            
 
         # log
         log_dict = OrderedDict(
@@ -257,7 +286,7 @@ class TrainerDistillation:
         self.log(lr, epoch, log_dict)
         # saving checkpoint
 
-        student_state = {"model": self.distiller.module.student.state_dict()}
+        student_state = {"model": self.distiller.module.student.state_dict() if torch.cuda.is_available() else self.distiller.student.state_dict() }
         if test_acc >= self.best_acc:
             #save_checkpoint(state, os.path.join(self.log_path, "best"))
             save_checkpoint(
@@ -270,9 +299,10 @@ class TrainerDistillation:
         image, target = data
         train_meters["data_time"].update(time.time() - train_start_time)
         image = image.float()
-
-        image = image.cuda(non_blocking=True)
-        target = target.cuda(non_blocking=True)
+        
+        if torch.cuda.is_available():
+            image = image.cuda(non_blocking=True)
+            target = target.cuda(non_blocking=True)
 
         # forward
         preds, losses_dict = self.distiller(image=image, target=target, epoch=epoch)
