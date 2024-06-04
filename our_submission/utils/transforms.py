@@ -194,16 +194,22 @@ class RandAugment:
 
 ############################## Transforms by dataset ############################################
 def get_train_transform(metadata):
-    if metadata["rand_augment"]:
-        return [
-            v2.ToPILImage(),
-            v2.RandAugment(1,5),
-            v2.ToTensor()
-        ]
-    else:
-        return [
-            v2.RandomCrop((metadata['input_shape'][2],metadata['input_shape'][3]), padding=4),
-            v2.RandomHorizontalFlip(),
-            #transforms.ToTensor(),
+    try:
+        if metadata["rand_augment"]:
+            return [
+                v2.ToPILImage(),
+                v2.RandAugment(1,5),
+                v2.ToTensor()
             ]
+        else:
+            return [
+                v2.RandomCrop((metadata['input_shape'][2],metadata['input_shape'][3]), padding=4),
+                v2.RandomHorizontalFlip(),
+                #transforms.ToTensor(),
+                ]
+    except:
+        pass
+        # return [
+        #     v2.RandomCrop((metadata['input_shape'][2],metadata['input_shape'][3]), padding=4)
+        #     ]
 

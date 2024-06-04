@@ -32,8 +32,8 @@ class Trainer:
         self.metadata = metadata
 
         # define  training parameters
-        self.epochs = 2
-        self.optimizer = optim.SGD(model.parameters(), lr=.01, momentum=.9, weight_decay=3e-4)
+        self.epochs = 20
+        self.optimizer = optim.SGD(model.parameters(), lr=.025, momentum=.9, weight_decay=3e-4)
         self.criterion = nn.CrossEntropyLoss()
         self.scheduler = optim.lr_scheduler.CosineAnnealingLR(self.optimizer, T_max=self.epochs)
 
@@ -287,11 +287,11 @@ class TrainerDistillation:
         # saving checkpoint
 
         student_state = {"model": self.distiller.module.student.state_dict() if torch.cuda.is_available() else self.distiller.student.state_dict() }
-        if test_acc >= self.best_acc:
-            #save_checkpoint(state, os.path.join(self.log_path, "best"))
-            save_checkpoint(
-                student_state, os.path.join(self.log_path, "student_best")
-            )
+        # if test_acc >= self.best_acc:
+        #     #save_checkpoint(state, os.path.join(self.log_path, "best"))
+        #     save_checkpoint(
+        #         student_state, os.path.join(self.log_path, "student_best")
+        #     )
 
     def train_iter(self, data, epoch, train_meters):
         self.optimizer.zero_grad()
