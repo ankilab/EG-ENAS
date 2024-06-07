@@ -1,0 +1,23 @@
+EXPERIMENT:
+  NAME: ""
+  PROJECT: ""
+DISTILLER:
+  TYPE: "NONE"
+  TEACHER: "NONE"
+  STUDENT: "None"
+SOLVER:
+  BATCH_SIZE: 128
+  EPOCHS: 5
+  #LR: 0.025
+  LR: 1e-4
+  #LR: 0.1
+  LR_SCHEDULER: "cosine_annealing"
+  #LR_SCHEDULER: "one_cycle"
+  WARMUP: False
+  LABEL_SMOOTHING: 0.1
+  #WEIGHT_DECAY: 0.00004
+  WEIGHT_DECAY: 1e-2
+  MOMENTUM: 0.9
+  #TYPE: "SGD"
+  TYPE: "Lion"
+  TOPK: 2
