@@ -42,6 +42,7 @@ class RegNet:
         cfg.merge_from_file(base_config)
         cfg.MODEL.NUM_CLASSES=metadata["num_classes"]
         cfg.REGNET.STEM_W=metadata["input_shape"][-1]
+        cfg.REGNET.INPUT_CHANNELS=metadata["input_shape"][1]
         self.cfg=cfg
         
         self.WA_STEP=WA[2]

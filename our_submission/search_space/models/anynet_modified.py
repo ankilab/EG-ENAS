@@ -403,7 +403,7 @@ class AnyNet(Module):
         p = AnyNet.get_params() if not params else params
         stem_fun = get_stem_fun(p["stem_type"])
         block_fun = get_block_fun(p["block_type"])
-        self.stem = stem_fun(3, p["stem_w"])
+        self.stem = stem_fun(p["input_channels"], p["stem_w"])
         prev_w = p["stem_w"]
         keys = ["depths", "widths", "strides", "bot_muls", "group_ws"]
         for i, (d, w, s, b, g) in enumerate(zip(*[p[k] for k in keys])):

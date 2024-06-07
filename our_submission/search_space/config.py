@@ -49,6 +49,9 @@ _C.REGNET = CfgNode()
 # Stem type
 _C.REGNET.STEM_TYPE = "res_stem_cifar"
 
+# Stem num channels
+_C.REGNET.INPUT_CHANNELS = 3
+
 # Stem width
 _C.REGNET.STEM_W = 32
 

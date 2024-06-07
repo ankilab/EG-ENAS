@@ -72,6 +72,7 @@ class RegNet(AnyNet):
         return {
             "stem_type": cfg.REGNET.STEM_TYPE,
             "stem_w": cfg.REGNET.STEM_W,
+            "input_channels": cfg.REGNET.INPUT_CHANNELS,
             "block_type": cfg.REGNET.BLOCK_TYPE,
             "depths": ds,
             "widths": ws,
