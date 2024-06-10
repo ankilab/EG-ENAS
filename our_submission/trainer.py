@@ -245,7 +245,7 @@ class TrainerDistillation:
             "data_time": AverageMeter(),
             "losses": AverageMeter(),
             "top1": AverageMeter(),
-            "top5": AverageMeter(),
+            "top2": AverageMeter(),
         }
         num_iter = len(self.train_loader)
         pbar = tqdm(range(num_iter))
@@ -265,10 +265,10 @@ class TrainerDistillation:
             self.scheduler.step()
         # validate
         if self.test_loader is None:
-            test_acc, test_acc_top5, test_loss = validate(self.val_loader, self.distiller, self.cfg.SOLVER.TOPK)
+            test_acc, test_acc_top2, test_loss = validate(self.val_loader, self.distiller, self.cfg.SOLVER.TOPK)
         else:      
             print("Test_accuracy")
-            test_acc, test_acc_top5, test_loss = validate(self.test_loader, self.distiller, self.cfg.SOLVER.TOPK)
+            test_acc, test_acc_top2, test_loss = validate(self.test_loader, self.distiller, self.cfg.SOLVER.TOPK)
             
 
         # log
@@ -277,7 +277,7 @@ class TrainerDistillation:
                 "train_acc": train_meters["top1"].avg,
                 "train_loss": train_meters["losses"].avg,
                 "test_acc": test_acc,
-                "test_acc_top5": test_acc_top5,
+                "test_acc_top2": test_acc_top2,
                 "test_loss": test_loss,
                 "epoch_time": time.time()-start_epoch_time,
 
@@ -314,10 +314,12 @@ class TrainerDistillation:
         train_meters["training_time"].update(time.time() - train_start_time)
         # collect info
         batch_size = image.size(0)
+
+        ## TODO: Fix top k here (when there are less classes)
         acc1, acc5 = accuracy(preds, target, topk=(1, self.cfg.SOLVER.TOPK))
         train_meters["losses"].update(loss.cpu().detach().numpy().mean(), batch_size)
         train_meters["top1"].update(acc1[0], batch_size)
-        train_meters["top5"].update(acc5[0], batch_size)
+        train_meters["top2"].update(acc5[0], batch_size)
         # print info
         msg = "Epoch:{}| Time(data):{:.3f}| Time(train):{:.3f}| Loss:{:.4f}| Top-1:{:.3f}| Top-{}:{:.3f}".format(
             epoch,
@@ -326,7 +328,7 @@ class TrainerDistillation:
             train_meters["losses"].avg,
             train_meters["top1"].avg,
             self.cfg.SOLVER.TOPK,
-            train_meters["top5"].avg,
+            train_meters["top2"].avg,
         )
         return msg
 

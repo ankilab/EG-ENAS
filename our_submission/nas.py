@@ -81,6 +81,8 @@ class NAS:
     perform your architecture search. 
     """
     def search(self):
+
+        print("Starting NAS...")
         
         best_params = self._optimize()
         model, model_name = self._generate_model(best_params)
@@ -123,11 +125,12 @@ class NAS:
             writer = csv.writer(csvfile)
             writer.writerow([params, performance])
 
-        return performance
+        # return negative performance because we want to maximize the performance
+        return -performance
         
     
     def _optimize(self):
-        result = gp_minimize(self._evaluate, self.skopt_search_space, n_calls=30, n_random_starts=5, n_jobs=-1)
+        result = gp_minimize(self._evaluate, self.skopt_search_space, n_calls=10, n_random_starts=5, n_jobs=-1)
 
         print("Best Hyperparameters:", result.x)
         print("Best Performance:", result.fun)
