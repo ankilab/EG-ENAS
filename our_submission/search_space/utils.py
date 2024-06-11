@@ -129,7 +129,7 @@ def results_to_df(path, name):
                     data.append(block_data)
                     # Reset block_data for the next block
                     block_data = {}
-            elif 'best_acc' in line:
+            elif 'best_acc' in line or "Total time" in line:
                 continue
             else:
                 # Split the line by ':'

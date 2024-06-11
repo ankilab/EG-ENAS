@@ -68,7 +68,6 @@ class RegNet(AnyNet):
     def get_params():
         """Get AnyNet parameters that correspond to the RegNet."""
         ws, ds, ss, bs, gs = generate_regnet_full()
-        print(cfg.REGNET.BLOCK_TYPE)
         return {
             "stem_type": cfg.REGNET.STEM_TYPE,
             "stem_w": cfg.REGNET.STEM_W,

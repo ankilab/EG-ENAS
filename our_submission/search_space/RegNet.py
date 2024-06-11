@@ -103,16 +103,16 @@ class RegNet:
         
         if cfg.REGNET.WA>cfg.REGNET.W0:
             cfg.REGNET.W0=int(random.choice([option for option in self.W0_OPTIONS if option >= cfg.REGNET.WA]))
-            print("Corrected W0: ", cfg.REGNET.W0)
+            #print("Corrected W0: ", cfg.REGNET.W0)
         
         _, _, num_stages, _,_,_=self._generate_regnet(cfg.REGNET.WA,cfg.REGNET.W0,cfg.REGNET.WM,cfg.REGNET.DEPTH, q=8)         
         i=0
         while num_stages>5:
-            print("Num stages: ", num_stages)
-            print("WM: ",cfg.REGNET.WM)
-            print("DEPTH: ",cfg.REGNET.DEPTH)
-            print("WA: ",cfg.REGNET.WA)
-            print("W0: ",cfg.REGNET.W0)
+            #print("Num stages: ", num_stages)
+            #print("WM: ",cfg.REGNET.WM)
+            #print("DEPTH: ",cfg.REGNET.DEPTH)
+            #print("WA: ",cfg.REGNET.WA)
+            #print("W0: ",cfg.REGNET.W0)
             cfg.REGNET.WM=min(cfg.REGNET.WM+0.1,max(self.WM_OPTIONS))
             cfg.REGNET.DEPTH=max(cfg.REGNET.DEPTH-2,min(self.D_OPTIONS))
             if i==3:
@@ -211,7 +211,7 @@ class RegNet:
         step_size = len(all_combinations) // size
         # Select evenly spaced combinations
         selected_combinations = all_combinations[::step_size][:size]
-        print(selected_combinations)
+        #print(selected_combinations)
         
         random_names=[]
         for ind in range(size):

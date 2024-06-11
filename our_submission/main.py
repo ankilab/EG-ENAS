@@ -103,9 +103,9 @@ if __name__ == '__main__':
 
         # iterate over datasets in the datasets directory
         #for dataset in os.listdir("datasets"):
-        for dataset in ["CIFARTile"]:
+        for dataset in ["Language"]:
             # load and display data info
-            (train_x, train_y), (valid_x, valid_y), (test_x), metadata = load_datasets(dataset, truncate=False)
+            (train_x, train_y), (valid_x, valid_y), (test_x), metadata = load_datasets(dataset, truncate=True)
             metadata['time_remaining'] = runclock.check()
             this_dataset_start_time = time.time()
 

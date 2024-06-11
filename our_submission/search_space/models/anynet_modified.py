@@ -408,11 +408,10 @@ class AnyNet(Module):
         keys = ["depths", "widths", "strides", "bot_muls", "group_ws"]
         for i, (d, w, s, b, g) in enumerate(zip(*[p[k] for k in keys])):
             params = {"bot_mul": b, "group_w": g, "se_r": p["se_r"], "downsample":p["downsample"], "drop_path_rate":p["drop_path_rate"], "dropout_rate":p["dropout_rate"]}
-            print(params)
+
             stage = AnyStage(prev_w, w, s, d, block_fun, params)
             self.add_module("s{}".format(i + 1), stage)
             prev_w = w
-        print(p)
         self.head = AnyHead(prev_w, p["head_w"], p["num_classes"], p["dropout_rate"])
         self.apply(init_weights)
 

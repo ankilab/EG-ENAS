@@ -6,6 +6,8 @@ import numpy as np
 import time
 from IPython.display import clear_output
 import matplotlib.pyplot as plt
+from icecream import ic
+import gc
 
 ######## Search space #########
 from search_space.RegNet import RegNet
@@ -36,12 +38,14 @@ from sklearn.metrics import accuracy_score
 import torch.multiprocessing as mp
 from pynvml import nvmlInit, nvmlDeviceGetHandleByIndex, nvmlDeviceGetMemoryInfo
 nvmlInit()
+SUBMISSION_PATH="our_submission"
 
+SAVE_PATH=f"{os.getenv('WORK')}/NAS_COMPETITION_RESULTS"
 
 def get_gpu_memory(gpu_id):
     handle = nvmlDeviceGetHandleByIndex(gpu_id)
     info = nvmlDeviceGetMemoryInfo(handle)
-    print(f"Gpu free memory: {info.free / (1024 ** 3):.3f} GB")
+    
     return info.free
 
 class NAS:
@@ -52,27 +56,27 @@ class NAS:
                     W0=[16, 96, 8],
                     WA=[16, 64, 8],
                     WM=[2.05,2.9,0.05],
-                    D=[8,18,1], 
+                    D=[8,20,1], 
                     G=[8,8,8], 
-                    base_config="configs/search_space/config.yaml")
+                    base_config=f"{SUBMISSION_PATH}/configs/search_space/config.yaml")
         current_date= datetime.now().strftime("%d_%m_%Y_%H_%M")
         
         self.metadata=metadata
-        self.metadata["train_config_path"]="configs/train/vanilla_generation_lion.yaml"
+        self.metadata["train_config_path"]=f"{SUBMISSION_PATH}/configs/train/vanilla_generation_adam.yaml"
         self.metadata["mode"]="NAS"
         
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.train_loader=train_loader
         self.valid_loader=valid_loader
-        self.ENAS=False
-        self.multiprocessing=True
+        self.ENAS=True
+        self.multiprocessing=False
         self.population_size=20
-        self.total_generations=4
+        self.total_generations=1
         self.num_best_parents=5
         self.sim_threshold=0.1
         
         
-        self.test_folder=f"tests/tests_{metadata["codename"]}_{current_date}"
+        self.test_folder=f"{SAVE_PATH}/tests_{metadata["codename"]}_{current_date}"
         self.current_gen=1
 
         self.weights_pool={}
@@ -108,12 +112,12 @@ class NAS:
 
             else:
                 if self.current_gen==1:
-                #    models, chromosomes=self.regnet_space.create_first_generation(save_folder=self.test_folder,gen=self.current_gen, size=self.population_size, config_updates=None)
-                     models, chromosomes= self.regnet_space.create_random_generation( 
-                                                                                        save_folder=self.test_folder,
-                                                                                        gen=self.current_gen,
-                                                                                        size=self.population_size,
-                                                                                        config_updates=None)
+                    models, chromosomes=self.regnet_space.create_first_generation(save_folder=self.test_folder,gen=self.current_gen, size=self.population_size, config_updates=None)
+                     #models, chromosomes= self.regnet_space.create_random_generation( 
+                     #                                                                   save_folder=self.test_folder,
+                     #                                                                   gen=self.current_gen,
+                     #                                                                   size=self.population_size,
+                     #                                                                   config_updates=None)
                 else:
                     #self.metadata["train_cfg_update"]=["EPOCHS",5]
                     offsprings_chromosomes=self.breeding(self.best_parents, self.population_size)
@@ -138,16 +142,25 @@ class NAS:
             self.sim_threshold=self.sim_threshold-0.01
             
         self.export_results()
-        return self.best_model
+        
+        #        self.best_model={"score": 0,
+        #                "model_path": None,
+        #                "name": "",
+        #                "gen":0}
+        weights_file=self.best_model["model_path"]
+        ind_path = weights_file.rfind('/')
+        config_file = input_string[:int_path]
+        best_model,info=elf.regnet_space.load_model(config_file=f"{config_file}/config.yaml",
+                                           weights_file=weights_file)
+        return best_model
     
-    def train_mp(self,models,student):
+    def train_mp(self,model,student):
         
         clear_output(wait=True)
         self.metadata["experiment_name"]=f"{self.test_folder}/Generation_{self.current_gen}/{student}"
-        trainer=TrainerDistillation(models[student], self.device, self.train_loader, self.valid_loader, self.metadata) 
+        trainer=TrainerDistillation(model, self.device, self.train_loader, self.valid_loader, self.metadata) 
         trainer.train()
         torch.cuda.empty_cache()
-        del trainer, train_loader, valid_loader, metadata, model, device
         gc.collect()
         
     def train_generation(self,models,chromosomes):
@@ -184,11 +197,13 @@ class NAS:
                 self.metadata["experiment_name"]=f"{self.test_folder}/Generation_{self.current_gen}/{student}"
                 trainer=TrainerDistillation(models[student], self.device, self.train_loader, self.valid_loader, self.metadata) 
                 trainer.train()
+                torch.cuda.empty_cache()
+                gc.collect()
         else:
                 mp.set_start_method('spawn')
                 next_process_index = 0
                 ic("initial memory")
-                get_gpu_memory(0)
+                print(f"Gpu free memory: {get_gpu_memory(0) / (1024 ** 3):.3f} GB")
                 required_memory= 2*2 ** 30
                 self.total_time=time.time()-self.current_time+self.total_time
                 self.current_time=time.time()
@@ -204,18 +219,18 @@ class NAS:
                         sleep_time=10
 
                     available_memory = get_gpu_memory(0)
-                    student=names_list[next_process_index]
+                    student=models_names[next_process_index]
 
                     if (next_process_index < total_processes_to_run) and available_memory>required_memory:
-                        p = mp.Process(target=self.train_mp, args=(models,student))
+                        p = mp.Process(target=self.train_mp, args=(models[student],student))
                         p.start()
                         processes.append(p)
                         next_process_index += 1
+                        print(f"Gpu free memory: {available_memory / (1024 ** 3):.3f} GB")
                         ic(next_process_index)
                         ic(student)
 
                     time.sleep(sleep_time)  # Sleep for a while before checking again
-                    ic(len(processes))
 
 
                 get_gpu_memory(0)
@@ -300,29 +315,29 @@ class NAS:
         min_range=[min(self.regnet_space.WA_OPTIONS),min(self.regnet_space.W0_OPTIONS),min(self.regnet_space.WM_OPTIONS),min(self.regnet_space.D_OPTIONS)]
         wa,w0,wm,d=chrom
         
-        dwa=random.choice([-1,0,1,1])*dwa
+        dwa=random.choice([-1,0,1])*dwa
         wa=wa+dwa
         wa=max(wa,min_range[0])
         wa=min(wa,max_range[0]+16)
 
-        dw0=random.choice([-1,0,1,2])*dw0
+        dw0=random.choice([-1,0,1])*dw0
         w0=w0+dw0
         w0=max(w0,min_range[1])
         
         #while wm>=min_range[2] and wm<=max_range[2]:
-        dwm=random.choice([-1,0,1,1])*dwm
+        dwm=random.choice([-1,0,1])*dwm
         wm=wm+dwm
         wm=max(wm,min_range[2])
         wm=min(wm,max_range[2]+0.1)
         
         #while d>=min_range[3] and d<=max_range[3]:
-        dd=random.choice([-1,-1,0,1])*dd
+        dd=random.choice([-1,0,1])*dd
         d=d+dd
         d=max(d,min_range[3])
         d=min(d,max_range[3])
        
         if w0<wa:
-            w0=int(random.choice([option for option in list(self.regnet_space.W0_OPTIONS)+[72,80,88,96] if option >= wa]))
+            w0=int(random.choice([option for option in list(self.regnet_space.W0_OPTIONS) if option >= wa]))
 
         return [wa,w0,wm,d]
 
@@ -356,6 +371,7 @@ class NAS:
         log["best_model"]=self.best_model
         log["best_models_info"]=self.best_models_info.to_json()
         log["best_parents"]=self.best_parents.to_json()
+        log["sim_threshold"]=self.sim_threshold
     
         parents_df=pd.DataFrame(self.parents)
         log["parents"]=self.parents
@@ -377,6 +393,7 @@ class NAS:
         self.old_chromosomes=log["old_chromosomes"]
         self.best_parents=log["best_parents"]
         self.parents=log["parents"]
+        self.sim_threshold=log["sim_threshold"]
 
     def export_results(self):
         results_file={}
@@ -385,7 +402,7 @@ class NAS:
         results_file["results"]=[]
         results_file["parents"]=[]
 
-        for gen in range(1,self.current_gen+1):
+        for gen in range(1,self.current_gen):
             print(gen)
             with open(f"{self.test_folder}/Generation_{gen}/corr.txt", 'r') as file:
                 content = file.read()

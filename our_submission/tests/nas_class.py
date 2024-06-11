@@ -1,3 +1,10 @@
+
+def get_gpu_memory(gpu_id):
+    handle = nvmlDeviceGetHandleByIndex(gpu_id)
+    info = nvmlDeviceGetMemoryInfo(handle)
+    
+    return info.free
+
 class NAS:
     def __init__(self, train_loader, valid_loader, metadata,resume_from=None):
         
@@ -8,24 +15,24 @@ class NAS:
                     WM=[2.05,2.9,0.05],
                     D=[8,18,1], 
                     G=[8,8,8], 
-                    base_config="../configs/search_space/config.yaml")
+                    base_config=f"../configs/search_space/config.yaml")
         current_date= datetime.now().strftime("%d_%m_%Y_%H_%M")
         
         self.metadata=metadata
-        self.metadata["train_config_path"]="../configs/train/vanilla_generation_lion.yaml"
+        self.metadata["train_config_path"]=f"../configs/train/vanilla_generation_lion.yaml"
         self.metadata["mode"]="NAS"
         
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.train_loader=train_loader
         self.valid_loader=valid_loader
         self.ENAS=True
+        self.multiprocessing=False
         self.population_size=20
-        self.total_generations=4
+        self.total_generations=5
         self.num_best_parents=5
         self.sim_threshold=0.1
         
         
-
         self.test_folder=f"tests_{metadata["codename"]}_{current_date}"
         self.current_gen=1
 
@@ -62,12 +69,12 @@ class NAS:
 
             else:
                 if self.current_gen==1:
-                #    models, chromosomes=self.regnet_space.create_first_generation(save_folder=self.test_folder,gen=self.current_gen, size=self.population_size, config_updates=None)
-                     models, chromosomes= self.regnet_space.create_random_generation( 
-                                                                                        save_folder=self.test_folder,
-                                                                                        gen=self.current_gen,
-                                                                                        size=self.population_size,
-                                                                                        config_updates=None)
+                    models, chromosomes=self.regnet_space.create_first_generation(save_folder=self.test_folder,gen=self.current_gen, size=self.population_size, config_updates=None)
+                     #models, chromosomes= self.regnet_space.create_random_generation( 
+                     #                                                                   save_folder=self.test_folder,
+                     #                                                                   gen=self.current_gen,
+                     #                                                                   size=self.population_size,
+                     #                                                                   config_updates=None)
                 else:
                     #self.metadata["train_cfg_update"]=["EPOCHS",5]
                     offsprings_chromosomes=self.breeding(self.best_parents, self.population_size)
@@ -88,12 +95,22 @@ class NAS:
             generation_df, corr=self.train_generation(models, chromosomes)
             self.best_parents=self.selection(generation_df)
             self._save_backup()
-            self.current_gen+=1
+            if self.current_gen<self.total_generations:
+                self.current_gen+=1
             self.sim_threshold=self.sim_threshold-0.01
             
         self.export_results()
         return self.best_model
     
+    def train_mp(self,model,student):
+        
+        clear_output(wait=True)
+        self.metadata["experiment_name"]=f"{self.test_folder}/Generation_{self.current_gen}/{student}"
+        trainer=TrainerDistillation(model, self.device, self.train_loader, self.valid_loader, self.metadata) 
+        trainer.train()
+        torch.cuda.empty_cache()
+        gc.collect()
+        
     def train_generation(self,models,chromosomes):
         
         train_cfg=get_cfg()
@@ -113,26 +130,72 @@ class NAS:
                  self.resume=False
             else:
                 models_names=[]
-        for student in models_names:
-            clear_output(wait=True)
-            print(student)
+                
+        
+        if not self.multiprocessing:
+            for student in models_names:
+                clear_output(wait=True)
+                print(student)
+
+                self.total_time=time.time()-self.current_time+self.total_time
+                self.current_time=time.time()
+                with open(f"{self.test_folder}/log.json", 'w') as json_file:
+                  json.dump({"state":"train","generation":self.current_gen,"current_model":student,"total_time":self.total_time},json_file )
+
+                self.metadata["experiment_name"]=f"{self.test_folder}/Generation_{self.current_gen}/{student}"
+                trainer=TrainerDistillation(models[student], self.device, self.train_loader, self.valid_loader, self.metadata) 
+                trainer.train()
+                torch.cuda.empty_cache()
+                gc.collect()
+        else:
+                mp.set_start_method('spawn')
+                next_process_index = 0
+                ic("initial memory")
+                print(f"Gpu free memory: {get_gpu_memory(0) / (1024 ** 3):.3f} GB")
+                required_memory= 2*2 ** 30
+                self.total_time=time.time()-self.current_time+self.total_time
+                self.current_time=time.time()
+                with open(f"{self.test_folder}/log.json", 'w') as json_file:
+                  json.dump({"state":"train","generation":self.current_gen,"current_model":models_names[0],"total_time":self.total_time},json_file )
+
+                processes = []
+                total_processes_to_run=len(models_names)
+                while next_process_index < total_processes_to_run:#or any(p.is_alive() for p in processes):
+                    if next_process_index<5:
+                        sleep_time=2
+                    else:
+                        sleep_time=10
+
+                    available_memory = get_gpu_memory(0)
+                    student=models_names[next_process_index]
+
+                    if (next_process_index < total_processes_to_run) and available_memory>required_memory:
+                        p = mp.Process(target=self.train_mp, args=(models[student],student))
+                        p.start()
+                        processes.append(p)
+                        next_process_index += 1
+                        print(f"Gpu free memory: {available_memory / (1024 ** 3):.3f} GB")
+                        ic(next_process_index)
+                        ic(student)
+
+                    time.sleep(sleep_time)  # Sleep for a while before checking again
+
+
+                get_gpu_memory(0)
+                for p in processes:
+                    p.join()
             
-            self.total_time=time.time()-self.current_time+self.total_time
-            self.current_time=time.time()
-            with open(f"{self.test_folder}/log.json", 'w') as json_file:
-              json.dump({"state":"train","generation":self.current_gen,"current_model":student,"total_time":self.total_time},json_file )
-            
-            self.metadata["experiment_name"]=f"{self.test_folder}/Generation_{self.current_gen}/{student}"
-            trainer=TrainerDistillation(models[student], self.device, self.train_loader, self.valid_loader, self.metadata) 
-            trainer.train()
 
         self.total_time=time.time()-self.current_time+self.total_time
         self.current_time=time.time()
         with open(f"{self.test_folder}/log.json", 'w') as json_file:
             json.dump({"current_model":"", "generation":self.current_gen, "total_time":self.total_time},json_file )
-
-        return get_generation_dfs(f"{self.test_folder}/Generation_{self.current_gen}", corr=True, chromosomes=chromosomes, save=True)
         
+        if models_names is not None:
+            return get_generation_dfs(f"{self.test_folder}/Generation_{self.current_gen}", corr=True, chromosomes=chromosomes, save=True)
+        else:
+            return get_generation_dfs(f"{self.test_folder}/Generation_{self.current_gen}", corr=False, chromosomes=chromosomes, save=False)
+
     def selection(self,df):
         df=df.sort_values("best_acc", ascending=False)
         self.old_chromosomes=self.old_chromosomes+df[["WA","W0","WM","DEPTH"]].values.tolist()
@@ -200,29 +263,29 @@ class NAS:
         min_range=[min(self.regnet_space.WA_OPTIONS),min(self.regnet_space.W0_OPTIONS),min(self.regnet_space.WM_OPTIONS),min(self.regnet_space.D_OPTIONS)]
         wa,w0,wm,d=chrom
         
-        dwa=random.choice([-1,0,1,1])*dwa
+        dwa=random.choice([-1,0,1])*dwa
         wa=wa+dwa
         wa=max(wa,min_range[0])
         wa=min(wa,max_range[0]+16)
 
-        dw0=random.choice([-1,0,1,2])*dw0
+        dw0=random.choice([-1,0,1])*dw0
         w0=w0+dw0
         w0=max(w0,min_range[1])
         
         #while wm>=min_range[2] and wm<=max_range[2]:
-        dwm=random.choice([-1,0,1,1])*dwm
+        dwm=random.choice([-1,0,1])*dwm
         wm=wm+dwm
         wm=max(wm,min_range[2])
         wm=min(wm,max_range[2]+0.1)
         
         #while d>=min_range[3] and d<=max_range[3]:
-        dd=random.choice([-1,-1,0,1])*dd
+        dd=random.choice([-1,0,1])*dd
         d=d+dd
         d=max(d,min_range[3])
         d=min(d,max_range[3])
        
         if w0<wa:
-            w0=int(random.choice([option for option in list(self.regnet_space.W0_OPTIONS)+[72,80,88,96] if option >= wa]))
+            w0=int(random.choice([option for option in list(self.regnet_space.W0_OPTIONS) if option >= wa]))
 
         return [wa,w0,wm,d]
 
@@ -256,6 +319,7 @@ class NAS:
         log["best_model"]=self.best_model
         log["best_models_info"]=self.best_models_info.to_json()
         log["best_parents"]=self.best_parents.to_json()
+        log["sim_threshold"]=self.sim_threshold
     
         parents_df=pd.DataFrame(self.parents)
         log["parents"]=self.parents
@@ -277,6 +341,7 @@ class NAS:
         self.old_chromosomes=log["old_chromosomes"]
         self.best_parents=log["best_parents"]
         self.parents=log["parents"]
+        #self.sim_threshold=log["sim_threshold"]
 
     def export_results(self):
         results_file={}
@@ -314,4 +379,3 @@ class NAS:
                 json.dump(results_file, json_file)
         
         
-

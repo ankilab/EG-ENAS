@@ -8,9 +8,12 @@ import torch.nn as nn
 from helpers import show_time
 #from lion_pytorch import Lion
 from helpers import Lion
+from torch.optim.swa_utils import AveragedModel, SWALR
 
+            
 
-class Trainer:
+class TrainerBase:   
+    
     """
     ====================================================================================================================
     INIT ===============================================================================================================
@@ -188,9 +191,14 @@ class TrainerDistillation:
         if self.cfg.SOLVER.WARMUP==True:
             self.warmup_scheduler = BatchWarmupScheduler(self.optimizer, warmup_batches=int(len(train_dataloader)/2))
         if self.cfg.SOLVER.LR_SCHEDULER=="cosine_annealing":
-            self.scheduler = optim.lr_scheduler.CosineAnnealingLR(self.optimizer, T_max=self.cfg.SOLVER.EPOCHS) # CosineAnnealingLR replacing the scheduler defined in the cfg file.
+            self.scheduler = optim.lr_scheduler.CosineAnnealingLR(self.optimizer, T_max=self.cfg.SOLVER.EPOCHS, eta_min=self.cfg.SOLVER.MIN_LR) # CosineAnnealingLR replacing the scheduler defined in the cfg file.
         elif self.cfg.SOLVER.LR_SCHEDULER=="one_cycle":
-            self.scheduler = torch.optim.lr_scheduler.OneCycleLR(self.optimizer, max_lr=self.cfg.SOLVER.LR, steps_per_epoch=len(self.train_loader), epochs=self.cfg.SOLVER.EPOCHS)
+            print(self.cfg.SOLVER.LR)
+            print(len(self.train_loader))
+            print(self.cfg.SOLVER.EPOCHS)
+            self.scheduler = optim.lr_scheduler.OneCycleLR(self.optimizer, max_lr=self.cfg.SOLVER.LR, steps_per_epoch=len(self.train_loader), epochs=self.cfg.SOLVER.EPOCHS)
+        elif self.cfg.SOLVER.LR_SCHEDULER=="step":
+            self.scheduler = optim.lr_scheduler.StepLR(self.optimizer, step_size=1, gamma=0.5)
         else:
             raise NotImplementedError(self.cfg.SOLVER.LR_SCHEDULER)
         self.best_acc = -1
@@ -212,7 +220,7 @@ class TrainerDistillation:
         elif self.cfg.SOLVER.TYPE=="Lion":
             optimizer= Lion(self.distiller.module.get_learnable_parameters() if torch.cuda.is_available() else self.distiller.get_learnable_parameters(), lr=self.cfg.SOLVER.LR, betas=(0.9, 0.99), weight_decay=self.cfg.SOLVER.WEIGHT_DECAY)
         elif self.cfg.SOLVER.TYPE=="Adam":
-            optimizer=optim.Adam(self.distiller.module.get_learnable_parameters() if torch.cuda.is_available() else self.distiller.get_learnable_parameters(), lr=self.cfg.SOLVER.LR, betas=(0.9, 0.999), eps=1e-08, weight_decay=self.cfg.SOLVER.WEIGHT_DECAY)
+            optimizer=optim.AdamW(self.distiller.module.get_learnable_parameters() if torch.cuda.is_available() else self.distiller.get_learnable_parameters(), lr=self.cfg.SOLVER.LR, betas=(0.9, 0.999), eps=1e-08, weight_decay=self.cfg.SOLVER.WEIGHT_DECAY)
         else:
             raise NotImplementedError(self.cfg.SOLVER.TYPE)
         return optimizer
@@ -234,13 +242,16 @@ class TrainerDistillation:
 
     def train(self, resume=False):
         epoch = 1
+        start_time=time.time()
         while epoch < self.cfg.SOLVER.EPOCHS + 1:
             self.train_epoch(epoch)
             epoch += 1
         print(log_msg("Best accuracy:{}".format(self.best_acc), "EVAL"))
         with open(os.path.join(self.log_path, "worklog.txt"), "a") as writer:
             writer.write("best_acc\t" + "{:.2f}".format(float(self.best_acc)))
-        # Return trained student
+        with open(os.path.join(self.log_path, "worklog.txt"), "a") as writer:
+            writer.write("Total time\t" + "{:.2f}".format(float(time.time()-start_time)))
+          # Return trained student
         return self.distiller.module.student if torch.cuda.is_available() else self.distiller.student
 
     def train_epoch(self, epoch):
@@ -360,3 +371,98 @@ class TrainerDistillation:
             output = self.distiller.forward(image=data)
             predictions += torch.argmax(output, 1).detach().cpu().tolist()
         return predictions
+    
+##############################################################
+    
+
+class Trainer(TrainerDistillation):
+    def __init__(self, model, device, train_dataloader, valid_dataloader, metadata):
+        super().__init__(model, device, train_dataloader, valid_dataloader, metadata)
+
+        self.swa_model = torch.optim.swa_utils.AveragedModel(self.distiller.module.student)
+        self.swa_start =self.cfg.SOLVER.SWA_START
+        self.swa_scheduler = SWALR(self.optimizer, swa_lr=self.cfg.SOLVER.LR)
+        self.ema_model = torch.optim.swa_utils.AveragedModel(self.distiller.module.student, \
+                     multi_avg_fn=torch.optim.swa_utils.get_ema_multi_avg_fn(0.9))
+    
+    def train(self, resume=False):
+        epoch = 1
+        start_time=time.time()
+        while epoch < self.cfg.SOLVER.EPOCHS + 1:
+            self.train_epoch(epoch)
+            epoch += 1
+        torch.optim.swa_utils.update_bn(self.train_loader, self.swa_model, self.device)
+        torch.optim.swa_utils.update_bn(self.train_loader, self.ema_model, self.device)
+        print(log_msg("Best accuracy:{}".format(self.best_acc), "EVAL"))
+        with open(os.path.join(self.log_path, "worklog.txt"), "a") as writer:
+            writer.write("best_acc\t" + "{:.2f}".format(float(self.best_acc)))
+        with open(os.path.join(self.log_path, "worklog.txt"), "a") as writer:
+            writer.write("Total time\t" + "{:.2f}".format(float(time.time()-start_time)))
+        # Return trained student
+        return self.distiller.module.student if torch.cuda.is_available() else self.distiller.student
+
+    def train_epoch(self, epoch):
+        #lr = adjust_learning_rate(epoch, self.cfg, self.optimizer)
+        
+        lr = self.optimizer.param_groups[0]['lr']
+        
+        train_meters = {
+            "training_time": AverageMeter(),
+            "data_time": AverageMeter(),
+            "losses": AverageMeter(),
+            "top1": AverageMeter(),
+            "top5": AverageMeter(),
+        }
+        num_iter = len(self.train_loader)
+        pbar = tqdm(range(num_iter))
+
+        # train loops
+        start_epoch_time=time.time()
+        self.distiller.train()
+        for idx, data in enumerate(self.train_loader):
+            msg = self.train_iter(data, epoch, train_meters)
+            pbar.set_description(log_msg(msg, "TRAIN"))
+            pbar.update()
+            if epoch==1 and self.cfg.SOLVER.WARMUP:
+                self.warmup_scheduler.step()
+                #print(self.optimizer.param_groups[0]['lr'])
+            # EMA update logic
+            self.ema_model.update_parameters(self.distiller.module.student)
+                
+        pbar.close()
+        
+        if (epoch > 1) or (self.cfg.SOLVER.WARMUP == False):
+            self.scheduler.step()
+        
+        # SWA update logic
+        if epoch > self.swa_start:
+            self.swa_model.update_parameters(self.distiller.module.student)
+            self.swa_scheduler.step()
+        
+
+
+        # validate
+        if self.test_loader is None:
+            test_acc, test_acc_top5, test_loss = validate(self.val_loader, self.distiller, self.cfg.SOLVER.TOPK)
+        else:      
+            print("Test_accuracy")
+            test_acc, test_acc_top5, test_loss = validate(self.test_loader, self.distiller, self.cfg.SOLVER.TOPK)
+            
+
+        # log
+        log_dict = OrderedDict(
+            {
+                "train_acc": train_meters["top1"].avg,
+                "train_loss": train_meters["losses"].avg,
+                "test_acc": test_acc,
+                "test_acc_top5": test_acc_top5,
+                "test_loss": test_loss,
+                "epoch_time": time.time()-start_epoch_time,
+            }
+        )
+        self.log(lr, epoch, log_dict)
+        
+        # saving checkpoint
+        student_state = {"model": self.distiller.module.student.state_dict() if torch.cuda.is_available() else self.distiller.student.state_dict() }
+        if test_acc >= self.best_acc:
+            save_checkpoint(student_state, os.path.join(self.log_path, "student_best"))            
