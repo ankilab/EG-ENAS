@@ -154,15 +154,16 @@ def results_to_df(path, name):
     
     return df
 
-def get_generation_dfs(folder, corr=False, chromosomes=None, save=False):
+def get_generation_dfs(folder, corr=False, chromosomes=None, save=False, gen=None):
     students=os.listdir(folder)
-    print(students)
     sudents=[student for student in students if "ipynb_checkpoints" not in student]
+    print(students)
     students_df=[]
     for student in students:
         try:
             students_df.append(results_to_df(f"{folder}/{student}/worklog.txt", student))
         except:
+            print("Error with student: ",student)
             pass
     epochs=len(students_df[0])
     students_df=pd.concat(students_df, ignore_index=True)
@@ -183,18 +184,26 @@ def get_generation_dfs(folder, corr=False, chromosomes=None, save=False):
     
     corr_coeff_vainilla=[]
     if corr:
-        for epoch in vainilla_students:
-            correlation_coefficient =np.corrcoef(list(epoch['test_acc'].values),list(sorted_df['best_acc'].values))
-            corr_coeff_vainilla.append(correlation_coefficient[0,1])
-            
+        try:
+            for epoch in vainilla_students:
+                correlation_coefficient =np.corrcoef(list(epoch['test_acc'].values),list(sorted_df['best_acc'].values))
+                corr_coeff_vainilla.append(correlation_coefficient[0,1])
+        except:
+                corr_coeff_vainilla=[]
+                print("Error with correlations")
+                pass
+                
     if chromosomes is not None:
         chromosomes_df=pd.DataFrame(chromosomes).T.reset_index().rename(columns={"index":"name"})
         sorted_df=pd.merge(chromosomes_df[['name', 'ws', 'ds', 'num_stages', 'params','WA', 'W0', 'WM', 'DEPTH', 'GROUP_W']],sorted_df, on="name", how="left")
-        
+    if gen is not None:
+        sorted_df["Generation"]=gen
+        sorted_df.set_index("Generation", inplace=True)        
     if save:
         sorted_df.to_csv(f"{folder}/results.csv")
         with open(f"{folder}/corr.txt", 'a') as file:
            file.write(str(corr_coeff_vainilla))
+
     return sorted_df, corr_coeff_vainilla
 
         

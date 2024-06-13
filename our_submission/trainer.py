@@ -1,124 +1,18 @@
 import time
 from sklearn.metrics import accuracy_score
-
+import os
 import torch
 from torch import optim
 import torch.nn as nn
-
+from icecream import ic
 from helpers import show_time
+from datetime import datetime
 #from lion_pytorch import Lion
 from helpers import Lion
 from torch.optim.swa_utils import AveragedModel, SWALR
 
             
 
-class TrainerBase:   
-    
-    """
-    ====================================================================================================================
-    INIT ===============================================================================================================
-    ====================================================================================================================
-    The Trainer class will receive the following inputs
-        * model: The model returned by your NAS class
-        * train_loader: The train loader created by your DataProcessor
-        * valid_loader: The valid loader created by your DataProcessor
-        * metadata: A dictionary with information about this dataset, with the following keys:
-            'num_classes' : The number of output classes in the classification problem
-            'codename' : A unique string that represents this dataset
-            'input_shape': A tuple describing [n_total_datapoints, channel, height, width] of the input data
-            'time_remaining': The amount of compute time left for your submission
-            plus anything else you added in the DataProcessor or NAS classes
-    """
-    def __init__(self, model, device, train_dataloader, valid_dataloader, metadata):
-        self.model = model
-        self.device = device
-        self.train_dataloader = train_dataloader
-        self.valid_dataloader = valid_dataloader
-        self.metadata = metadata
-
-        # define  training parameters
-        self.epochs = 2
-        self.optimizer = optim.SGD(model.parameters(), lr=.01, momentum=.9, weight_decay=3e-4)
-        self.criterion = nn.CrossEntropyLoss()
-        self.scheduler = optim.lr_scheduler.CosineAnnealingLR(self.optimizer, T_max=self.epochs)
-
-    """
-    ====================================================================================================================
-    TRAIN ==============================================================================================================
-    ====================================================================================================================
-    The train function will define how your model is trained on the train_dataloader.
-    Output: Your *fully trained* model
-    
-    See the example submission for how this should look
-    """
-    def train(self):
-        if torch.cuda.is_available():
-            self.model.cuda()
-        t_start = time.time()
-        for epoch in range(self.epochs):
-            print(self.optimizer.param_groups[0]['lr'])
-            self.model.train()
-            labels, predictions = [], []
-            for data, target in self.train_dataloader:
-                data, target = data.to(self.device), target.to(self.device)
-                self.optimizer.zero_grad()
-                output = self.model.forward(data)
-
-                # store labels and predictions to compute accuracy
-                labels += target.cpu().tolist()
-                predictions += torch.argmax(output, 1).detach().cpu().tolist()
-
-                loss = self.criterion(output, target)
-                loss.backward()
-                self.optimizer.step()
-            self.scheduler.step()
-
-            train_acc = accuracy_score(labels, predictions)
-            valid_acc = self.evaluate()
-            print("\tEpoch {:>3}/{:<3} | Train Acc: {:>6.2f}% | Valid Acc: {:>6.2f}% | T/Epoch: {:<7} |".format(
-                epoch + 1, self.epochs,
-                train_acc * 100, valid_acc * 100,
-                show_time((time.time() - t_start) / (epoch + 1))
-            ))
-        print("  Total runtime: {}".format(show_time(time.time() - t_start)))
-        return self.model
-
-    # print out the model's accuracy over the valid dataset
-    # (this isn't necessary for a submission, but I like it for my training logs)
-    def evaluate(self):
-        self.model.eval()
-        labels, predictions = [], []
-        for data, target in self.valid_dataloader:
-            data = data.to(self.device)
-            output = self.model.forward(data)
-            labels += target.cpu().tolist()
-            predictions += torch.argmax(output, 1).detach().cpu().tolist()
-        return accuracy_score(labels, predictions)
-
-
-    """
-    ====================================================================================================================
-    PREDICT ============================================================================================================
-    ====================================================================================================================
-    The prediction function will define how the test dataloader will be passed through your model. It will receive:
-        * test_dataloader created by your DataProcessor
-    
-    And expects as output:
-        A list/array of predicted class labels of length=n_test_datapoints, i.e, something like [0, 0, 1, 5, ..., 9] 
-    
-    See the example submission for how this should look.
-    """
-
-    def predict(self, test_loader):
-        self.model.eval()
-        predictions = []
-        for data in test_loader:
-            data = data.to(self.device)
-            output = self.model.forward(data)
-            predictions += torch.argmax(output, 1).detach().cpu().tolist()
-        return predictions
-    
-    
 #######################################################################
 
 from utils.train_cfg import (
@@ -152,7 +46,7 @@ class BatchWarmupScheduler(_LRScheduler):
         else:
             return self.base_lrs
 
-
+SUBMISSION_PATH="our_submission"
 class TrainerDistillation:
     """
     ====================================================================================================================
@@ -171,12 +65,19 @@ class TrainerDistillation:
     """
     def __init__(self, model, device, train_dataloader, valid_dataloader, metadata, test_loader=None):
         self.cfg = get_cfg()
-        cfg_path=metadata["train_config_path"]
+        for key in metadata.keys():
+            if "train_config_path" in key:
+                cfg_path=metadata["train_config_path"]
+                break
+            else:
+                cfg_path=f"{SUBMISSION_PATH}/configs/train/finetuning_generation_adam.yaml"
         self.cfg.merge_from_file(cfg_path)
         self.cfg.DATASET.TYPE=metadata["codename"]
         self.cfg.DATASET.CLASSES=metadata["num_classes"]
         self.cfg.DATASET.INPUT_SHAPE=metadata["input_shape"]
-        self.cfg.EXPERIMENT.NAME=metadata["experiment_name"]
+        for key in metadata.keys():
+            if "experiment_name" in key:
+                self.cfg.EXPERIMENT.NAME=metadata["experiment_name"]
         
         self.device=device
         
@@ -204,7 +105,9 @@ class TrainerDistillation:
         self.best_acc = -1
 
         # init loggers
-        self.log_path=metadata["experiment_name"] # Folder to save the training results. Passed in the metadata from NAS file.
+        for key in metadata.keys():
+            if "experiment_name" in key:
+                self.log_path=metadata["experiment_name"] # Folder to save the training results. Passed in the metadata from NAS file.
         if not os.path.exists(self.log_path):
             os.makedirs(self.log_path)
 
@@ -267,26 +170,26 @@ class TrainerDistillation:
             "top5": AverageMeter(),
         }
         num_iter = len(self.train_loader)
-        pbar = tqdm(range(num_iter))
+        #pbar = tqdm(range(num_iter))
 
         # train loops
         start_epoch_time=time.time()
         self.distiller.train()
         for idx, data in enumerate(self.train_loader):
             msg = self.train_iter(data, epoch, train_meters)
-            pbar.set_description(log_msg(msg, "TRAIN"))
-            pbar.update()
+        #    pbar.set_description(log_msg(msg, "TRAIN"))
+        #    pbar.update()
             if epoch==1 and self.cfg.SOLVER.WARMUP:
                 self.warmup_scheduler.step()
                 #print(self.optimizer.param_groups[0]['lr'])
-        pbar.close()
+        #pbar.close()
         if (epoch>1) or (self.cfg.SOLVER.WARMUP==False):
             self.scheduler.step()
         # validate
         if self.test_loader is None:
             test_acc, test_acc_top5, test_loss = validate(self.val_loader, self.distiller, self.cfg.SOLVER.TOPK)
         else:      
-            print("Test_accuracy")
+            #print("Test_accuracy")
             test_acc, test_acc_top5, test_loss = validate(self.test_loader, self.distiller, self.cfg.SOLVER.TOPK)
             
 
@@ -373,15 +276,33 @@ class TrainerDistillation:
         return predictions
     
 ##############################################################
-    
+SUBMISSION_PATH="our_submission"
 
 class Trainer(TrainerDistillation):
     def __init__(self, model, device, train_dataloader, valid_dataloader, metadata):
         super().__init__(model, device, train_dataloader, valid_dataloader, metadata)
+        ic(metadata)
+        for key in metadata.keys():
+            if "train_config_path" in key:
+                cfg_path=metadata["train_config_path"]
+                break
+            else:
+                cfg_path=f"{SUBMISSION_PATH}/configs/train/finetuning_generation_adam.yaml"
+        self.cfg.merge_from_file(cfg_path)
+        self.cfg.DATASET.TYPE=metadata["codename"]
+        self.cfg.DATASET.CLASSES=metadata["num_classes"]
+        self.cfg.DATASET.INPUT_SHAPE=metadata["input_shape"]
+        for key in metadata.keys():
+            if "experiment_name" in key:
+                self.cfg.EXPERIMENT.NAME=metadata["experiment_name"]
+            else:
+                self.cfg.EXPERIMENT.NAME=f"{SUBMISSION_PATH}/tests/{metadata['codename']}/finetuning/{datetime.now().strftime('%d_%m_%Y_%H_%M')}_adam"
+        self.log_path=self.cfg.EXPERIMENT.NAME
+        os.makedirs(self.log_path, exist_ok=True)
 
         self.swa_model = torch.optim.swa_utils.AveragedModel(self.distiller.module.student)
         self.swa_start =self.cfg.SOLVER.SWA_START
-        self.swa_scheduler = SWALR(self.optimizer, swa_lr=self.cfg.SOLVER.LR)
+        self.swa_scheduler = SWALR(self.optimizer, swa_lr=self.cfg.SOLVER.MIN_LR, anneal_strategy="cos", anneal_epochs=self.cfg.SOLVER.EPOCHS-self.cfg.SOLVER.SWA_START)
         self.ema_model = torch.optim.swa_utils.AveragedModel(self.distiller.module.student, \
                      multi_avg_fn=torch.optim.swa_utils.get_ema_multi_avg_fn(0.9))
     
@@ -414,31 +335,30 @@ class Trainer(TrainerDistillation):
             "top5": AverageMeter(),
         }
         num_iter = len(self.train_loader)
-        pbar = tqdm(range(num_iter))
+        #pbar = tqdm(range(num_iter))
 
         # train loops
         start_epoch_time=time.time()
         self.distiller.train()
         for idx, data in enumerate(self.train_loader):
             msg = self.train_iter(data, epoch, train_meters)
-            pbar.set_description(log_msg(msg, "TRAIN"))
-            pbar.update()
+            #pbar.set_description(log_msg(msg, "TRAIN"))
+            #pbar.update()
             if epoch==1 and self.cfg.SOLVER.WARMUP:
                 self.warmup_scheduler.step()
                 #print(self.optimizer.param_groups[0]['lr'])
             # EMA update logic
             self.ema_model.update_parameters(self.distiller.module.student)
                 
-        pbar.close()
+        #pbar.close()
         
-        if (epoch > 1) or (self.cfg.SOLVER.WARMUP == False):
-            self.scheduler.step()
         
         # SWA update logic
         if epoch > self.swa_start:
             self.swa_model.update_parameters(self.distiller.module.student)
             self.swa_scheduler.step()
-        
+        elif (epoch > 1) or (self.cfg.SOLVER.WARMUP == False):
+            self.scheduler.step()
 
 
         # validate

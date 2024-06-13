@@ -1,4 +1,8 @@
 
+SUBMISSION_PATH="../"
+
+SAVE_PATH=f"{os.getenv('WORK')}/NAS_COMPETITION_RESULTS"
+
 def get_gpu_memory(gpu_id):
     handle = nvmlDeviceGetHandleByIndex(gpu_id)
     info = nvmlDeviceGetMemoryInfo(handle)
@@ -13,27 +17,29 @@ class NAS:
                     W0=[16, 96, 8],
                     WA=[16, 64, 8],
                     WM=[2.05,2.9,0.05],
-                    D=[8,18,1], 
+                    D=[8,22,1], 
                     G=[8,8,8], 
-                    base_config=f"../configs/search_space/config.yaml")
+                    base_config=f"{SUBMISSION_PATH}/configs/search_space/config.yaml")
         current_date= datetime.now().strftime("%d_%m_%Y_%H_%M")
         
         self.metadata=metadata
-        self.metadata["train_config_path"]=f"../configs/train/vanilla_generation_lion.yaml"
+        self.metadata["train_config_path"]=f"{SUBMISSION_PATH}/configs/train/vanilla_generation_adam.yaml"
         self.metadata["mode"]="NAS"
         
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.train_loader=train_loader
         self.valid_loader=valid_loader
         self.ENAS=True
-        self.multiprocessing=False
+        self.multiprocessing=True
+        if self.multiprocessing:
+            mp.set_start_method('spawn')
         self.population_size=20
-        self.total_generations=5
+        self.total_generations=3
         self.num_best_parents=5
         self.sim_threshold=0.1
         
-        
-        self.test_folder=f"tests_{metadata["codename"]}_{current_date}"
+        self.study_name=f"tests_{metadata['codename']}_{current_date}"
+        self.test_folder=f"{SAVE_PATH}/{self.study_name}"
         self.current_gen=1
 
         self.weights_pool={}
@@ -95,12 +101,21 @@ class NAS:
             generation_df, corr=self.train_generation(models, chromosomes)
             self.best_parents=self.selection(generation_df)
             self._save_backup()
-            if self.current_gen<self.total_generations:
-                self.current_gen+=1
+            self.current_gen+=1
             self.sim_threshold=self.sim_threshold-0.01
             
         self.export_results()
-        return self.best_model
+        
+        #        self.best_model={"score": 0,
+        #                "model_path": None,
+        #                "name": "",
+        #                "gen":0}
+        weights_file=self.best_model["model_path"]
+        ind_path = weights_file.rfind('/')
+        config_file = weights_file[:ind_path]
+        best_model,info=self.regnet_space.load_model(config_file=f"{config_file}/config.yaml",
+                                           weights_file=weights_file)
+        return best_model
     
     def train_mp(self,model,student):
         
@@ -148,11 +163,11 @@ class NAS:
                 torch.cuda.empty_cache()
                 gc.collect()
         else:
-                mp.set_start_method('spawn')
+                
                 next_process_index = 0
                 ic("initial memory")
                 print(f"Gpu free memory: {get_gpu_memory(0) / (1024 ** 3):.3f} GB")
-                required_memory= 2*2 ** 30
+                required_memory= 4*2 ** 30
                 self.total_time=time.time()-self.current_time+self.total_time
                 self.current_time=time.time()
                 with open(f"{self.test_folder}/log.json", 'w') as json_file:
@@ -162,7 +177,7 @@ class NAS:
                 total_processes_to_run=len(models_names)
                 while next_process_index < total_processes_to_run:#or any(p.is_alive() for p in processes):
                     if next_process_index<5:
-                        sleep_time=2
+                        sleep_time=3
                     else:
                         sleep_time=10
 
@@ -192,17 +207,20 @@ class NAS:
             json.dump({"current_model":"", "generation":self.current_gen, "total_time":self.total_time},json_file )
         
         if models_names is not None:
-            return get_generation_dfs(f"{self.test_folder}/Generation_{self.current_gen}", corr=True, chromosomes=chromosomes, save=True)
+            return get_generation_dfs(f"{self.test_folder}/Generation_{self.current_gen}", corr=True, chromosomes=chromosomes, save=True, gen=self.current_gen)
         else:
-            return get_generation_dfs(f"{self.test_folder}/Generation_{self.current_gen}", corr=False, chromosomes=chromosomes, save=False)
+            return get_generation_dfs(f"{self.test_folder}/Generation_{self.current_gen}", corr=False, chromosomes=chromosomes, save=False, gen=self.current_gen)
 
     def selection(self,df):
         df=df.sort_values("best_acc", ascending=False)
         self.old_chromosomes=self.old_chromosomes+df[["WA","W0","WM","DEPTH"]].values.tolist()
-        self.best_models_info=pd.concat([self.best_models_info,df.head(1)])
+        if len(self.best_models_info!=0):
+            self.best_models_info=pd.concat([self.best_models_info,df.head(1)])
+        else:
+            self.best_models_info=df.head(1)
         
         best_new_score=df.head(1).iloc[0]["best_acc"]
-        
+        print("Best new score:", best_new_score)
         if best_new_score>=self.best_model["score"]:
             new_name=df.head(1).iloc[0]["name"]
             self.best_model={
@@ -341,7 +359,7 @@ class NAS:
         self.old_chromosomes=log["old_chromosomes"]
         self.best_parents=log["best_parents"]
         self.parents=log["parents"]
-        #self.sim_threshold=log["sim_threshold"]
+        self.sim_threshold=log["sim_threshold"]
 
     def export_results(self):
         results_file={}
@@ -350,7 +368,7 @@ class NAS:
         results_file["results"]=[]
         results_file["parents"]=[]
 
-        for gen in range(1,self.current_gen+1):
+        for gen in range(1,self.current_gen):
             print(gen)
             with open(f"{self.test_folder}/Generation_{gen}/corr.txt", 'r') as file:
                 content = file.read()
@@ -364,7 +382,8 @@ class NAS:
 
         results_file["correlation"]=pd.concat(results_file["correlation"]).reset_index(drop=True).to_json()
         results_file["results"]=pd.concat(results_file["results"]).reset_index(drop=True).to_json()
-        results_file["parents"]=pd.concat(results_file["parents"]).reset_index(drop=True).to_json()
+        if len(results_file["parents"])>0:
+            results_file["parents"]=pd.concat(results_file["parents"]).reset_index(drop=True).to_json()
         results_file["metadata"]=self.metadata
         results_file["best_model"]=self.best_model
         results_file["parameters"]={"ENAS":self.ENAS,
@@ -375,7 +394,6 @@ class NAS:
                                   }
         results_file["total_time"]=self.total_time
 
-        with open(f"{self.test_folder}/{self.test_folder}.evonas", 'w') as json_file:
+        with open(f"{self.test_folder}/{self.study_name}.evonas", 'w') as json_file:
                 json.dump(results_file, json_file)
-        
         

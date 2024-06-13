@@ -90,7 +90,13 @@ def general_num_params(model):
 total_runtime_hours = 2
 total_runtime_seconds = total_runtime_hours * 60 * 60
 
+import argparse
 if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description='Run Your Unseen Data 2024 Submission.')
+    # Add argument for the dataset
+    parser.add_argument('dataset', type=str, help='The dataset to be processed')
+    # Parsing arguments
+    args = parser.parse_args()
     # this try/except statement will ensure that exceptions are logged when running from the makefile
     try:
         # print main header
@@ -103,9 +109,9 @@ if __name__ == '__main__':
 
         # iterate over datasets in the datasets directory
         #for dataset in os.listdir("datasets"):
-        for dataset in ["Language"]:
+        for dataset in [args.dataset]:
             # load and display data info
-            (train_x, train_y), (valid_x, valid_y), (test_x), metadata = load_datasets(dataset, truncate=True)
+            (train_x, train_y), (valid_x, valid_y), (test_x), metadata = load_datasets(dataset, truncate=False)
             metadata['time_remaining'] = runclock.check()
             this_dataset_start_time = time.time()
 
