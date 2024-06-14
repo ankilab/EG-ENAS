@@ -10,7 +10,7 @@ from torch.utils.data import RandomSampler
 
 from nas import NAS
 from data_processor import DataProcessor
-from trainer import Trainer
+from trainer import Trainer, TrainerDistillation
 
 
 # === DATA LOADING HELPERS =============================================================================================
@@ -135,7 +135,10 @@ if __name__ == '__main__':
             print("\n=== Training ===")
             print("  Allotted compute time remaining: ~{}".format(show_time(runclock.check())))
             device = torch.device("cuda") if torch.cuda.is_available() else torch.device('cpu')
-            trainer = Trainer(model, device, train_loader, valid_loader, metadata)
+
+            metadata["train_config_path"]="configs/train/vanilla_generation_complete.yaml"
+            metadata["experiment_name"]=f"final_models/{dataset}"
+            trainer = TrainerDistillation(model, device, train_loader, valid_loader, metadata)
             trained_model = trainer.train()
 
             # submit predictions to file
