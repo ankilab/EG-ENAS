@@ -7,8 +7,8 @@ DISTILLER:
   STUDENT: "None"
 SOLVER:
   BATCH_SIZE: 64
-  EPOCHS: 20
-  LR: 0.01
+  EPOCHS: 30
+  LR: 0.025
   LR_SCHEDULER: "cosine_annealing"
   WARMUP: True
   LABEL_SMOOTHING: 0.1

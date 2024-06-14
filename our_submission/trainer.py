@@ -51,7 +51,7 @@ class Trainer:
             self.model.cuda()
         t_start = time.time()
         for epoch in range(self.epochs):
-            print(self.optimizer.param_groups[0]['lr'])
+            #print(self.optimizer.param_groups[0]['lr'])
             self.model.train()
             labels, predictions = [], []
             for data, target in self.train_dataloader:
@@ -267,7 +267,7 @@ class TrainerDistillation:
         if self.test_loader is None:
             test_acc, test_acc_top2, test_loss = validate(self.val_loader, self.distiller, self.cfg.SOLVER.TOPK)
         else:      
-            print("Test_accuracy")
+            #print("Test_accuracy")
             test_acc, test_acc_top2, test_loss = validate(self.test_loader, self.distiller, self.cfg.SOLVER.TOPK)
             
 

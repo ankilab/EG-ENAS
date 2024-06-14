@@ -1,11 +1,12 @@
 #from deap import base, creator, tools, algorithms
 import numpy as np
-from scipy.optimize import dual_annealing
 from coolname import generate_slug
 from datetime import datetime
 import torch
+import torchvision.models as models
 import csv
 import os
+import json
 
 from skopt import gp_minimize
 from skopt.space import Categorical
@@ -60,7 +61,12 @@ class NAS:
             writer = csv.writer(csvfile)
             writer.writerow(['Parameters', 'Performance'])
 
+        # copy augmentation_results.json to the test folder
+        os.system(f"cp augmentation_results.json {self.test_folder}/")
+
         self.current_iter = 0
+
+        self.best_performance = 0
     
     def create_skopt_space(self):
         space = []
@@ -89,7 +95,29 @@ class NAS:
 
         print("Best Model: ", model_name, "With Parameters: ", best_params)
 
-        return model
+        # load 'augmentation_results.json' that contains (idx, accuracy) tuples
+        with open(self.test_folder + '/augmentation_results.json', 'r') as f:
+            results = json.load(f)
+
+        # Find the best accuracy value
+        best_result = max(results, key=lambda x: x[1])
+        _, best_accuracy = best_result
+
+        # Check if ResNet-18 model has better accuracy than the best NAS model, if so, return ResNet-18 model
+        if best_accuracy > self.best_performance:
+            model = models.resnet18(weights=None)
+            new_conv1 = torch.nn.Conv2d(in_channels=self.metadata["input_shape"][1], out_channels=model.conv1.out_channels, 
+                      kernel_size=model.conv1.kernel_size, 
+                      stride=model.conv1.stride, 
+                      padding=model.conv1.padding, 
+                      bias=model.conv1.bias)
+
+            # Replace the first convolutional layer
+            model.conv1 = new_conv1
+            model.fc = torch.nn.Linear(512, self.metadata['num_classes'])
+            return model
+        else:
+            return model
 
 
     def _generate_model(self, model_params):
@@ -100,7 +128,7 @@ class NAS:
 
         print(model_params)
 
-        model, info = self.regnet_space.create_model(params=[int(model_params[0]), int(model_params[4]), float(model_params[1]), int(model_params[2]), int(model_params[3])],
+        model, _ = self.regnet_space.create_model(params=[int(model_params[0]), int(model_params[4]), float(model_params[1]), int(model_params[2]), int(model_params[3])],
                                                     save_folder=self.test_folder, name=model_name, gen=None, config_updates=None)
 
         return model, model_name
@@ -120,6 +148,8 @@ class NAS:
         performance = performance.cpu().numpy()
         performance = performance / 100
 
+        self.best_performance = max(self.best_performance, performance)
+
         # save optimization history
         with open(self.test_folder + '/optimization_history.csv', 'a', newline='') as csvfile:
             writer = csv.writer(csvfile)
@@ -130,7 +160,7 @@ class NAS:
         
     
     def _optimize(self):
-        result = gp_minimize(self._evaluate, self.skopt_search_space, n_calls=10, n_random_starts=5, n_jobs=-1)
+        result = gp_minimize(self._evaluate, self.skopt_search_space, n_calls=50, n_initial_points=15, n_jobs=-1)
 
         print("Best Hyperparameters:", result.x)
         print("Best Performance:", result.fun)
