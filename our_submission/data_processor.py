@@ -133,7 +133,7 @@ class DataProcessor:
         augmentation_combinations = [
             [],  # No augmentation
             [data_augmentations[7]], # Gaussian blur
-            [data_augmentations[5]], # Grayscale, to tensor
+            [data_augmentations[5]], # Grayscale
             [data_augmentations[0], data_augmentations[4], data_augmentations[3]],  # Horizontal flip, crop and resize, color jitter
             [data_augmentations[6], data_augmentations[5], data_augmentations[4]],  # Affine transformation, grayscale, crop and resize
             [data_augmentations[0], data_augmentations[4], data_augmentations[7], data_augmentations[9]],  # Horizontal flip, crop and resize, Gaussian blur, random erasing
@@ -151,18 +151,24 @@ class DataProcessor:
             train_ds = Dataset(self.train_x, self.train_y, train=True, transform=transform)
             valid_ds = Dataset(self.valid_x, self.valid_y, train=False, transform=train_ds.transform_normalization)
 
-            # get ResNet-18 model
-            model = models.resnet18(weights=None)
-            new_conv1 = torch.nn.Conv2d(in_channels=self.metadata["input_shape"][1], out_channels=model.conv1.out_channels, 
-                      kernel_size=model.conv1.kernel_size, 
-                      stride=model.conv1.stride, 
-                      padding=model.conv1.padding, 
-                      bias=model.conv1.bias)
+            try:
+                # get ResNet-18 model
+                model = models.resnet18(weights=None)
+                new_conv1 = torch.nn.Conv2d(in_channels=self.metadata["input_shape"][1], out_channels=model.conv1.out_channels, 
+                        kernel_size=model.conv1.kernel_size, 
+                        stride=model.conv1.stride, 
+                        padding=model.conv1.padding, 
+                        bias=model.conv1.bias)
+                
 
-            # Replace the first convolutional layer
-            model.conv1 = new_conv1
-            model.fc = torch.nn.Linear(512, self.metadata['num_classes'])
-            model.to('cuda')
+                # Replace the first convolutional layer
+                model.conv1 = new_conv1
+                model.fc = torch.nn.Linear(512, self.metadata['num_classes'])
+                model.to('cuda')
+            except:
+                # Augmentation is not working with the model, so we skip it
+                results.append((i, 0))
+                continue
 
             # get dataloaders
             batch_size = 128
