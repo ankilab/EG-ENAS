@@ -15,16 +15,16 @@ from search_space.utils import create_widths_plot, scatter_results, get_generati
 from trainer import Trainer, TrainerDistillation
 from utils.train_cfg import get_cfg, show_cfg
 ###################################################
-random_seed = 1
-random.seed(random_seed)
+#random_seed = 1
+#random.seed(random_seed)
 # Set seed for NumPy
-np.random.seed(random_seed)
+#np.random.seed(random_seed)
 # Set seed for PyTorch
-torch.manual_seed(random_seed)
-torch.cuda.manual_seed_all(random_seed)
+#torch.manual_seed(random_seed)
+#torch.cuda.manual_seed_all(random_seed)
 # Additional steps if using CuDNN (optional, for GPU acceleration)
-torch.backends.cudnn.deterministic = True
-torch.backends.cudnn.benchmark = False
+#torch.backends.cudnn.deterministic = True
+#torch.backends.cudnn.benchmark = False
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 import os
 from datetime import datetime
@@ -36,11 +36,11 @@ from coolname import generate_slug
 from sklearn.metrics import accuracy_score
 import torch.multiprocessing as mp
 from pynvml import nvmlInit, nvmlDeviceGetHandleByIndex, nvmlDeviceGetMemoryInfo
-nvmlInit()
-SUBMISSION_PATH="our_submission"
 
-SAVE_PATH=f"{os.getenv('WORK')}/NAS_COMPETITION_RESULTS"
-print(SAVE_PATH)
+#mp.set_start_method('spawn')
+
+
+
 
 def get_gpu_memory(gpu_id):
     handle = nvmlDeviceGetHandleByIndex(gpu_id)
@@ -49,20 +49,24 @@ def get_gpu_memory(gpu_id):
     return info.free
 
 class NAS:
-    def __init__(self, train_loader, valid_loader, metadata,resume_from=None):
-        
-        
+    def __init__(self, train_loader, valid_loader, metadata,resume_from=None, test=False):
+        self.test=test
+        if self.test:
+            self.SUBMISSION_PATH="our_submission/"
+        else:
+            self.SUBMISSION_PATH=""
+        SAVE_PATH=f"{os.getenv('WORK')}/NAS_COMPETITION_RESULTS/full_training_evonas"
         self.regnet_space=RegNet(metadata,
-                    W0=[16, 96, 8],
+                    W0=[16, 120, 8],
                     WA=[16, 64, 8],
                     WM=[2.05,2.9,0.05],
                     D=[8,22,1], 
                     G=[8,8,8], 
-                    base_config=f"{SUBMISSION_PATH}/configs/search_space/config.yaml")
+                    base_config=f"{self.SUBMISSION_PATH}configs/search_space/config.yaml")
         current_date= datetime.now().strftime("%d_%m_%Y_%H_%M")
         
         self.metadata=metadata
-        self.metadata["train_config_path"]=f"{SUBMISSION_PATH}/configs/train/vanilla_generation_adam.yaml"
+        self.metadata["train_config_path"]=f"{self.SUBMISSION_PATH}configs/train/vanilla_generation_adam.yaml"
         self.metadata["mode"]="NAS"
         
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -70,10 +74,17 @@ class NAS:
         self.valid_loader=valid_loader
         self.ENAS=False
         self.multiprocessing=True
+        
         if self.multiprocessing:
-            mp.set_start_method('spawn')
+            current_method = mp.get_start_method(allow_none=True)
+            print(current_method)
+            if current_method!="spawn":
+                nvmlInit()
+                # Set the start method if it hasn't been set yet
+                mp.set_start_method("spawn")
+            
         self.population_size=20
-        self.total_generations=3
+        self.total_generations=2
         self.num_best_parents=5
         self.sim_threshold=0.1
         
@@ -156,13 +167,14 @@ class NAS:
         config_file = weights_file[:ind_path]
         best_model,info=self.regnet_space.load_model(config_file=f"{config_file}/config.yaml",
                                            weights_file=weights_file)
+        self.metadata["train_config_path"]=f"{self.SUBMISSION_PATH}configs/train/finetuning_generation_adam.yaml"
         return best_model
     
     def train_mp(self,model,student):
         
         clear_output(wait=True)
         self.metadata["experiment_name"]=f"{self.test_folder}/Generation_{self.current_gen}/{student}"
-        trainer=TrainerDistillation(model, self.device, self.train_loader, self.valid_loader, self.metadata) 
+        trainer=TrainerDistillation(model, self.device, self.train_loader, self.valid_loader, self.metadata, self.test) 
         trainer.train()
         torch.cuda.empty_cache()
         gc.collect()
@@ -199,7 +211,7 @@ class NAS:
                   json.dump({"state":"train","generation":self.current_gen,"current_model":student,"total_time":self.total_time},json_file )
 
                 self.metadata["experiment_name"]=f"{self.test_folder}/Generation_{self.current_gen}/{student}"
-                trainer=TrainerDistillation(models[student], self.device, self.train_loader, self.valid_loader, self.metadata) 
+                trainer=TrainerDistillation(models[student], self.device, self.train_loader, self.valid_loader, self.metadata, self.test) 
                 trainer.train()
                 torch.cuda.empty_cache()
                 gc.collect()
@@ -223,9 +235,9 @@ class NAS:
                         sleep_time=10
 
                     available_memory = get_gpu_memory(0)
-                    student=models_names[next_process_index]
-
+                    
                     if (next_process_index < total_processes_to_run) and available_memory>required_memory:
+                        student=models_names[next_process_index]
                         p = mp.Process(target=self.train_mp, args=(models[student],student))
                         p.start()
                         processes.append(p)

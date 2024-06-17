@@ -46,7 +46,7 @@ class BatchWarmupScheduler(_LRScheduler):
         else:
             return self.base_lrs
 
-SUBMISSION_PATH="our_submission"
+
 class TrainerDistillation:
     """
     ====================================================================================================================
@@ -63,14 +63,14 @@ class TrainerDistillation:
             'time_remaining': The amount of compute time left for your submission
             plus anything else you added in the DataProcessor or NAS classes
     """
-    def __init__(self, model, device, train_dataloader, valid_dataloader, metadata, test_loader=None):
+    def __init__(self, model, device, train_dataloader, valid_dataloader, metadata, test=False):
         self.cfg = get_cfg()
-        for key in metadata.keys():
-            if "train_config_path" in key:
-                cfg_path=metadata["train_config_path"]
-                break
-            else:
-                cfg_path=f"{SUBMISSION_PATH}/configs/train/finetuning_generation_adam.yaml"
+        #for key in metadata.keys():
+        #    if "train_config_path" in key:
+        cfg_path=metadata["train_config_path"]
+        #        break
+        #    else:
+        #        cfg_path=f"{SUBMISSION_PATH}configs/train/vanilla_generation_adam.yaml"
         self.cfg.merge_from_file(cfg_path)
         self.cfg.DATASET.TYPE=metadata["codename"]
         self.cfg.DATASET.CLASSES=metadata["num_classes"]
@@ -86,7 +86,6 @@ class TrainerDistillation:
             self.distiller= torch.nn.DataParallel(self.distiller.cuda())
         self.train_loader = train_dataloader
         self.val_loader = valid_dataloader
-        self.test_loader=test_loader
         
         self.optimizer = self.init_optimizer() #Load from cfg. SGD by default.
         if self.cfg.SOLVER.WARMUP==True:
@@ -108,8 +107,9 @@ class TrainerDistillation:
         for key in metadata.keys():
             if "experiment_name" in key:
                 self.log_path=metadata["experiment_name"] # Folder to save the training results. Passed in the metadata from NAS file.
-        if not os.path.exists(self.log_path):
-            os.makedirs(self.log_path)
+                if not os.path.exists(self.log_path):
+                    os.makedirs(self.log_path)
+                break
 
        
     def init_optimizer(self):
@@ -143,7 +143,7 @@ class TrainerDistillation:
             lines.append("-" * 25 + os.linesep)
             writer.writelines(lines)
 
-    def train(self, resume=False):
+    def train(self, return_acc=False ):
         epoch = 1
         start_time=time.time()
         while epoch < self.cfg.SOLVER.EPOCHS + 1:
@@ -155,7 +155,10 @@ class TrainerDistillation:
         with open(os.path.join(self.log_path, "worklog.txt"), "a") as writer:
             writer.write("Total time\t" + "{:.2f}".format(float(time.time()-start_time)))
           # Return trained student
-        return self.distiller.module.student if torch.cuda.is_available() else self.distiller.student
+        if return_acc:
+            return self.train_acc,self.best_acc, self.epoch_time
+        else:
+            return self.distiller.module.student if torch.cuda.is_available() else self.distiller.student
 
     def train_epoch(self, epoch):
         #lr = adjust_learning_rate(epoch, self.cfg, self.optimizer)
@@ -186,11 +189,8 @@ class TrainerDistillation:
         if (epoch>1) or (self.cfg.SOLVER.WARMUP==False):
             self.scheduler.step()
         # validate
-        if self.test_loader is None:
-            test_acc, test_acc_top5, test_loss = validate(self.val_loader, self.distiller, self.cfg.SOLVER.TOPK)
-        else:      
-            #print("Test_accuracy")
-            test_acc, test_acc_top5, test_loss = validate(self.test_loader, self.distiller, self.cfg.SOLVER.TOPK)
+        test_acc, test_acc_top5, test_loss = validate(self.val_loader, self.distiller, self.cfg.SOLVER.TOPK)
+
             
 
         # log
@@ -208,9 +208,12 @@ class TrainerDistillation:
         self.log(lr, epoch, log_dict)
         # saving checkpoint
 
-        student_state = {"model": self.distiller.module.student.state_dict() if torch.cuda.is_available() else self.distiller.student.state_dict() }
         if test_acc >= self.best_acc:
+            
+            student_state = {"model": self.distiller.module.student.state_dict() if torch.cuda.is_available() else self.distiller.student.state_dict() }
             #save_checkpoint(state, os.path.join(self.log_path, "best"))
+            self.train_acc=train_meters["top1"].avg
+            self.epoch_time=log_dict["epoch_time"]
             save_checkpoint(
                 student_state, os.path.join(self.log_path, "student_best")
             )
@@ -276,18 +279,19 @@ class TrainerDistillation:
         return predictions
     
 ##############################################################
-SUBMISSION_PATH="our_submission"
 
 class Trainer(TrainerDistillation):
-    def __init__(self, model, device, train_dataloader, valid_dataloader, metadata):
+    def __init__(self, model, device, train_dataloader, valid_dataloader, metadata, test=False):
         super().__init__(model, device, train_dataloader, valid_dataloader, metadata)
+        if test:
+            SUBMISSION_PATH="our_submission/"
+        else:
+            SUBMISSION_PATH=""
         ic(metadata)
-        for key in metadata.keys():
-            if "train_config_path" in key:
-                cfg_path=metadata["train_config_path"]
-                break
-            else:
-                cfg_path=f"{SUBMISSION_PATH}/configs/train/finetuning_generation_adam.yaml"
+        #cfg_path=f"{SUBMISSION_PATH}../configs/train/finetuning_generation_adam.yaml"
+        cfg_path=metadata["train_config_path"]
+        print(cfg_path)
+        
         self.cfg.merge_from_file(cfg_path)
         self.cfg.DATASET.TYPE=metadata["codename"]
         self.cfg.DATASET.CLASSES=metadata["num_classes"]
@@ -296,10 +300,14 @@ class Trainer(TrainerDistillation):
             if "experiment_name" in key:
                 self.cfg.EXPERIMENT.NAME=metadata["experiment_name"]
             else:
-                self.cfg.EXPERIMENT.NAME=f"{SUBMISSION_PATH}/tests/{metadata['codename']}/finetuning/{datetime.now().strftime('%d_%m_%Y_%H_%M')}_adam"
+                self.cfg.EXPERIMENT.NAME=f"{SUBMISSION_PATH}tests/{metadata['codename']}/finetuning/{datetime.now().strftime('%d_%m_%Y_%H_%M')}_adam"
         self.log_path=self.cfg.EXPERIMENT.NAME
+
         os.makedirs(self.log_path, exist_ok=True)
 
+        ic(self.cfg.SOLVER.LR)
+        ic(self.cfg.SOLVER.EPOCHS-self.cfg.SOLVER.SWA_START)
+        ic(self.cfg.SOLVER.EPOCHS)
         self.swa_model = torch.optim.swa_utils.AveragedModel(self.distiller.module.student)
         self.swa_start =self.cfg.SOLVER.SWA_START
         self.swa_scheduler = SWALR(self.optimizer, swa_lr=self.cfg.SOLVER.MIN_LR, anneal_strategy="cos", anneal_epochs=self.cfg.SOLVER.EPOCHS-self.cfg.SOLVER.SWA_START)
@@ -362,11 +370,7 @@ class Trainer(TrainerDistillation):
 
 
         # validate
-        if self.test_loader is None:
-            test_acc, test_acc_top5, test_loss = validate(self.val_loader, self.distiller, self.cfg.SOLVER.TOPK)
-        else:      
-            print("Test_accuracy")
-            test_acc, test_acc_top5, test_loss = validate(self.test_loader, self.distiller, self.cfg.SOLVER.TOPK)
+        test_acc, test_acc_top5, test_loss = validate(self.val_loader, self.distiller, self.cfg.SOLVER.TOPK)
             
 
         # log
@@ -386,3 +390,18 @@ class Trainer(TrainerDistillation):
         student_state = {"model": self.distiller.module.student.state_dict() if torch.cuda.is_available() else self.distiller.student.state_dict() }
         if test_acc >= self.best_acc:
             save_checkpoint(student_state, os.path.join(self.log_path, "student_best"))            
+
+    def predict(self, test_loader, use_swa=True):
+        if use_swa:
+            distiller= Vanilla(self.swa_model, 0.0)
+            if torch.cuda.is_available():
+               distiller= torch.nn.DataParallel(distiller.cuda())
+        else:
+            distiller=self.distiller
+        distiller.eval()
+        predictions = []
+        for data in test_loader:
+            data = data.to(self.device)
+            output = distiller.forward(image=data)
+            predictions += torch.argmax(output, 1).detach().cpu().tolist()
+        return predictions

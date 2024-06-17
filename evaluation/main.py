@@ -27,7 +27,7 @@ def load_dataset_metadata(dataset_path):
 
 # load dataset from file
 def load_datasets(data_path, truncate):
-    data_path = '../../datasets/'+data_path
+    data_path = 'datasets/'+data_path
     train_x = np.load(os.path.join(data_path,'train_x.npy'))
     train_y = np.load(os.path.join(data_path,'train_y.npy'))
     valid_x = np.load(os.path.join(data_path,'valid_x.npy'))
@@ -102,8 +102,7 @@ if __name__ == '__main__':
         runclock = Clock(total_runtime_seconds)
 
         # iterate over datasets in the datasets directory
-        #for dataset in os.listdir("datasets"):
-        for dataset in ["CIFARTile"]:
+        for dataset in os.listdir("datasets"):
             # load and display data info
             (train_x, train_y), (valid_x, valid_y), (test_x), metadata = load_datasets(dataset, truncate=False)
             metadata['time_remaining'] = runclock.check()
