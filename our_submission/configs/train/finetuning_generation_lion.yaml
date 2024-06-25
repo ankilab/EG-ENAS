@@ -12,6 +12,7 @@ SOLVER:
   LR: 1e-4
   #LR: 0.1
   LR_SCHEDULER: "cosine_annealing"
+  SCHEDULER_EPOCHS: 20
   MIN_LR: 0.0
   #LR_SCHEDULER: "one_cycle"
   WARMUP: True

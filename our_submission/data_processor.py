@@ -3,7 +3,7 @@ from torchvision.transforms import v2
 import torchvision.models as models
 import numpy as np
 from utils.transforms import get_train_transform
-from trainer import TrainerDistillation
+from trainer import TrainerDistillation, Trainer
 # import torchvision.transforms as transforms
 import json
 import random
@@ -15,6 +15,7 @@ import gc
 from pynvml import nvmlInit, nvmlDeviceGetHandleByIndex, nvmlDeviceGetMemoryInfo
 device = torch.device("cuda") if torch.cuda.is_available() else torch.device('cpu')
 from search_space.RegNet import RegNet
+import os
 
 def get_gpu_memory(gpu_id):
     handle = nvmlDeviceGetHandleByIndex(gpu_id)
@@ -132,7 +133,7 @@ class DataProcessor:
         self.test_x = test_x
         self.test_y=test_y
         self.metadata = metadata
-        self.metadata['train_config_path']="configs/train/augmentations_adam.yaml"
+        self.metadata['train_config_path']="../configs/train/augmentations_adam.yaml"
         self.metadata["experiment_name"]="tests/augmentations_test"
         self.multiprocessing=True
         if self.multiprocessing:
@@ -159,7 +160,8 @@ class DataProcessor:
         """
         # Try different transforms for training, we select the best one and use it
         
-        train_transform = self._determine_train_transform() 
+        #train_transform = self._determine_train_transform() if self.metadata["select_augment"] else [v2.RandomErasing(p=0.1, scale=(0.02, 0.33), ratio=(0.3, 3.3))]
+        train_transform = self._determine_train_transform()
         
         
         # Create dataloaders with final transforms
@@ -186,28 +188,74 @@ class DataProcessor:
     def _train_model(self,model, transform, idx, output_queue=None):
             train_ds = Dataset(self.train_x, self.train_y, train=True, transform=transform)
             valid_ds = Dataset(self.valid_x, self.valid_y, train=False, transform=train_ds.transform_normalization)
+            
+            # get dataloaders
+            batch_size = 128
+            train_loader = torch.utils.data.DataLoader(train_ds, batch_size=batch_size, drop_last=True, shuffle=True)
+            valid_loader = torch.utils.data.DataLoader(valid_ds, batch_size=batch_size, shuffle=False)
+            
 
-            #study_folder="tests_LaMelo_13_06_2024_19_41"
-            #regnet_space=RegNet(self.metadata,
-            #        W0=[16, 96, 8],
-            #        WA=[16, 64, 8],
-            #        WM=[2.05,2.9,0.05],
-            #        D=[8,22,1], 
-            #        G=[8,8,8], 
-            #        base_config=f"../configs/search_space/config.yaml")
-            #test_folder=f"/home/woody/iwb3/iwb3021h/NAS_COMPETITION_RESULTS/full_training/{study_folder}"
-            #gen=1
-            #model_name="mutant_spoonbill"
+            # get trainer and train
+            SAVE_PATH=f"{os.getenv('WORK')}/NAS_COMPETITION_RESULTS/full_training_evonas"
+            self.metadata["experiment_name"]=f"{SAVE_PATH}/augmentations_test/{self.metadata['codename']}/aug_{idx}"
+            trainer = TrainerDistillation(model, device, train_loader, valid_loader, self.metadata)
+            #trainer = Trainer(model, device, train_loader, valid_loader, self.metadata)
+
+            train_acc, val_acc, epoch_time=trainer.train(return_acc=True)
+
+            ################################# Testing dataset for debugging #####################################
+            #test_ds = Dataset(self.test_x, self.test_y, train=False, transform=train_ds.transform_normalization)
+            #test_y = np.load(os.path.join('../../datasets/'+"Chesseract",'test_y.npy'))
+            #test_loader = torch.utils.data.DataLoader(test_ds, batch_size=batch_size, shuffle=False, drop_last=False)
+            
+            #from sklearn.metrics import accuracy_score
+            #predictions = trainer.predict(test_loader, use_swa=True)
+            #test_score = 100*accuracy_score(test_y, predictions)
+            #print(f"SWA test {idx}:", test_score)                                             
+            #predictions = trainer.predict(test_loader, use_swa=False)
+            #test_score = 100*accuracy_score(test_y, predictions)
+            #print(f"No SWA test {idx}: ",test_score)
+            
+            
+            print(train_acc.cpu().numpy())
+            print(val_acc.cpu().numpy())
+            torch.cuda.empty_cache()
+            gc.collect()
+            if output_queue is not None:
+                output_queue.put((idx, train_acc.cpu().numpy().astype(float).tolist(), val_acc.cpu().numpy().astype(float).tolist(), epoch_time)) 
+            else:
+                return train_acc.cpu().numpy().astype(float).tolist(), val_acc.cpu().numpy().astype(float).tolist(), epoch_time
+
+    
+    def _train_model_best(self,model, transform, idx, output_queue=None):
+            train_ds = Dataset(self.train_x, self.train_y, train=True, transform=transform)
+            valid_ds = Dataset(self.valid_x, self.valid_y, train=False, transform=train_ds.transform_normalization)
+            test_ds = Dataset(self.test_x, self.test_y, train=False, transform=train_ds.transform_normalization)
+            import os
+            test_y = np.load(os.path.join('../../datasets/'+"AddNIST",'test_y.npy'))
+
+            ####################
+            study_folder="tests_Adaline_18_06_2024_13_13"
+            regnet_space=RegNet(self.metadata,
+                    W0=[16, 96, 8],
+                    WA=[16, 64, 8],
+                    WM=[2.05,2.9,0.05],
+                    D=[8,22,1], 
+                    G=[8,8,8], 
+                    base_config=f"../configs/search_space/config.yaml")
+            test_folder=f"/home/woody/iwb3/iwb3021h/NAS_COMPETITION_RESULTS/full_training_evonas_5epochs_5gen/tests_Adaline_18_06_2024_13_13"
+            #gen=3
+            model_name="accomplished_wolf"
             #config_updates=["REGNET.DROP_RATE",0.05, "REGNET.DROPOUT",0.1]
             #config_updates=None
             # If already trained, add weights_file.
-            #weights_file=f"{test_folder}/Generation_{gen}/{model_name}/student_best"
+            weights_file=f"{test_folder}/Generation_{gen}/{model_name}/student_best"
             #weights_file=f"../../package/tests/Sadie/finetuning/14_06_2024_06_58_adam/student_best"
             #weights_file=None
-            #model,info=regnet_space.load_model(config_file=f"{test_folder}/Generation_{gen}/{model_name}/config.yaml",
-            #                               weights_file=weights_file)
+            model,info=regnet_space.load_model(config_file=f"{test_folder}/Generation_{gen}/{model_name}/config.yaml",
+                                           weights_file=weights_file)
 
-            
+            #################################
             # get ResNet-18 model
 
 
@@ -215,12 +263,25 @@ class DataProcessor:
             batch_size = 128
             train_loader = torch.utils.data.DataLoader(train_ds, batch_size=batch_size, drop_last=True, shuffle=True)
             valid_loader = torch.utils.data.DataLoader(valid_ds, batch_size=batch_size, shuffle=False)
+            test_loader = torch.utils.data.DataLoader(test_ds, batch_size=batch_size, shuffle=False, drop_last=False)
 
             # get trainer and train
             self.metadata["experiment_name"]=f"tests/augmentations_test/{self.metadata['codename']}/aug_{idx}"
-            trainer = TrainerDistillation(model, device, train_loader, valid_loader, self.metadata)
+            #trainer = TrainerDistillation(model, device, train_loader, valid_loader, self.metadata)
+            trainer = Trainer(model, device, train_loader, valid_loader, self.metadata)
             #trainer.epochs = 10
             train_acc, val_acc, epoch_time=trainer.train(return_acc=True)
+            #train_acc, val_acc, epoch_time=(0,0,0)
+            
+            
+            from sklearn.metrics import accuracy_score
+            predictions = trainer.predict(test_loader, use_swa=True)
+            test_score = 100*accuracy_score(test_y, predictions)
+            print(f"SWA test {idx}:", test_score)
+                                               
+            predictions = trainer.predict(test_loader, use_swa=False)
+            test_score = 100*accuracy_score(test_y, predictions)
+            print(f"No SWA test {idx}: ",test_score)
             #acc = trainer.evaluate()
             print(train_acc.cpu().numpy())
             print(val_acc.cpu().numpy())
@@ -229,6 +290,7 @@ class DataProcessor:
             if output_queue is not None:
                 output_queue.put((idx, train_acc.cpu().numpy().astype(float).tolist(), val_acc.cpu().numpy().astype(float).tolist(), epoch_time)) 
             else:
+                #return train_acc, val_acc, epoch_time
                 return train_acc.cpu().numpy().astype(float).tolist(), val_acc.cpu().numpy().astype(float).tolist(), epoch_time
             
             
@@ -251,46 +313,42 @@ class DataProcessor:
         if C==3:
             augmentation_combinations = [
                 [],  # No augmentation
-                [v2.RandomGrayscale(p=0.2),v2.RandomErasing(p=0.1, scale=(0.02, 0.33), ratio=(0.3, 3.3))],
-                [v2.RandomGrayscale(p=0.1),v2.RandomErasing(p=0.1, scale=(0.02, 0.33), ratio=(0.3, 3.3)), 
-                 v2.RandomCrop((H,W), padding=(PH,PW)),
-                v2.RandomHorizontalFlip()],
+                [v2.RandAugment(magnitude=2)],
+                [v2.RandAugment(magnitude=5)],
+                 [v2.RandAugment(magnitude=9)],
                 [ v2.RandomCrop((H,W), padding=(PH,PW)),
                 v2.RandomHorizontalFlip()],
+                [v2.RandomGrayscale(p=0.2),v2.RandomErasing(p=0.1, scale=(0.02, 0.33), ratio=(0.3, 3.3))],
 
-                [data_augmentations[7]], # Gaussian blur
-     # Grayscale, to tensor
-                [data_augmentations[0], data_augmentations[4], data_augmentations[3]],  # Horizontal flip, crop and resize, color jitter
-                [data_augmentations[6], data_augmentations[5], data_augmentations[4]],  # Affine transformation, grayscale, crop and resize
-                [data_augmentations[0], data_augmentations[4], data_augmentations[7], data_augmentations[9]],  # Horizontal flip, crop and resize, Gaussian blur, random erasing
-                #random.sample(data_augmentations, 2),
-                #random.sample(data_augmentations, 2),
-                #random.sample(data_augmentations, 2),
-                #random.sample(data_augmentations, 3),
-            ]
-        else:
-            
+                               ]
+ 
+        elif C==1:
             augmentation_combinations= [
                 [],
-                [ AddNoise(probability=0.1, mean=0.0, stddev=0.1)],
-                [v2.GaussianBlur(kernel_size=(3,3), sigma=(0.1, 5))],
+                [v2.RandAugment(magnitude=5)],
+                [v2.RandAugment(magnitude=9)],
                 [v2.RandomHorizontalFlip(),v2.RandomVerticalFlip()],
                 [v2.RandomErasing(p=0.1, scale=(0.02, 0.2), ratio=(0.3, 3.3))],
                 [v2.RandomCrop((H,W), padding=(PH,PW))],
                 [v2.RandomCrop((H,W), padding=(PH,PW)),
                  v2.RandomHorizontalFlip(), v2.RandomVerticalFlip()],       
-           
-                [v2.RandomCrop((H,W), padding=(PH,PW)),
-                 v2.RandomErasing(p=0.1, scale=(0.02, 0.2), ratio=(0.3, 3.3))],
-                [v2.RandomCrop((H,W), padding=(PH,PW)),
-                 v2.RandomHorizontalFlip(),  # Randomly flip the image horizontally
-                    v2.RandomVerticalFlip(), v2.RandomErasing(p=0.1, scale=(0.02, 0.2), ratio=(0.3, 3.3))]
+
             ]
+        else:
+                augmentation_combinations= [
+                [],
+                [v2.RandomHorizontalFlip(),v2.RandomVerticalFlip()],
+                [v2.RandomErasing(p=0.2, scale=(0.02, 0.2), ratio=(0.3, 3.3))],
+                [v2.RandomCrop((H,W), padding=(PH,PW))],
+                [v2.RandomErasing(p=0.2, scale=(0.02, 0.2), ratio=(0.3, 3.3)),v2.RandomCrop((H,W), padding=(PH,PW)),v2.RandomHorizontalFlip()]
+      
+       
+            ]
+            
 
         results = {}
         results_val_acc={}
         
-
         if not self.multiprocessing:
             for idx, transform in enumerate(augmentation_combinations):
                 model = models.resnet18(weights=None)
@@ -314,7 +372,7 @@ class DataProcessor:
                 output_queue = Queue()
                 ic("initial memory")
                 print(f"Gpu free memory: {get_gpu_memory(0) / (1024 ** 3):.3f} GB")
-                required_memory= 4*2 ** 30
+                required_memory= 3*2 ** 30
                 processes = []
                 total_processes_to_run=len(augmentation_combinations)
                 while idx < total_processes_to_run:#or any(p.is_alive() for p in processes):
@@ -350,27 +408,31 @@ class DataProcessor:
                 get_gpu_memory(0)
                 for p in processes:
                     p.join()
-                
+
                 while not output_queue.empty():
                     idx,train_acc, val_acc, epoch_time=output_queue.get()
-               
-                    
+
+
                     results[str(idx)]={"val_acc":val_acc,
                        "train_acc":train_acc, 
                        "epoch_time":epoch_time}
                     results_val_acc[str(idx)]=val_acc
                     print(results)
                     print(results_val_acc)
-                    
+
         # save the results to a file
         with open(f"tests/augmentations_test/{self.metadata['codename']}augmentation_results.json", 'w') as f:
             json.dump(results, f)
 
-        # return the best transform
-        max_key = max(results_val_acc, key=results_val_acc.get)
+        
+        # Sort the dictionary by value in descending order
+        sorted_items = sorted(results_val_acc.items(), key=lambda item: item[1], reverse=True)
+        print(f"First best key: {sorted_items[0][0]}")
+        print(f"Second best key: {sorted_items[1][0]}")
+        
+        max_key = sorted_items[0][0] if sorted_items[0][0]!="0" else sorted_items[1][0]
         max_value = results_val_acc[max_key]
 
         print(f'The key with the maximum value is "{max_key}" with a value of {max_value}.')
-        
-        #best_transform = max(results, key=lambda x: x[1])[0]
+
         return augmentation_combinations[int(max_key)]

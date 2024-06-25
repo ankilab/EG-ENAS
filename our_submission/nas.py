@@ -72,7 +72,7 @@ class NAS:
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.train_loader=train_loader
         self.valid_loader=valid_loader
-        self.ENAS=False
+        self.ENAS=True
         self.multiprocessing=True
         
         if self.multiprocessing:
@@ -84,7 +84,7 @@ class NAS:
                 mp.set_start_method("spawn")
             
         self.population_size=20
-        self.total_generations=2
+        self.total_generations=5
         self.num_best_parents=5
         self.sim_threshold=0.1
         
@@ -125,10 +125,10 @@ class NAS:
 
             else:
                 if self.current_gen==1:
-                    if self.ENAS:
-                        models, chromosomes=self.regnet_space.create_first_generation(save_folder=self.test_folder,gen=self.current_gen, size=self.population_size, config_updates=None)
-                    else:
-                         models, chromosomes= self.regnet_space.create_random_generation( 
+                    #if self.ENAS:
+                    #    models, chromosomes=self.regnet_space.create_first_generation(save_folder=self.test_folder,gen=self.current_gen, size=self.population_size, config_updates=None)
+                    #else:
+                    models, chromosomes= self.regnet_space.create_random_generation( 
                                                                                         save_folder=self.test_folder,
                                                                                         gen=self.current_gen,
                                                                                         size=self.population_size,
@@ -247,6 +247,9 @@ class NAS:
                         ic(student)
 
                     time.sleep(sleep_time)  # Sleep for a while before checking again
+                    new_avail_mem=get_gpu_memory(0)
+                    if (new_avail_mem-available_memory)>required_memory:
+                        required_memory=new_avail_mem-available_memory
 
 
                 get_gpu_memory(0)

@@ -32,7 +32,13 @@ import os
 from torch.optim.lr_scheduler import _LRScheduler
 
 
-
+def load_checkpoint(checkpoint_path, model, device='cuda' if torch.cuda.is_available() else 'cpu'):
+    if not os.path.exists(checkpoint_path):
+        raise FileNotFoundError(f"Checkpoint file not found: {checkpoint_path}")
+    
+    checkpoint = torch.load(checkpoint_path, map_location=device)
+    model.load_state_dict(checkpoint['model'])
+    return model
 
 class BatchWarmupScheduler(_LRScheduler):
     def __init__(self, optimizer, warmup_batches, last_epoch=-1):
@@ -91,12 +97,12 @@ class TrainerDistillation:
         if self.cfg.SOLVER.WARMUP==True:
             self.warmup_scheduler = BatchWarmupScheduler(self.optimizer, warmup_batches=int(len(train_dataloader)/2))
         if self.cfg.SOLVER.LR_SCHEDULER=="cosine_annealing":
-            self.scheduler = optim.lr_scheduler.CosineAnnealingLR(self.optimizer, T_max=self.cfg.SOLVER.EPOCHS, eta_min=self.cfg.SOLVER.MIN_LR) # CosineAnnealingLR replacing the scheduler defined in the cfg file.
+            self.scheduler = optim.lr_scheduler.CosineAnnealingLR(self.optimizer, T_max=max(self.cfg.SOLVER.SCHEDULER_EPOCHS, self.cfg.SOLVER.EPOCHS), eta_min=self.cfg.SOLVER.MIN_LR) # CosineAnnealingLR replacing the scheduler defined in the cfg file.
         elif self.cfg.SOLVER.LR_SCHEDULER=="one_cycle":
             print(self.cfg.SOLVER.LR)
             print(len(self.train_loader))
             print(self.cfg.SOLVER.EPOCHS)
-            self.scheduler = optim.lr_scheduler.OneCycleLR(self.optimizer, max_lr=self.cfg.SOLVER.LR, steps_per_epoch=len(self.train_loader), epochs=self.cfg.SOLVER.EPOCHS)
+            self.scheduler = optim.lr_scheduler.OneCycleLR(self.optimizer, max_lr=self.cfg.SOLVER.LR, steps_per_epoch=len(self.train_loader), epochs=max(self.cfg.SOLVER.SCHEDULER_EPOCHS, self.cfg.SOLVER.EPOCHS))
         elif self.cfg.SOLVER.LR_SCHEDULER=="step":
             self.scheduler = optim.lr_scheduler.StepLR(self.optimizer, step_size=1, gamma=0.5)
         else:
@@ -296,11 +302,13 @@ class Trainer(TrainerDistillation):
         self.cfg.DATASET.TYPE=metadata["codename"]
         self.cfg.DATASET.CLASSES=metadata["num_classes"]
         self.cfg.DATASET.INPUT_SHAPE=metadata["input_shape"]
+        
         for key in metadata.keys():
             if "experiment_name" in key:
                 self.cfg.EXPERIMENT.NAME=metadata["experiment_name"]
             else:
-                self.cfg.EXPERIMENT.NAME=f"{SUBMISSION_PATH}tests/{metadata['codename']}/finetuning/{datetime.now().strftime('%d_%m_%Y_%H_%M')}_adam"
+                SAVE_PATH=f"{os.getenv('WORK')}/NAS_COMPETITION_RESULTS/full_training_evonas"
+                self.cfg.EXPERIMENT.NAME=f"{SAVE_PATH}/finetuning/{metadata['codename']}"
         self.log_path=self.cfg.EXPERIMENT.NAME
 
         os.makedirs(self.log_path, exist_ok=True)
@@ -311,25 +319,33 @@ class Trainer(TrainerDistillation):
         self.swa_model = torch.optim.swa_utils.AveragedModel(self.distiller.module.student)
         self.swa_start =self.cfg.SOLVER.SWA_START
         self.swa_scheduler = SWALR(self.optimizer, swa_lr=self.cfg.SOLVER.MIN_LR, anneal_strategy="cos", anneal_epochs=self.cfg.SOLVER.EPOCHS-self.cfg.SOLVER.SWA_START)
-        self.ema_model = torch.optim.swa_utils.AveragedModel(self.distiller.module.student, \
-                     multi_avg_fn=torch.optim.swa_utils.get_ema_multi_avg_fn(0.9))
+        #self.ema_model = torch.optim.swa_utils.AveragedModel(self.distiller.module.student, \
+        #             multi_avg_fn=torch.optim.swa_utils.get_ema_multi_avg_fn(0.9))
     
-    def train(self, resume=False):
+        self.patience = 8
+        self.early_stop_counter = 0
+    
+    def train(self,return_acc=False):
         epoch = 1
         start_time=time.time()
         while epoch < self.cfg.SOLVER.EPOCHS + 1:
+            if self.early_stop_counter >= self.patience:
+                print(f"Early stopping at epoch {epoch}")
+                break
             self.train_epoch(epoch)
             epoch += 1
         torch.optim.swa_utils.update_bn(self.train_loader, self.swa_model, self.device)
-        torch.optim.swa_utils.update_bn(self.train_loader, self.ema_model, self.device)
+        #torch.optim.swa_utils.update_bn(self.train_loader, self.ema_model, self.device)
         print(log_msg("Best accuracy:{}".format(self.best_acc), "EVAL"))
         with open(os.path.join(self.log_path, "worklog.txt"), "a") as writer:
             writer.write("best_acc\t" + "{:.2f}".format(float(self.best_acc)))
         with open(os.path.join(self.log_path, "worklog.txt"), "a") as writer:
             writer.write("Total time\t" + "{:.2f}".format(float(time.time()-start_time)))
         # Return trained student
-        return self.distiller.module.student if torch.cuda.is_available() else self.distiller.student
-
+        if return_acc:
+            return self.train_acc,self.best_acc, self.epoch_time
+        else:
+            return self.distiller.module.student if torch.cuda.is_available() else self.distiller.student
     def train_epoch(self, epoch):
         #lr = adjust_learning_rate(epoch, self.cfg, self.optimizer)
         
@@ -356,7 +372,7 @@ class Trainer(TrainerDistillation):
                 self.warmup_scheduler.step()
                 #print(self.optimizer.param_groups[0]['lr'])
             # EMA update logic
-            self.ema_model.update_parameters(self.distiller.module.student)
+            #self.ema_model.update_parameters(self.distiller.module.student)
                 
         #pbar.close()
         
@@ -386,12 +402,23 @@ class Trainer(TrainerDistillation):
         )
         self.log(lr, epoch, log_dict)
         
-        # saving checkpoint
-        student_state = {"model": self.distiller.module.student.state_dict() if torch.cuda.is_available() else self.distiller.student.state_dict() }
-        if test_acc >= self.best_acc:
-            save_checkpoint(student_state, os.path.join(self.log_path, "student_best"))            
 
+        if test_acc >= self.best_acc:
+        # saving checkpoint
+            student_state = {"model": self.distiller.module.student.state_dict() if torch.cuda.is_available() else self.distiller.student.state_dict() }
+            self.train_acc=train_meters["top1"].avg
+            self.epoch_time=log_dict["epoch_time"]
+            save_checkpoint(student_state, os.path.join(self.log_path, "student_best"))            
+            self.early_stop_counter = 0
+        else:
+            self.early_stop_counter += 1
+            if (self.early_stop_counter>=5) and (epoch <= self.swa_start):
+                self.swa_model.update_parameters(self.distiller.module.student)
     def predict(self, test_loader, use_swa=True):
+        checkpoint_path = os.path.join(self.log_path, "student_best")
+        device = 'cuda' if torch.cuda.is_available() else 'cpu'
+        self.distiller.module.student = load_checkpoint(checkpoint_path, self.distiller.module.student, device)
+        
         if use_swa:
             distiller= Vanilla(self.swa_model, 0.0)
             if torch.cuda.is_available():
