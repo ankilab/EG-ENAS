@@ -72,7 +72,7 @@ class NAS:
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.train_loader=train_loader
         self.valid_loader=valid_loader
-        self.ENAS=True
+        self.ENAS=False
         self.multiprocessing=True
         
         if self.multiprocessing:
@@ -84,7 +84,7 @@ class NAS:
                 mp.set_start_method("spawn")
             
         self.population_size=20
-        self.total_generations=5
+        self.total_generations=1
         self.num_best_parents=5
         self.sim_threshold=0.1
         
@@ -125,10 +125,11 @@ class NAS:
 
             else:
                 if self.current_gen==1:
-                    #if self.ENAS:
-                    #    models, chromosomes=self.regnet_space.create_first_generation(save_folder=self.test_folder,gen=self.current_gen, size=self.population_size, config_updates=None)
-                    #else:
-                    models, chromosomes= self.regnet_space.create_random_generation( 
+                    if self.ENAS:
+                        ic("creating first generation")
+                        models, chromosomes=self.regnet_space.create_first_generation(save_folder=self.test_folder,gen=self.current_gen, size=self.population_size, config_updates=None, metadata=self.metadata)
+                    else:
+                        models, chromosomes= self.regnet_space.create_random_generation( 
                                                                                         save_folder=self.test_folder,
                                                                                         gen=self.current_gen,
                                                                                         size=self.population_size,
@@ -220,7 +221,7 @@ class NAS:
                 next_process_index = 0
                 ic("initial memory")
                 print(f"Gpu free memory: {get_gpu_memory(0) / (1024 ** 3):.3f} GB")
-                required_memory= 4*2 ** 30
+                required_memory= 7*2 ** 30
                 self.total_time=time.time()-self.current_time+self.total_time
                 self.current_time=time.time()
                 with open(f"{self.test_folder}/log.json", 'w') as json_file:

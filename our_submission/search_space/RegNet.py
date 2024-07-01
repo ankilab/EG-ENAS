@@ -9,7 +9,9 @@ import torch
 import numpy as np
 import plotly.graph_objects as go
 from .utils import compute_model_size, load_checkpoint
-from itertools import product
+from itertools import product, combinations
+from joblib import dump, load
+import pandas as pd
 
 class RegNet:
     """
@@ -204,30 +206,84 @@ class RegNet:
         info["GROUP_W"]=cfg.REGNET.GROUP_W
         return model, info
 
-    def create_first_generation(self, save_folder,gen, size, config_updates=None):
+    # Create a new column by applying the function to each row
+    def get_ranking(self, ranking_test_df, test_column):
+        ranking_predict={}
+        for ind in list(ranking_test_df.name_A.unique())+list(ranking_test_df.name_B.unique()):
+            ranking_predict[ind]=0
+        for index, row in ranking_test_df.iterrows():
+            if row[test_column]==1:
+                ranking_predict[row["name_A"]]=ranking_predict[row["name_A"]]+1
+            else:
+                ranking_predict[row["name_B"]]=ranking_predict[row["name_B"]]+1
+        ranking_predict_df=pd.DataFrame([ranking_predict]).T.rename(columns={0:"score"}).sort_values(by="score", ascending=False)
+        return ranking_predict_df
+    
+    def create_first_generation(self, save_folder,gen, size, config_updates=None, metadata=None):
         # Create the Cartesian product of these values
-        all_combinations = list(product(self.WA_OPTIONS, self.WM_OPTIONS, self.D_OPTIONS))
-        # Calculate the step sizes based on the desired number of samples
-        step_size = len(all_combinations) // size
-        # Select evenly spaced combinations
-        selected_combinations = all_combinations[::step_size][:size]
-        #print(selected_combinations)
+        models, chromosomes=self.create_random_generation(save_folder=None,gen=None, size=size*5, config_updates=None)
+        rf_classifier=load(f'tests/classifiers/{metadata["codename"]}/rfc_model.joblib')
         
-        random_names=[]
-        for ind in range(size):
-            random_names.append(generate_slug(2).replace("-", "_"))
-        random_names=sorted(random_names)
-        models={}
-        chromosomes={}
-        for ind in range(size):
-            wa,wm,d=selected_combinations[ind]
-            w0=int(random.choice([option for option in self.W0_OPTIONS if option >= wa]))
-            group_w=int(random.choice(self.G_OPTIONS))
-            model, info=self.create_model(params=[float(wa),int(w0),float(wm),int(d), int(group_w)],save_folder=save_folder, name=random_names[ind], gen=gen, config_updates=config_updates)
-            models[random_names[ind]]=model
-            chromosomes[random_names[ind]]=info
+        gen_df=pd.DataFrame(chromosomes).T.reset_index().rename(columns={"index":"name"})[["name","num_stages","params","WA","W0","WM","DEPTH"]]
+        
+        pairs = list(combinations(gen_df.index, 2))
+        combined_data = []
+
+        for idx1, idx2 in pairs:
+            row1 = gen_df.loc[idx1]
+            row2 = gen_df.loc[idx2]
+            combined_row = {
+                'name_A': row1['name'],
+                'name_B': row2['name'],
+                'num_stages_A': row1['num_stages'],
+                'params_A': row1['params'],
+                'WA_A': row1['WA'],
+                'W0_A': row1['W0'],
+                'WM_A': row1['WM'],
+                'DEPTH_A': row1['DEPTH'],
+                'num_stages_B': row2['num_stages'],
+                'params_B': row2['params'],
+                'WA_B': row2['WA'],
+                'W0_B': row2['W0'],
+                'WM_B': row2['WM'],
+                'DEPTH_B': row2['DEPTH'],
+                #'label': 1 if row1['best_acc'] > row2['best_acc'] else 0
+            }
+
+            combined_data.append(combined_row)
+
+        combined_df = pd.DataFrame(combined_data)
+        combined_df["benchmark"]=metadata["benchmark"]
+        combined_df["num_classes"]=metadata["num_classes"]
+        combined_df["num_channels"]=metadata["input_shape"][1]
+
+        cols_train=[ 
+        'num_stages_A', 'WA_A', 'W0_A', "params_A",
+       'WM_A', 'DEPTH_A',
+        'num_stages_B', 'WA_B', 'W0_B', "params_B",
+       'WM_B', 'DEPTH_B',"num_classes", "benchmark", "num_channels"]
+        X_test=combined_df[cols_train]
+        
+        ranking_test_df=combined_df[["name_A","name_B"]]
+        pred_column="rf_prediction"
+        ranking_test_df[pred_column]=rf_classifier.predict(X_test)
+        
+        ranking_prediction_df=self.get_ranking(ranking_test_df, pred_column).head(size)
+        print(ranking_prediction_df)
+        best_individuals=list(ranking_prediction_df.index)
+
+        best_models={}
+        best_chromosomes={}
+        for ind in best_individuals:
+            chrom=chromosomes[ind]
+            wa,w0,wm,d,group_w=chrom["WA"],chrom["W0"],chrom["WM"],chrom["DEPTH"], chrom["GROUP_W"]
+            best_models[ind], best_chromosomes[ind]=self.create_model(params=[float(wa),int(w0),float(wm),int(d), int(group_w)],
+                                      save_folder=save_folder, 
+                                      name=ind, 
+                                      gen=gen, 
+                                      config_updates=config_updates)
             
-        return models, chromosomes
+        return best_models, best_chromosomes
     
     def create_generation(self,params, save_folder,gen, config_updates=None):
         models={}

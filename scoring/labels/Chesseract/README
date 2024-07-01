@@ -1,0 +1,16 @@
+The Chesseract dataset is constructed from publicly accessible Chess games played by Grandmasters: Bobby Fischer, Garry Kasparov, Magnus Carlsen, Viswanathan Anand, Hikaru Nakamura, Anatoly Karpov, Fabiano Caruana, and Mikhail Tal.
+
+We extracted the final 15% of board states where the nth board state refers to the position after N moves.
+
+Chesseract uses 12 channels to encode the information rather than the traditional 2 or 3 for grayscale and RGB images respectively. Each channel represents a singular piece type and colour combination. In essence, this has allowed us to represent the pieces and their position on the board in a one-hot encoded format.
+
+A rendering of one of the board states has been included in this archive to demonstrate how the machine perceives the dataset. A 2D traditional of the same board state is also included. Please note in the 3D rendering the white pieces have been rendered as gray to be more visible.
+
+The data is in a channels-first format with a shape of (n, 12, 8, 8) where n is the number of samples in the corresponding set (49,998 for training, 10,001 for validation, and 10,001 for testing).
+
+There are three classes in the dataset, with labels23,333 examples of each distributed as evenly as possible between the three subsets.
+
+The ten classes and corresponding numerical labels are as follows:
+White wins: 0,
+Draw: 1,
+Black ins: 2

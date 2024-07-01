@@ -10,6 +10,7 @@ from datetime import datetime
 #from lion_pytorch import Lion
 from helpers import Lion
 from torch.optim.swa_utils import AveragedModel, SWALR
+from torchvision.transforms import v2
 
             
 
@@ -295,8 +296,14 @@ class Trainer(TrainerDistillation):
             SUBMISSION_PATH=""
         ic(metadata)
         #cfg_path=f"{SUBMISSION_PATH}../configs/train/finetuning_generation_adam.yaml"
+        if metadata['input_shape'][1]==1 or metadata['input_shape'][1]==3:
+            current_transforms=self.train_loader.dataset.transform.transforms
+            self.train_loader.dataset.transform=v2.Compose([v2.RandAugment(magnitude=9)]+[current_transforms[-1]])
+            ic(self.train_loader.dataset.transform)
+        
+        
         cfg_path=metadata["train_config_path"]
-        print(cfg_path)
+        ic(cfg_path)
         
         self.cfg.merge_from_file(cfg_path)
         self.cfg.DATASET.TYPE=metadata["codename"]
@@ -322,7 +329,7 @@ class Trainer(TrainerDistillation):
         #self.ema_model = torch.optim.swa_utils.AveragedModel(self.distiller.module.student, \
         #             multi_avg_fn=torch.optim.swa_utils.get_ema_multi_avg_fn(0.9))
     
-        self.patience = 8
+        self.patience = 10
         self.early_stop_counter = 0
     
     def train(self,return_acc=False):
@@ -412,7 +419,7 @@ class Trainer(TrainerDistillation):
             self.early_stop_counter = 0
         else:
             self.early_stop_counter += 1
-            if (self.early_stop_counter>=5) and (epoch <= self.swa_start):
+            if (self.early_stop_counter>=6) and (epoch <= self.swa_start):
                 self.swa_model.update_parameters(self.distiller.module.student)
     def predict(self, test_loader, use_swa=True):
         checkpoint_path = os.path.join(self.log_path, "student_best")

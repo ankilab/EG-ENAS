@@ -104,7 +104,7 @@ if __name__ == '__main__':
         # iterate over datasets in the datasets directory
         for dataset in os.listdir("datasets")[:]:
             # load and display data info
-            (train_x, train_y), (valid_x, valid_y), (test_x), metadata = load_datasets(dataset, truncate=True)
+            (train_x, train_y), (valid_x, valid_y), (test_x), metadata = load_datasets(dataset, truncate=False)
             metadata['time_remaining'] = runclock.check()
             this_dataset_start_time = time.time()
 

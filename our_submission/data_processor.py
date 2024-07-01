@@ -2,8 +2,9 @@ import torch
 from torchvision.transforms import v2
 import torchvision.models as models
 import numpy as np
-from utils.transforms import get_train_transform
+from utils.transforms import RandAugment
 from trainer import TrainerDistillation, Trainer
+
 # import torchvision.transforms as transforms
 import json
 import random
@@ -133,8 +134,9 @@ class DataProcessor:
         self.test_x = test_x
         self.test_y=test_y
         self.metadata = metadata
-        self.metadata['train_config_path']="../configs/train/augmentations_adam.yaml"
-        self.metadata["experiment_name"]="tests/augmentations_test"
+        self.metadata['train_config_path']="configs/train/augmentations_adam.yaml"
+        self.SAVE_PATH=f"{os.getenv('WORK')}/NAS_COMPETITION_RESULTS/full_training_evonas"
+        #self.metadata["experiment_name"]="tests/augmentations_test"
         self.multiprocessing=True
         if self.multiprocessing:
             nvmlInit()
@@ -159,15 +161,25 @@ class DataProcessor:
         Here, you can do whatever you want to the input data to process it for your NAS algorithm and training functions
         """
         # Try different transforms for training, we select the best one and use it
-        
-        #train_transform = self._determine_train_transform() if self.metadata["select_augment"] else [v2.RandomErasing(p=0.1, scale=(0.02, 0.33), ratio=(0.3, 3.3))]
-        train_transform = self._determine_train_transform()
+        if "select_augment" in self.metadata:
+            C,H,W=self.metadata['input_shape'][1:4]
+            PH,PW=int(H/8),int(W/8)
+            train_transform = self._determine_train_transform() if self.metadata["select_augment"] else [v2.RandomCrop((H,W), padding=(PH,PW)),
+                v2.RandomHorizontalFlip(), v2.RandomGrayscale(p=0.1),v2.RandomErasing(p=0.1, scale=(0.02, 0.33), ratio=(0.3, 3.3))]
+        else:
+            train_transform = self._determine_train_transform()
+            #C,H,W=self.metadata['input_shape'][1:4]
+            #PH,PW=int(H/8),int(W/8)
+            #train_transform= [v2.RandomCrop((H,W), padding=(PH,PW)),
+            #    v2.RandomHorizontalFlip(), v2.RandomGrayscale(p=0.1),v2.RandomErasing(p=0.1, scale=(0.02, 0.33), ratio=(0.3, 3.3))]
         
         
         # Create dataloaders with final transforms
         train_ds = Dataset(self.train_x, self.train_y, train=True, transform=train_transform)
         valid_ds = Dataset(self.valid_x, self.valid_y, train=False, transform=train_ds.transform_normalization)
         test_ds = Dataset(self.test_x, self.test_y, train=False, transform=train_ds.transform_normalization)
+        
+        
 
         batch_size = 128
 
@@ -185,7 +197,19 @@ class DataProcessor:
                                                   drop_last=False)
         return train_loader, valid_loader, test_loader
     
-    def _train_model(self,model, transform, idx, output_queue=None):
+    def _train_model(self, transform, idx, output_queue=None):
+            model = models.resnet18(weights=None)
+            new_conv1 = torch.nn.Conv2d(in_channels=self.metadata["input_shape"][1], 
+                                      out_channels=model.conv1.out_channels, 
+                                      kernel_size=model.conv1.kernel_size, 
+                                      stride=model.conv1.stride, 
+                                      padding=model.conv1.padding, 
+                                      bias=model.conv1.bias)
+            # Replace the first convolutional layer
+            model.conv1 = new_conv1
+            model.fc = torch.nn.Linear(512, self.metadata['num_classes'])
+            model.to('cuda')
+        
             train_ds = Dataset(self.train_x, self.train_y, train=True, transform=transform)
             valid_ds = Dataset(self.valid_x, self.valid_y, train=False, transform=train_ds.transform_normalization)
             
@@ -196,8 +220,8 @@ class DataProcessor:
             
 
             # get trainer and train
-            SAVE_PATH=f"{os.getenv('WORK')}/NAS_COMPETITION_RESULTS/full_training_evonas"
-            self.metadata["experiment_name"]=f"{SAVE_PATH}/augmentations_test/{self.metadata['codename']}/aug_{idx}"
+            
+            self.metadata["experiment_name"]=f"{self.SAVE_PATH}/augmentations_test/{self.metadata['codename']}/aug_{idx}"
             trainer = TrainerDistillation(model, device, train_loader, valid_loader, self.metadata)
             #trainer = Trainer(model, device, train_loader, valid_loader, self.metadata)
 
@@ -221,6 +245,7 @@ class DataProcessor:
             print(val_acc.cpu().numpy())
             torch.cuda.empty_cache()
             gc.collect()
+
             if output_queue is not None:
                 output_queue.put((idx, train_acc.cpu().numpy().astype(float).tolist(), val_acc.cpu().numpy().astype(float).tolist(), epoch_time)) 
             else:
@@ -311,25 +336,33 @@ class DataProcessor:
         C,H,W=self.metadata['input_shape'][1:4]
         PH,PW=int(H/8),int(W/8)
         if C==3:
+            from timm.data.auto_augment import rand_augment_transform
+            tfm = rand_augment_transform(config_str='rand-m2-n2')
             augmentation_combinations = [
                 [],  # No augmentation
-                [v2.RandAugment(magnitude=2)],
-                [v2.RandAugment(magnitude=5)],
-                 [v2.RandAugment(magnitude=9)],
+                #[v2.RandAugment(magnitude=2)],
+                #[v2.RandAugment(magnitude=5)],
+                #[v2.RandAugment(magnitude=9)],
+                #[v2.ToPILImage(),tfm,v2.ToTensor()],
+                #[v2.TrivialAugmentWide()],
+                [v2.RandomHorizontalFlip(), v2.RandomVerticalFlip()],
                 [ v2.RandomCrop((H,W), padding=(PH,PW)),
                 v2.RandomHorizontalFlip()],
                 [v2.RandomGrayscale(p=0.2),v2.RandomErasing(p=0.1, scale=(0.02, 0.33), ratio=(0.3, 3.3))],
-
+                [ v2.RandomCrop((H,W), padding=(PH,PW)),
+                v2.RandomHorizontalFlip(), v2.RandomGrayscale(p=0.1),v2.RandomErasing(p=0.1, scale=(0.02, 0.33), ratio=(0.3, 3.3))],
                                ]
  
         elif C==1:
             augmentation_combinations= [
                 [],
-                [v2.RandAugment(magnitude=5)],
-                [v2.RandAugment(magnitude=9)],
+                #[v2.RandAugment(magnitude=5)],
+                #[v2.RandAugment(magnitude=9)],
+                #[v2.TrivialAugmentWide()],
                 [v2.RandomHorizontalFlip(),v2.RandomVerticalFlip()],
-                [v2.RandomErasing(p=0.1, scale=(0.02, 0.2), ratio=(0.3, 3.3))],
+                [v2.RandomErasing(p=0.2, scale=(0.05, 0.2), ratio=(0.3, 3.3))],
                 [v2.RandomCrop((H,W), padding=(PH,PW))],
+                [v2.RandomErasing(p=0.1, scale=(0.02, 0.2), ratio=(0.3, 3.3)),v2.RandomCrop((H,W), padding=(PH,PW))],
                 [v2.RandomCrop((H,W), padding=(PH,PW)),
                  v2.RandomHorizontalFlip(), v2.RandomVerticalFlip()],       
 
@@ -338,7 +371,8 @@ class DataProcessor:
                 augmentation_combinations= [
                 [],
                 [v2.RandomHorizontalFlip(),v2.RandomVerticalFlip()],
-                [v2.RandomErasing(p=0.2, scale=(0.02, 0.2), ratio=(0.3, 3.3))],
+                [v2.RandomErasing(p=0.2, scale=(0.05, 0.2), ratio=(0.3, 3.3))],
+                [v2.RandomErasing(p=0.2, scale=(0.02, 0.2), ratio=(0.3, 3.3)), v2.RandomCrop((H,W), padding=(PH,PW))],
                 [v2.RandomCrop((H,W), padding=(PH,PW))],
                 [v2.RandomErasing(p=0.2, scale=(0.02, 0.2), ratio=(0.3, 3.3)),v2.RandomCrop((H,W), padding=(PH,PW)),v2.RandomHorizontalFlip()]
       
@@ -351,18 +385,8 @@ class DataProcessor:
         
         if not self.multiprocessing:
             for idx, transform in enumerate(augmentation_combinations):
-                model = models.resnet18(weights=None)
-                new_conv1 = torch.nn.Conv2d(in_channels=self.metadata["input_shape"][1], 
-                                          out_channels=model.conv1.out_channels, 
-                                          kernel_size=model.conv1.kernel_size, 
-                                          stride=model.conv1.stride, 
-                                          padding=model.conv1.padding, 
-                                          bias=model.conv1.bias)
-                # Replace the first convolutional layer
-                model.conv1 = new_conv1
-                model.fc = torch.nn.Linear(512, self.metadata['num_classes'])
-                model.to('cuda')
-                train_acc, val_acc, epoch_time=self._train_model(model, transform, idx)
+
+                train_acc, val_acc, epoch_time=self._train_model(transform, idx)
                 results[str(idx)]={"val_acc":val_acc,
                                    "train_acc":train_acc, 
                                    "epoch_time":epoch_time}
@@ -384,18 +408,8 @@ class DataProcessor:
                     available_memory = get_gpu_memory(0)
 
                     if (idx < total_processes_to_run) and available_memory>required_memory:
-                        model = models.resnet18(weights=None)
-                        new_conv1 = torch.nn.Conv2d(in_channels=self.metadata["input_shape"][1], 
-                                                  out_channels=model.conv1.out_channels, 
-                                                  kernel_size=model.conv1.kernel_size, 
-                                                  stride=model.conv1.stride, 
-                                                  padding=model.conv1.padding, 
-                                                  bias=model.conv1.bias)
-                        # Replace the first convolutional layer
-                        model.conv1 = new_conv1
-                        model.fc = torch.nn.Linear(512, self.metadata['num_classes'])
-                        model.to('cuda')
-                        p = mp.Process(target=self._train_model, args=(model, augmentation_combinations[idx], idx, output_queue))
+
+                        p = mp.Process(target=self._train_model, args=(augmentation_combinations[idx], idx, output_queue))
                         p.start()
                         processes.append(p)
                         idx += 1
@@ -421,7 +435,7 @@ class DataProcessor:
                     print(results_val_acc)
 
         # save the results to a file
-        with open(f"tests/augmentations_test/{self.metadata['codename']}augmentation_results.json", 'w') as f:
+        with open(f"{self.SAVE_PATH}/augmentations_test/{self.metadata['codename']}/augmentation_results.json", 'w') as f:
             json.dump(results, f)
 
         
