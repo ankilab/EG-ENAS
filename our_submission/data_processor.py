@@ -1,11 +1,10 @@
 import torch
 from torchvision.transforms import v2
+from torchvision import transforms
 import torchvision.models as models
 import numpy as np
-from utils.transforms import RandAugment
 from trainer import TrainerDistillation, Trainer
-
-# import torchvision.transforms as transforms
+import random
 import json
 import random
 from icecream import ic
@@ -18,29 +17,66 @@ device = torch.device("cuda") if torch.cuda.is_available() else torch.device('cp
 from search_space.RegNet import RegNet
 import os
 
+from utils.aug_lib import TrivialAugment, RandAugment
+###################
+
+from typing import Dict, List, Optional, Tuple
+from torch import Tensor
+from enum import Enum
+import math
+from torchvision.transforms import InterpolationMode
+
+##########################
+class RandomPixelChange:
+    def __init__(self, change_prob=0.1):
+        self.change_prob = change_prob
+    
+    def __call__(self, img):
+        # Convert image to numpy array
+        img_array = np.array(img).astype(np.float32)
+        
+        # Normalize the array to [0, 1]
+        img_array = (img_array - img_array.min()) / (img_array.max() - img_array.min())#
+        
+        unique_values=np.unique(img_array)
+        
+        # Generate a random mask with the same shape as img_array
+        mask = np.random.rand(*img_array.shape) < self.change_prob
+        
+        # Apply the mask to randomly change the pixels to any of the unique values
+        random_values = np.random.choice(unique_values, size=img_array.shape)
+        img_array[mask] = random_values[mask]
+        
+        return img_array.transpose(1, 2, 0)
+
+#########################
+class RandomPixelFlip:
+    def __init__(self, flip_prob=0.1):
+        self.flip_prob = flip_prob
+    
+    def __call__(self, img):
+        # Convert image to numpy array
+        img_array = np.array(img)
+        
+        min_val=img_array.min()
+        max_val=img_array.max()
+        
+        img_array = (img_array - min_val) / (max_val - min_val)
+        
+        # Generate a random mask with the same shape as img_array
+        mask = np.random.rand(*img_array.shape) < self.flip_prob
+        
+        # Apply the mask to flip the pixels
+        img_array[mask] = 1 - img_array[mask]
+
+        return img_array.transpose(1, 2, 0)
+
 def get_gpu_memory(gpu_id):
     handle = nvmlDeviceGetHandleByIndex(gpu_id)
     info = nvmlDeviceGetMemoryInfo(handle)
     
     return info.free
 
-class AddNoise:
-    def __init__(self, probability=0.1, mean=0.0, stddev=1.0):
-        self.probability = probability
-        self.mean = mean
-        self.stddev = stddev
-
-    def __call__(self, tensor):
-        # Create a mask with the same shape as the tensor, where each element has a specified probability of being 1 (adding noise)
-        mask = torch.rand(tensor.shape) < self.probability
-
-        # Generate Gaussian noise with the same shape as the tensor
-        noise = torch.randn(tensor.shape) * self.stddev + self.mean
-
-        # Apply the noise to the tensor based on the mask
-        noisy_tensor = torch.where(mask, tensor + noise, tensor)
-
-        return noisy_tensor
     
 class Dataset(torch.utils.data.Dataset):
     def __init__(self, x, y, train=False, transform=None, calibration=True):
@@ -52,20 +88,31 @@ class Dataset(torch.utils.data.Dataset):
         else:
             self.y = torch.tensor(y)
 
-        print(transform)
+        #print(transform)
 
         # example transform
         if train:
             self.mean = torch.mean(self.x, [0, 2, 3])
             self.std = torch.std(self.x, [0, 2, 3])
-            self.transform_normalization=[v2.Normalize(self.mean, self.std)]
+            self.transform_normalization=[transforms.Normalize(self.mean, self.std)]
             #print(self.transform_normalization)
             #if calibration:
             # print(transform)
-            self.transform = v2.Compose(transform+self.transform_normalization)
+            self.transform = transforms.Compose(transform+self.transform_normalization)
+            #self.transform=RandomPixelFlip(0.02)
+            #self.transform=None
+            #self.x=torch.stack([v2.RandAugment()(img) for img in self.x])
         else:
+            #self.transform=v2.Compose([v2.ToDtype(torch.uint8, scale=True),v2.ToDtype(torch.float32, scale=True)]+transform)
+            #self.transform=v2.Compose([v2.ToDtype(torch.uint8, scale=True), v2.ToDtype(torch.float32, scale=True)]+transform)
             self.transform=v2.Compose(transform)
-        
+            #self.transform=None
+            #self.transform=RandomPixelFlip(0.02)
+            
+            #base_t=[transforms.ToPILImage(), transforms.ToDtype(torch.uint8, scale=True), transforms.ToDtype(torch.float32, scale=True)]        
+            #self.transform=transforms.Compose(base_t+transform)
+            
+    
 
     def __len__(self):
         return len(self.x)
@@ -82,27 +129,6 @@ class Dataset(torch.utils.data.Dataset):
         else:
             return im, self.y[idx]
 
-class SaltAndPepperNoise:
-    def __init__(self, probability=0.05, salt_ratio=0.5):
-        self.probability = probability
-        self.salt_ratio = salt_ratio
-
-    def __call__(self, tensor):
-        noisy_tensor = tensor.clone()
-        max_value = torch.max(tensor)
-        min_value = torch.min(tensor)
-
-        # Generate random mask for salt and pepper noise
-        salt_mask = torch.rand(tensor.shape) < self.probability / 2
-        pepper_mask = torch.rand(tensor.shape) < self.probability / 2
-
-        # Add salt noise
-        noisy_tensor[salt_mask] = max_value  # Set salt noise to maximum value
-
-        # Add pepper noise
-        noisy_tensor[pepper_mask] = min_value  # Set pepper noise to minimum value
-
-        return noisy_tensor
 
 
 class DataProcessor:
@@ -134,7 +160,7 @@ class DataProcessor:
         self.test_x = test_x
         self.test_y=test_y
         self.metadata = metadata
-        self.metadata['train_config_path']="configs/train/augmentations_adam.yaml"
+        self.metadata['train_config_path']="our_submission/configs/train/augmentations_adam.yaml"
         self.SAVE_PATH=f"{os.getenv('WORK')}/NAS_COMPETITION_RESULTS/full_training_evonas"
         #self.metadata["experiment_name"]="tests/augmentations_test"
         self.multiprocessing=True
@@ -162,17 +188,25 @@ class DataProcessor:
         """
         # Try different transforms for training, we select the best one and use it
         if "select_augment" in self.metadata:
-            C,H,W=self.metadata['input_shape'][1:4]
-            PH,PW=int(H/8),int(W/8)
-            train_transform = self._determine_train_transform() if self.metadata["select_augment"] else [v2.RandomCrop((H,W), padding=(PH,PW)),
-                v2.RandomHorizontalFlip(), v2.RandomGrayscale(p=0.1),v2.RandomErasing(p=0.1, scale=(0.02, 0.33), ratio=(0.3, 3.3))]
-        else:
-            train_transform = self._determine_train_transform()
+            train_transform = self._determine_train_transform() if self.metadata["select_augment"] else [RandomPixelChange(0.01), v2.ToTensor(), v2.RandomHorizontalFlip(),v2.RandomVerticalFlip()]
+            
+            #train_transform=[v2.ToPILImage(),TrivialAugment(), v2.PILToTensor(), v2.ToDtype(torch.float32, scale=True)]
+            #train_transform=[v2.ToDtype(torch.uint8, scale=True),TrivialAugmentWide(), v2.ToDtype(torch.float32, scale=True)]
+            #train_transform=[v2.ToDtype(torch.uint8, scale=True),TrivialAugmentWide(shape=self.metadata["input_shape"][-3:]), v2.ToDtype(torch.float32, scale=True)]
+            #train_transform=[v2.RandAugment()]
+            #train_transform=[v2.RandomHorizontalFlip()]
+            #train_transform=[TrivialAugmentWide(shape=self.metadata["input_shape"][-3:])]
+            #train_transform=[TrivialAugment()]
+
             #C,H,W=self.metadata['input_shape'][1:4]
             #PH,PW=int(H/8),int(W/8)
-            #train_transform= [v2.RandomCrop((H,W), padding=(PH,PW)),
-            #    v2.RandomHorizontalFlip(), v2.RandomGrayscale(p=0.1),v2.RandomErasing(p=0.1, scale=(0.02, 0.33), ratio=(0.3, 3.3))]
-        
+            #train_transform=  [v2.RandomHorizontalFlip(), v2.RandomCrop((H,W), padding=(PH,PW)), 
+            #v2.RandomErasing(p=0.1, scale=(0.02, 0.33), ratio=(0.3, 3.3))]
+            #train_transform=  []
+                               
+        else:
+            train_transform = self._determine_train_transform()
+
         
         # Create dataloaders with final transforms
         train_ds = Dataset(self.train_x, self.train_y, train=True, transform=train_transform)
@@ -321,30 +355,17 @@ class DataProcessor:
             
     def _determine_train_transform(self):
         print(self.metadata)
-        data_augmentations = [
-                    v2.RandomHorizontalFlip(),  # Randomly flip the image horizontally
-                    v2.RandomVerticalFlip(),    # Randomly flip the image vertically
-                    v2.RandomRotation(30),      # Randomly rotate the image by up to 30 degrees
-                    v2.ColorJitter(brightness=0.1, contrast=0.1, saturation=0.1, hue=0.1),  # Randomly change brightness, contrast, saturation, and hue
-                    v2.RandomCrop((self.metadata['input_shape'][2],self.metadata['input_shape'][3]), padding=4),  # Randomly crop and resize the image
-                    v2.RandomGrayscale(p=0.1),  # Randomly convert the image to grayscale with a probability of 0.1
-                    v2.RandomAffine(degrees=30, translate=(0.1, 0.1), scale=(0.8, 1.2), shear=10),  # Random affine transformation
-                    v2.GaussianBlur(kernel_size=(5, 9), sigma=(0.1, 5)),  # Apply Gaussian blur with random parameters
-                    v2.RandomPerspective(distortion_scale=0.5, p=0.5),  # Apply random perspective transformation
-                    v2.RandomErasing(p=0.1, scale=(0.02, 0.33), ratio=(0.3, 3.3)),  # Randomly erase a rectangle region in the image
-        ]
         C,H,W=self.metadata['input_shape'][1:4]
         PH,PW=int(H/8),int(W/8)
-        if C==3:
-            from timm.data.auto_augment import rand_augment_transform
-            tfm = rand_augment_transform(config_str='rand-m2-n2')
+        unique_values=np.unique(self.train_x)
+        if C==3 and len(unique_values)>3:
             augmentation_combinations = [
                 [],  # No augmentation
-                #[v2.RandAugment(magnitude=2)],
-                #[v2.RandAugment(magnitude=5)],
-                #[v2.RandAugment(magnitude=9)],
-                #[v2.ToPILImage(),tfm,v2.ToTensor()],
-                #[v2.TrivialAugmentWide()],
+                [RandomPixelChange(0.02), v2.ToTensor()],
+                [RandomPixelChange(0.05), v2.ToTensor()],
+                [RandomPixelChange(0.01), v2.ToTensor(), v2.RandomHorizontalFlip(),v2.RandomVerticalFlip()],
+                [RandomPixelChange(0.01), v2.ToTensor(), v2.RandomCrop((H,W), padding=(PH,PW))],
+
                 [v2.RandomHorizontalFlip(), v2.RandomVerticalFlip()],
                 [ v2.RandomCrop((H,W), padding=(PH,PW)),
                 v2.RandomHorizontalFlip()],
@@ -353,12 +374,16 @@ class DataProcessor:
                 v2.RandomHorizontalFlip(), v2.RandomGrayscale(p=0.1),v2.RandomErasing(p=0.1, scale=(0.02, 0.33), ratio=(0.3, 3.3))],
                                ]
  
-        elif C==1:
+        elif C==1 and len(unique_values)>3:
             augmentation_combinations= [
                 [],
                 #[v2.RandAugment(magnitude=5)],
                 #[v2.RandAugment(magnitude=9)],
                 #[v2.TrivialAugmentWide()],
+                [RandomPixelChange(0.02), v2.ToTensor()],
+                [RandomPixelChange(0.05), v2.ToTensor()],
+                [RandomPixelChange(0.01), v2.ToTensor(), v2.RandomHorizontalFlip(),v2.RandomVerticalFlip()],
+                [RandomPixelChange(0.01), v2.ToTensor(), v2.RandomCrop((H,W), padding=(PH,PW))],
                 [v2.RandomHorizontalFlip(),v2.RandomVerticalFlip()],
                 [v2.RandomErasing(p=0.2, scale=(0.05, 0.2), ratio=(0.3, 3.3))],
                 [v2.RandomCrop((H,W), padding=(PH,PW))],
@@ -370,6 +395,10 @@ class DataProcessor:
         else:
                 augmentation_combinations= [
                 [],
+                [RandomPixelChange(0.01), v2.ToTensor()],
+                [RandomPixelChange(0.05), v2.ToTensor()],
+                [RandomPixelChange(0.01), v2.ToTensor(), v2.RandomHorizontalFlip(),v2.RandomVerticalFlip()],
+                [RandomPixelChange(0.01), v2.ToTensor(), v2.RandomCrop((H,W), padding=(PH,PW))],
                 [v2.RandomHorizontalFlip(),v2.RandomVerticalFlip()],
                 [v2.RandomErasing(p=0.2, scale=(0.05, 0.2), ratio=(0.3, 3.3))],
                 [v2.RandomErasing(p=0.2, scale=(0.02, 0.2), ratio=(0.3, 3.3)), v2.RandomCrop((H,W), padding=(PH,PW))],

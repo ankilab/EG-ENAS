@@ -153,6 +153,7 @@ class TrainerDistillation:
     def train(self, return_acc=False ):
         epoch = 1
         start_time=time.time()
+        #ic("start training")
         while epoch < self.cfg.SOLVER.EPOCHS + 1:
             self.train_epoch(epoch)
             epoch += 1
@@ -171,7 +172,7 @@ class TrainerDistillation:
         #lr = adjust_learning_rate(epoch, self.cfg, self.optimizer)
         
         lr = self.optimizer.param_groups[0]['lr']
-        
+        #ic(lr)
         train_meters = {
             "training_time": AverageMeter(),
             "data_time": AverageMeter(),
@@ -187,6 +188,7 @@ class TrainerDistillation:
         self.distiller.train()
         for idx, data in enumerate(self.train_loader):
             msg = self.train_iter(data, epoch, train_meters)
+            #ic(idx)
         #    pbar.set_description(log_msg(msg, "TRAIN"))
         #    pbar.update()
             if epoch==1 and self.cfg.SOLVER.WARMUP:
@@ -197,7 +199,7 @@ class TrainerDistillation:
             self.scheduler.step()
         # validate
         test_acc, test_acc_top5, test_loss = validate(self.val_loader, self.distiller, self.cfg.SOLVER.TOPK)
-
+        #ic(test_acc)
             
 
         # log
@@ -212,6 +214,9 @@ class TrainerDistillation:
 
             }
         )
+        #ic(self.log_path)
+        #ic(epoch)
+        #ic(log_dict)
         self.log(lr, epoch, log_dict)
         # saving checkpoint
 
@@ -238,7 +243,6 @@ class TrainerDistillation:
 
         # forward
         preds, losses_dict = self.distiller(image=image, target=target, epoch=epoch)
-
         # backward
         loss = sum([l.mean() for l in losses_dict.values()])
         loss.backward()
@@ -251,6 +255,7 @@ class TrainerDistillation:
         train_meters["top1"].update(acc1[0], batch_size)
         train_meters["top5"].update(acc5[0], batch_size)
         # print info
+        #ic(acc1)
         msg = "Epoch:{}| Time(data):{:.3f}| Time(train):{:.3f}| Loss:{:.4f}| Top-1:{:.3f}| Top-{}:{:.3f}".format(
             epoch,
             train_meters["data_time"].avg,
@@ -260,6 +265,7 @@ class TrainerDistillation:
             self.cfg.SOLVER.TOPK,
             train_meters["top5"].avg,
         )
+        #ic(msg)
         return msg
 
 

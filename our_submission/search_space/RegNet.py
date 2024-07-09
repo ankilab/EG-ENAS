@@ -220,6 +220,7 @@ class RegNet:
         return ranking_predict_df
     
     def create_first_generation(self, save_folder,gen, size, config_updates=None, metadata=None):
+        #config_updates=["REGNET.DROP_RATE",0.05, "REGNET.DROPOUT",0.1]
         # Create the Cartesian product of these values
         models, chromosomes=self.create_random_generation(save_folder=None,gen=None, size=size*5, config_updates=None)
         rf_classifier=load(f'tests/classifiers/{metadata["codename"]}/rfc_model.joblib')

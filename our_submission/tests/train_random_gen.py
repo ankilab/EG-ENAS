@@ -4,6 +4,7 @@ import torch
 import random
 import numpy as np
 import time
+import os
 from IPython.display import clear_output
 sys.path.append("our_submission")
 ####### Dataset ############
@@ -15,16 +16,16 @@ from search_space.utils import create_widths_plot, scatter_results, get_generati
 from trainer import Trainer, TrainerDistillation
 from utils.train_cfg import get_cfg, show_cfg
 ###################################################
-#random_seed = 1
-#random.seed(random_seed)
+random_seed = 1
+random.seed(random_seed)
 # Set seed for NumPy
-#np.random.seed(random_seed)
+np.random.seed(random_seed)
 # Set seed for PyTorch
-#torch.manual_seed(random_seed)
-#torch.cuda.manual_seed_all(random_seed)
+torch.manual_seed(random_seed)
+torch.cuda.manual_seed_all(random_seed)
 # Additional steps if using CuDNN (optional, for GPU acceleration)
-#torch.backends.cudnn.deterministic = True
-#torch.backends.cudnn.benchmark = False
+torch.backends.cudnn.deterministic = True
+torch.backends.cudnn.benchmark = False
 ########################################
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 import os
@@ -47,6 +48,10 @@ from joblib import dump, load
 
 
 from pynvml import nvmlInit, nvmlDeviceGetHandleByIndex, nvmlDeviceGetMemoryInfo
+
+
+
+
 def get_gpu_memory(gpu_id):
     handle = nvmlDeviceGetHandleByIndex(gpu_id)
     info = nvmlDeviceGetMemoryInfo(handle)
@@ -113,10 +118,10 @@ if __name__ == '__main__':
         # Set the start method if it hasn't been set yet
         mp.set_start_method("spawn")
     SUBMISSION_PATH="our_submission"
-    Dataset="AddNIST"
+    Dataset="Gutenberg"
     (train_x, train_y), (valid_x, valid_y), (test_x), metadata = load_datasets(Dataset, truncate=False)
     test_y = np.load(os.path.join('datasets/'+Dataset,'test_y.npy'))
-    metadata["select_augment"]=False
+    metadata["select_augment"]=True
     data_processor = DataProcessor(train_x[:], train_y[:], valid_x, valid_y, test_x, metadata)
     train_loader, valid_loader, test_loader = data_processor.process()
     
@@ -128,14 +133,14 @@ if __name__ == '__main__':
                     G=[8,8,8], 
                     base_config=f"{SUBMISSION_PATH}/configs/search_space/config.yaml")
 
-    classifiers = {
-        "Gradient Boosting": load(f"{SUBMISSION_PATH}/tests/classifiers/gbc_model.joblib"),
-        "Random Forest": load(f'{SUBMISSION_PATH}/tests/classifiers/rfc_model.joblib'),
-        "XGBoost": load(f'{SUBMISSION_PATH}/tests/classifiers/xgboost_model.joblib')
-    }
+    #classifiers = {
+    #    "Gradient Boosting": load(f"{SUBMISSION_PATH}/tests/classifiers/gbc_model.joblib"),
+    #    "Random Forest": load(f'{SUBMISSION_PATH}/tests/classifiers/rfc_model.joblib'),
+    #    "XGBoost": load(f'{SUBMISSION_PATH}/tests/classifiers/xgboost_model.joblib')
+    #}
     
-    test_folder=f"{SUBMISSION_PATH}/tests/tests/classifier"
-    models, chromosomes=rg.create_random_generation(save_folder=test_folder,gen=None, size=100, config_updates=None)
+    test_folder=f"{os.getenv('WORK')}/NAS_COMPETITION_RESULTS/classifier_train/{metadata['codename']}"
+    models, chromosomes=rg.create_random_generation(save_folder=test_folder,gen=None, size=3, config_updates=None)
     
     # Train models
     metadata["train_config_path"]=f'{SUBMISSION_PATH}/configs/train/first_generation_adam.yaml'
@@ -147,42 +152,46 @@ if __name__ == '__main__':
             f.write(train_cfg.dump()) 
 
     models_names=sorted(list(models.keys()))[:] 
-    
+    multi=True
+    if multi:
+        #WITH MULTIPROCESSING
+        next_process_index = 0
+        ic("initial memory")
+        print(f"Gpu free memory: {get_gpu_memory(0) / (1024 ** 3):.3f} GB")
+        required_memory= 5*2 ** 30
 
-    #WITH MULTIPROCESSING
-    next_process_index = 0
-    ic("initial memory")
-    print(f"Gpu free memory: {get_gpu_memory(0) / (1024 ** 3):.3f} GB")
-    required_memory= 4*2 ** 30
+        processes = []
+        total_processes_to_run=len(models_names)
+        while next_process_index < total_processes_to_run:#or any(p.is_alive() for p in processes):
+            if next_process_index<5:
+                sleep_time=3
+            else:
+                sleep_time=10
 
-    processes = []
-    total_processes_to_run=len(models_names)
-    while next_process_index < total_processes_to_run:#or any(p.is_alive() for p in processes):
-        if next_process_index<5:
-            sleep_time=3
-        else:
-            sleep_time=10
+            available_memory = get_gpu_memory(0)
 
-        available_memory = get_gpu_memory(0)
+            if (next_process_index < total_processes_to_run) and available_memory>required_memory:
+                student=models_names[next_process_index]
+                p = mp.Process(target=train_mp, args=(models[student],student, metadata, test_folder, device, train_loader,valid_loader))
+                p.start()
+                processes.append(p)
+                next_process_index += 1
+                print(f"Gpu free memory: {available_memory / (1024 ** 3):.3f} GB")
+                ic(next_process_index)
+                ic(student)
 
-        if (next_process_index < total_processes_to_run) and available_memory>required_memory:
-            student=models_names[next_process_index]
-            p = mp.Process(target=train_mp, args=(models[student],student, metadata, test_folder, device, train_loader,valid_loader))
-            p.start()
-            processes.append(p)
-            next_process_index += 1
-            print(f"Gpu free memory: {available_memory / (1024 ** 3):.3f} GB")
-            ic(next_process_index)
-            ic(student)
+            time.sleep(sleep_time)  # Sleep for a while before checking again
+            new_avail_mem=get_gpu_memory(0)
+            if (new_avail_mem-available_memory)>required_memory:
+                required_memory=new_avail_mem-available_memory
 
-        time.sleep(sleep_time)  # Sleep for a while before checking again
-        new_avail_mem=get_gpu_memory(0)
-        if (new_avail_mem-available_memory)>required_memory:
-            required_memory=new_avail_mem-available_memory
+        get_gpu_memory(0)
+        for p in processes:
+            p.join()
+    else:
+         for name in models_names:
+                train_mp(models[name],name, metadata, test_folder, device, train_loader,valid_loader)
 
 
-    get_gpu_memory(0)
-    for p in processes:
-        p.join()
 
     results_df=get_generation_dfs(f"{test_folder}", corr=False, chromosomes=chromosomes, save=True, gen=None)

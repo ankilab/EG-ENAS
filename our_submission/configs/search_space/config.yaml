@@ -10,7 +10,7 @@ REGNET:
   SE_R: 0.25
   DOWNSAMPLE: avg #AVG as resnet-D, conv1x1 as resnet. 
   DROP_RATE: 0.01 #Stochastic drop path rate
-  DROPOUT: 0.1
+  DROPOUT: 0.2
 
   DEPTH: 20 # Depth
   W0: 232 # Initial width
