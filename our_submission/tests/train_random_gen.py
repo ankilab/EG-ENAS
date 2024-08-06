@@ -16,16 +16,16 @@ from search_space.utils import create_widths_plot, scatter_results, get_generati
 from trainer import Trainer, TrainerDistillation
 from utils.train_cfg import get_cfg, show_cfg
 ###################################################
-random_seed = 1
-random.seed(random_seed)
+#random_seed = 1
+#random.seed(random_seed)
 # Set seed for NumPy
-np.random.seed(random_seed)
+#np.random.seed(random_seed)
 # Set seed for PyTorch
-torch.manual_seed(random_seed)
-torch.cuda.manual_seed_all(random_seed)
+#torch.manual_seed(random_seed)
+#torch.cuda.manual_seed_all(random_seed)
 # Additional steps if using CuDNN (optional, for GPU acceleration)
-torch.backends.cudnn.deterministic = True
-torch.backends.cudnn.benchmark = False
+#torch.backends.cudnn.deterministic = True
+#torch.backends.cudnn.benchmark = False
 ########################################
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 import os
@@ -118,14 +118,14 @@ if __name__ == '__main__':
         # Set the start method if it hasn't been set yet
         mp.set_start_method("spawn")
     SUBMISSION_PATH="our_submission"
-    Dataset="Gutenberg"
+    Dataset="Language"
     (train_x, train_y), (valid_x, valid_y), (test_x), metadata = load_datasets(Dataset, truncate=False)
     test_y = np.load(os.path.join('datasets/'+Dataset,'test_y.npy'))
     metadata["select_augment"]=True
     data_processor = DataProcessor(train_x[:], train_y[:], valid_x, valid_y, test_x, metadata)
     train_loader, valid_loader, test_loader = data_processor.process()
     
-    rg=regnet_space=RegNet(metadata,
+    rg=RegNet(metadata,
                     W0=[16, 120, 8],
                     WA=[16, 64, 8],
                     WM=[2.05,2.9,0.05],
@@ -140,10 +140,11 @@ if __name__ == '__main__':
     #}
     
     test_folder=f"{os.getenv('WORK')}/NAS_COMPETITION_RESULTS/classifier_train/{metadata['codename']}"
-    models, chromosomes=rg.create_random_generation(save_folder=test_folder,gen=None, size=3, config_updates=None)
+    models, chromosomes=rg.create_random_generation(save_folder=test_folder,gen=None, size=120, config_updates=None)
     
     # Train models
     metadata["train_config_path"]=f'{SUBMISSION_PATH}/configs/train/first_generation_adam.yaml'
+    ic(metadata)
     train_cfg=get_cfg()
     train_cfg.merge_from_file(metadata["train_config_path"])
 

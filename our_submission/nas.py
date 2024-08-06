@@ -72,7 +72,7 @@ class NAS:
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.train_loader=train_loader
         self.valid_loader=valid_loader
-        self.ENAS=False
+        self.ENAS=True
         self.multiprocessing=True
         
         if self.multiprocessing:

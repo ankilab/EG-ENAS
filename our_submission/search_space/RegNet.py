@@ -223,7 +223,7 @@ class RegNet:
         #config_updates=["REGNET.DROP_RATE",0.05, "REGNET.DROPOUT",0.1]
         # Create the Cartesian product of these values
         models, chromosomes=self.create_random_generation(save_folder=None,gen=None, size=size*5, config_updates=None)
-        rf_classifier=load(f'tests/classifiers/{metadata["codename"]}/rfc_model.joblib')
+        rf_classifier=load(f'tests/classifiers/{metadata["codename"]}/rfc_model_50.joblib')
         
         gen_df=pd.DataFrame(chromosomes).T.reset_index().rename(columns={"index":"name"})[["name","num_stages","params","WA","W0","WM","DEPTH"]]
         

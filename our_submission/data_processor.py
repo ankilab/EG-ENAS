@@ -105,8 +105,9 @@ class Dataset(torch.utils.data.Dataset):
         else:
             #self.transform=v2.Compose([v2.ToDtype(torch.uint8, scale=True),v2.ToDtype(torch.float32, scale=True)]+transform)
             #self.transform=v2.Compose([v2.ToDtype(torch.uint8, scale=True), v2.ToDtype(torch.float32, scale=True)]+transform)
-            self.transform=v2.Compose(transform)
-            #self.transform=None
+            #self.transform=v2.Compose(transform)
+            #self.transform= v2.Compose([RandomPixelChange(0.02), v2.ToTensor()])
+            self.transform=None
             #self.transform=RandomPixelFlip(0.02)
             
             #base_t=[transforms.ToPILImage(), transforms.ToDtype(torch.uint8, scale=True), transforms.ToDtype(torch.float32, scale=True)]        
@@ -160,7 +161,7 @@ class DataProcessor:
         self.test_x = test_x
         self.test_y=test_y
         self.metadata = metadata
-        self.metadata['train_config_path']="our_submission/configs/train/augmentations_adam.yaml"
+        self.metadata['train_config_path']="configs/train/augmentations_adam.yaml"
         self.SAVE_PATH=f"{os.getenv('WORK')}/NAS_COMPETITION_RESULTS/full_training_evonas"
         #self.metadata["experiment_name"]="tests/augmentations_test"
         self.multiprocessing=True
@@ -358,6 +359,7 @@ class DataProcessor:
         C,H,W=self.metadata['input_shape'][1:4]
         PH,PW=int(H/8),int(W/8)
         unique_values=np.unique(self.train_x)
+
         if C==3 and len(unique_values)>3:
             augmentation_combinations = [
                 [],  # No augmentation
@@ -416,6 +418,7 @@ class DataProcessor:
             for idx, transform in enumerate(augmentation_combinations):
 
                 train_acc, val_acc, epoch_time=self._train_model(transform, idx)
+
                 results[str(idx)]={"val_acc":val_acc,
                                    "train_acc":train_acc, 
                                    "epoch_time":epoch_time}
@@ -454,8 +457,7 @@ class DataProcessor:
 
                 while not output_queue.empty():
                     idx,train_acc, val_acc, epoch_time=output_queue.get()
-
-
+                    
                     results[str(idx)]={"val_acc":val_acc,
                        "train_acc":train_acc, 
                        "epoch_time":epoch_time}
@@ -477,5 +479,6 @@ class DataProcessor:
         max_value = results_val_acc[max_key]
 
         print(f'The key with the maximum value is "{max_key}" with a value of {max_value}.')
+
 
         return augmentation_combinations[int(max_key)]

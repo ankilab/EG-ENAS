@@ -98,6 +98,7 @@ class ParentsKD(Distiller):
         self.kd_epochs=cfg.KD.LOSS.KD_EPOCHS
         self.kd_reduction=cfg.KD.LOSS.KD_REDUCTION
 
+
     def forward_train(self, image, target, **kwargs):
         #logits_student, _ = self.student(image)
         logits_student = self.student(image)

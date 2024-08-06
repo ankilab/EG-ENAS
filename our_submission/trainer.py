@@ -11,6 +11,7 @@ from datetime import datetime
 from helpers import Lion
 from torch.optim.swa_utils import AveragedModel, SWALR
 from torchvision.transforms import v2
+import numpy as np
 
             
 
@@ -302,7 +303,7 @@ class Trainer(TrainerDistillation):
             SUBMISSION_PATH=""
         ic(metadata)
         #cfg_path=f"{SUBMISSION_PATH}../configs/train/finetuning_generation_adam.yaml"
-        if metadata['input_shape'][1]==1 or metadata['input_shape'][1]==3:
+        if (metadata['input_shape'][1]==1 or metadata['input_shape'][1]==3) and len(np.unique(self.train_loader.dataset.x))>3:
             current_transforms=self.train_loader.dataset.transform.transforms
             self.train_loader.dataset.transform=v2.Compose([v2.RandAugment(magnitude=9)]+[current_transforms[-1]])
             ic(self.train_loader.dataset.transform)
