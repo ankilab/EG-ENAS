@@ -71,12 +71,8 @@ class TrainerDistillation:
     """
     def __init__(self, model, device, train_dataloader, valid_dataloader, metadata, test=False):
         self.cfg = get_cfg()
-        #for key in metadata.keys():
-        #    if "train_config_path" in key:
+
         cfg_path=metadata["train_config_path"]
-        #        break
-        #    else:
-        #        cfg_path=f"{SUBMISSION_PATH}configs/train/vanilla_generation_adam.yaml"
         self.cfg.merge_from_file(cfg_path)
         self.cfg.DATASET.TYPE=metadata["codename"]
         self.cfg.DATASET.CLASSES=metadata["num_classes"]
@@ -329,9 +325,7 @@ class Trainer(TrainerDistillation):
         self.swa_model = torch.optim.swa_utils.AveragedModel(self.distiller.module.student)
         self.swa_start =self.cfg.SOLVER.SWA_START
         self.swa_scheduler = SWALR(self.optimizer, swa_lr=self.cfg.SOLVER.MIN_LR, anneal_strategy="cos", anneal_epochs=self.cfg.SOLVER.EPOCHS-self.cfg.SOLVER.SWA_START)
-        #self.ema_model = torch.optim.swa_utils.AveragedModel(self.distiller.module.student, \
-        #             multi_avg_fn=torch.optim.swa_utils.get_ema_multi_avg_fn(0.9))
-    
+
         self.patience = 10
         self.early_stop_counter = 0
     
@@ -345,7 +339,7 @@ class Trainer(TrainerDistillation):
             self.train_epoch(epoch)
             epoch += 1
         torch.optim.swa_utils.update_bn(self.train_loader, self.swa_model, self.device)
-        #torch.optim.swa_utils.update_bn(self.train_loader, self.ema_model, self.device)
+
         print(log_msg("Best accuracy:{}".format(self.best_acc), "EVAL"))
         with open(os.path.join(self.log_path, "worklog.txt"), "a") as writer:
             writer.write("best_acc\t" + "{:.2f}".format(float(self.best_acc)))
@@ -357,7 +351,6 @@ class Trainer(TrainerDistillation):
         else:
             return self.distiller.module.student if torch.cuda.is_available() else self.distiller.student
     def train_epoch(self, epoch):
-        #lr = adjust_learning_rate(epoch, self.cfg, self.optimizer)
         
         lr = self.optimizer.param_groups[0]['lr']
         
@@ -369,20 +362,15 @@ class Trainer(TrainerDistillation):
             "top5": AverageMeter(),
         }
         num_iter = len(self.train_loader)
-        #pbar = tqdm(range(num_iter))
-
+        
         # train loops
         start_epoch_time=time.time()
         self.distiller.train()
         for idx, data in enumerate(self.train_loader):
             msg = self.train_iter(data, epoch, train_meters)
-            #pbar.set_description(log_msg(msg, "TRAIN"))
-            #pbar.update()
+
             if epoch==1 and self.cfg.SOLVER.WARMUP:
                 self.warmup_scheduler.step()
-                #print(self.optimizer.param_groups[0]['lr'])
-            # EMA update logic
-            #self.ema_model.update_parameters(self.distiller.module.student)
                 
         #pbar.close()
         

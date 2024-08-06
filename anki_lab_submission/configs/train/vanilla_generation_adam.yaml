@@ -7,7 +7,7 @@ DISTILLER:
   STUDENT: "None"
 SOLVER:
   BATCH_SIZE: 128
-  EPOCHS: 20
+  EPOCHS: 5
   LR: 0.001
   MIN_LR: 0.0
   LR_SCHEDULER: "cosine_annealing"

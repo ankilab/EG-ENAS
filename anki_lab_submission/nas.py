@@ -68,7 +68,7 @@ class NAS:
                 mp.set_start_method("spawn")
             
         self.population_size=20
-        self.total_generations=1
+        self.total_generations=3
         self.num_best_parents=5
         self.sim_threshold=0.1
         
@@ -119,7 +119,6 @@ class NAS:
                                                                                         size=self.population_size,
                                                                                         config_updates=None)
                 else:
-                    #self.metadata["train_cfg_update"]=["EPOCHS",5]
                     offsprings_chromosomes=self.breeding(self.best_parents, self.population_size)
                     self._save_backup()
                     if self.ENAS:
@@ -143,10 +142,6 @@ class NAS:
             
         self.export_results()
         
-        #        self.best_model={"score": 0,
-        #                "model_path": None,
-        #                "name": "",
-        #                "gen":0}
         weights_file=self.best_model["model_path"]
         ind_path = weights_file.rfind('/')
         config_file = weights_file[:ind_path]
@@ -404,7 +399,6 @@ class NAS:
 
     def export_results(self):
         results_file={}
-        # Read the list from the text file
         results_file["correlation"]=[]
         results_file["results"]=[]
         results_file["parents"]=[]
