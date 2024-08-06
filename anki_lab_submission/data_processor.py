@@ -6,7 +6,6 @@ import numpy as np
 from trainer import TrainerDistillation, Trainer
 import random
 import json
-import random
 from icecream import ic
 import time
 import torch.multiprocessing as mp
@@ -16,17 +15,8 @@ from pynvml import nvmlInit, nvmlDeviceGetHandleByIndex, nvmlDeviceGetMemoryInfo
 device = torch.device("cuda") if torch.cuda.is_available() else torch.device('cpu')
 from search_space.RegNet import RegNet
 import os
-
-from utils.aug_lib import TrivialAugment, RandAugment
 ###################
 
-from typing import Dict, List, Optional, Tuple
-from torch import Tensor
-from enum import Enum
-import math
-from torchvision.transforms import InterpolationMode
-
-##########################
 class RandomPixelChange:
     def __init__(self, change_prob=0.1):
         self.change_prob = change_prob
@@ -88,30 +78,16 @@ class Dataset(torch.utils.data.Dataset):
         else:
             self.y = torch.tensor(y)
 
-        #print(transform)
 
         # example transform
         if train:
             self.mean = torch.mean(self.x, [0, 2, 3])
             self.std = torch.std(self.x, [0, 2, 3])
             self.transform_normalization=[transforms.Normalize(self.mean, self.std)]
-            #print(self.transform_normalization)
-            #if calibration:
-            # print(transform)
             self.transform = transforms.Compose(transform+self.transform_normalization)
-            #self.transform=RandomPixelFlip(0.02)
-            #self.transform=None
-            #self.x=torch.stack([v2.RandAugment()(img) for img in self.x])
+
         else:
-            #self.transform=v2.Compose([v2.ToDtype(torch.uint8, scale=True),v2.ToDtype(torch.float32, scale=True)]+transform)
-            #self.transform=v2.Compose([v2.ToDtype(torch.uint8, scale=True), v2.ToDtype(torch.float32, scale=True)]+transform)
-            #self.transform=v2.Compose(transform)
-            #self.transform= v2.Compose([RandomPixelChange(0.02), v2.ToTensor()])
-            self.transform=None
-            #self.transform=RandomPixelFlip(0.02)
-            
-            #base_t=[transforms.ToPILImage(), transforms.ToDtype(torch.uint8, scale=True), transforms.ToDtype(torch.float32, scale=True)]        
-            #self.transform=transforms.Compose(base_t+transform)
+            self.transform=v2.Compose(transform)
             
     
 
@@ -162,13 +138,11 @@ class DataProcessor:
         self.test_y=test_y
         self.metadata = metadata
         self.metadata['train_config_path']="configs/train/augmentations_adam.yaml"
-        self.SAVE_PATH=f"{os.getenv('WORK')}/NAS_COMPETITION_RESULTS/full_training_evonas"
-        #self.metadata["experiment_name"]="tests/augmentations_test"
+        self.SAVE_PATH="results/full_training_evonas"
         self.multiprocessing=True
         if self.multiprocessing:
             nvmlInit()
             current_method = mp.get_start_method(allow_none=True)
-            #print(current_method)
             if current_method!="spawn":
                 # Set the start method if it hasn't been set yet
                 mp.set_start_method("spawn")
@@ -189,22 +163,7 @@ class DataProcessor:
         """
         # Try different transforms for training, we select the best one and use it
         if "select_augment" in self.metadata:
-            train_transform = self._determine_train_transform() if self.metadata["select_augment"] else [RandomPixelChange(0.01), v2.ToTensor(), v2.RandomHorizontalFlip(),v2.RandomVerticalFlip()]
-            
-            #train_transform=[v2.ToPILImage(),TrivialAugment(), v2.PILToTensor(), v2.ToDtype(torch.float32, scale=True)]
-            #train_transform=[v2.ToDtype(torch.uint8, scale=True),TrivialAugmentWide(), v2.ToDtype(torch.float32, scale=True)]
-            #train_transform=[v2.ToDtype(torch.uint8, scale=True),TrivialAugmentWide(shape=self.metadata["input_shape"][-3:]), v2.ToDtype(torch.float32, scale=True)]
-            #train_transform=[v2.RandAugment()]
-            #train_transform=[v2.RandomHorizontalFlip()]
-            #train_transform=[TrivialAugmentWide(shape=self.metadata["input_shape"][-3:])]
-            #train_transform=[TrivialAugment()]
-
-            #C,H,W=self.metadata['input_shape'][1:4]
-            #PH,PW=int(H/8),int(W/8)
-            #train_transform=  [v2.RandomHorizontalFlip(), v2.RandomCrop((H,W), padding=(PH,PW)), 
-            #v2.RandomErasing(p=0.1, scale=(0.02, 0.33), ratio=(0.3, 3.3))]
-            #train_transform=  []
-                               
+            train_transform = self._determine_train_transform() if self.metadata["select_augment"] else [RandomPixelChange(0.01), v2.ToTensor(), v2.RandomHorizontalFlip(),v2.RandomVerticalFlip()]                
         else:
             train_transform = self._determine_train_transform()
 
@@ -214,8 +173,6 @@ class DataProcessor:
         valid_ds = Dataset(self.valid_x, self.valid_y, train=False, transform=train_ds.transform_normalization)
         test_ds = Dataset(self.test_x, self.test_y, train=False, transform=train_ds.transform_normalization)
         
-        
-
         batch_size = 128
 
         # build data loaders
@@ -258,23 +215,9 @@ class DataProcessor:
             
             self.metadata["experiment_name"]=f"{self.SAVE_PATH}/augmentations_test/{self.metadata['codename']}/aug_{idx}"
             trainer = TrainerDistillation(model, device, train_loader, valid_loader, self.metadata)
-            #trainer = Trainer(model, device, train_loader, valid_loader, self.metadata)
 
-            train_acc, val_acc, epoch_time=trainer.train(return_acc=True)
 
-            ################################# Testing dataset for debugging #####################################
-            #test_ds = Dataset(self.test_x, self.test_y, train=False, transform=train_ds.transform_normalization)
-            #test_y = np.load(os.path.join('../../datasets/'+"Chesseract",'test_y.npy'))
-            #test_loader = torch.utils.data.DataLoader(test_ds, batch_size=batch_size, shuffle=False, drop_last=False)
-            
-            #from sklearn.metrics import accuracy_score
-            #predictions = trainer.predict(test_loader, use_swa=True)
-            #test_score = 100*accuracy_score(test_y, predictions)
-            #print(f"SWA test {idx}:", test_score)                                             
-            #predictions = trainer.predict(test_loader, use_swa=False)
-            #test_score = 100*accuracy_score(test_y, predictions)
-            #print(f"No SWA test {idx}: ",test_score)
-            
+            train_acc, val_acc, epoch_time=trainer.train(return_acc=True)        
             
             print(train_acc.cpu().numpy())
             print(val_acc.cpu().numpy())
@@ -284,76 +227,9 @@ class DataProcessor:
             if output_queue is not None:
                 output_queue.put((idx, train_acc.cpu().numpy().astype(float).tolist(), val_acc.cpu().numpy().astype(float).tolist(), epoch_time)) 
             else:
-                return train_acc.cpu().numpy().astype(float).tolist(), val_acc.cpu().numpy().astype(float).tolist(), epoch_time
-
-    
-    def _train_model_best(self,model, transform, idx, output_queue=None):
-            train_ds = Dataset(self.train_x, self.train_y, train=True, transform=transform)
-            valid_ds = Dataset(self.valid_x, self.valid_y, train=False, transform=train_ds.transform_normalization)
-            test_ds = Dataset(self.test_x, self.test_y, train=False, transform=train_ds.transform_normalization)
-            import os
-            test_y = np.load(os.path.join('../../datasets/'+"AddNIST",'test_y.npy'))
-
-            ####################
-            study_folder="tests_Adaline_18_06_2024_13_13"
-            regnet_space=RegNet(self.metadata,
-                    W0=[16, 96, 8],
-                    WA=[16, 64, 8],
-                    WM=[2.05,2.9,0.05],
-                    D=[8,22,1], 
-                    G=[8,8,8], 
-                    base_config=f"../configs/search_space/config.yaml")
-            test_folder=f"/home/woody/iwb3/iwb3021h/NAS_COMPETITION_RESULTS/full_training_evonas_5epochs_5gen/tests_Adaline_18_06_2024_13_13"
-            #gen=3
-            model_name="accomplished_wolf"
-            #config_updates=["REGNET.DROP_RATE",0.05, "REGNET.DROPOUT",0.1]
-            #config_updates=None
-            # If already trained, add weights_file.
-            weights_file=f"{test_folder}/Generation_{gen}/{model_name}/student_best"
-            #weights_file=f"../../package/tests/Sadie/finetuning/14_06_2024_06_58_adam/student_best"
-            #weights_file=None
-            model,info=regnet_space.load_model(config_file=f"{test_folder}/Generation_{gen}/{model_name}/config.yaml",
-                                           weights_file=weights_file)
-
-            #################################
-            # get ResNet-18 model
+                return train_acc.cpu().numpy().astype(float).tolist(), val_acc.cpu().numpy().astype(float).tolist(), epoch_time           
 
 
-            # get dataloaders
-            batch_size = 128
-            train_loader = torch.utils.data.DataLoader(train_ds, batch_size=batch_size, drop_last=True, shuffle=True)
-            valid_loader = torch.utils.data.DataLoader(valid_ds, batch_size=batch_size, shuffle=False)
-            test_loader = torch.utils.data.DataLoader(test_ds, batch_size=batch_size, shuffle=False, drop_last=False)
-
-            # get trainer and train
-            self.metadata["experiment_name"]=f"tests/augmentations_test/{self.metadata['codename']}/aug_{idx}"
-            #trainer = TrainerDistillation(model, device, train_loader, valid_loader, self.metadata)
-            trainer = Trainer(model, device, train_loader, valid_loader, self.metadata)
-            #trainer.epochs = 10
-            train_acc, val_acc, epoch_time=trainer.train(return_acc=True)
-            #train_acc, val_acc, epoch_time=(0,0,0)
-            
-            
-            from sklearn.metrics import accuracy_score
-            predictions = trainer.predict(test_loader, use_swa=True)
-            test_score = 100*accuracy_score(test_y, predictions)
-            print(f"SWA test {idx}:", test_score)
-                                               
-            predictions = trainer.predict(test_loader, use_swa=False)
-            test_score = 100*accuracy_score(test_y, predictions)
-            print(f"No SWA test {idx}: ",test_score)
-            #acc = trainer.evaluate()
-            print(train_acc.cpu().numpy())
-            print(val_acc.cpu().numpy())
-            torch.cuda.empty_cache()
-            gc.collect()
-            if output_queue is not None:
-                output_queue.put((idx, train_acc.cpu().numpy().astype(float).tolist(), val_acc.cpu().numpy().astype(float).tolist(), epoch_time)) 
-            else:
-                #return train_acc, val_acc, epoch_time
-                return train_acc.cpu().numpy().astype(float).tolist(), val_acc.cpu().numpy().astype(float).tolist(), epoch_time
-            
-            
     def _determine_train_transform(self):
         print(self.metadata)
         C,H,W=self.metadata['input_shape'][1:4]
@@ -379,9 +255,6 @@ class DataProcessor:
         elif C==1 and len(unique_values)>3:
             augmentation_combinations= [
                 [],
-                #[v2.RandAugment(magnitude=5)],
-                #[v2.RandAugment(magnitude=9)],
-                #[v2.TrivialAugmentWide()],
                 [RandomPixelChange(0.02), v2.ToTensor()],
                 [RandomPixelChange(0.05), v2.ToTensor()],
                 [RandomPixelChange(0.01), v2.ToTensor(), v2.RandomHorizontalFlip(),v2.RandomVerticalFlip()],

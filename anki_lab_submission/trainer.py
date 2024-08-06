@@ -7,7 +7,6 @@ import torch.nn as nn
 from icecream import ic
 from helpers import show_time
 from datetime import datetime
-from helpers import Lion
 from torch.optim.swa_utils import AveragedModel, SWALR
 from torchvision.transforms import v2
 import numpy as np
@@ -127,8 +126,6 @@ class TrainerDistillation:
                 momentum=self.cfg.SOLVER.MOMENTUM,
                 weight_decay=self.cfg.SOLVER.WEIGHT_DECAY,
             )
-        elif self.cfg.SOLVER.TYPE=="Lion":
-            optimizer= Lion(self.distiller.module.get_learnable_parameters() if torch.cuda.is_available() else self.distiller.get_learnable_parameters(), lr=self.cfg.SOLVER.LR, betas=(0.9, 0.99), weight_decay=self.cfg.SOLVER.WEIGHT_DECAY)
         elif self.cfg.SOLVER.TYPE=="Adam":
             optimizer=optim.AdamW(self.distiller.module.get_learnable_parameters() if torch.cuda.is_available() else self.distiller.get_learnable_parameters(), lr=self.cfg.SOLVER.LR, betas=(0.9, 0.999), eps=1e-08, weight_decay=self.cfg.SOLVER.WEIGHT_DECAY)
         else:

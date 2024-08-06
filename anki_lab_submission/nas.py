@@ -15,16 +15,6 @@ from search_space.utils import create_widths_plot, scatter_results, get_generati
 from trainer import Trainer, TrainerDistillation
 from utils.train_cfg import get_cfg, show_cfg
 ###################################################
-#random_seed = 1
-#random.seed(random_seed)
-# Set seed for NumPy
-#np.random.seed(random_seed)
-# Set seed for PyTorch
-#torch.manual_seed(random_seed)
-#torch.cuda.manual_seed_all(random_seed)
-# Additional steps if using CuDNN (optional, for GPU acceleration)
-#torch.backends.cudnn.deterministic = True
-#torch.backends.cudnn.benchmark = False
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 import os
 from datetime import datetime
@@ -37,9 +27,6 @@ from sklearn.metrics import accuracy_score
 import torch.multiprocessing as mp
 from pynvml import nvmlInit, nvmlDeviceGetHandleByIndex, nvmlDeviceGetMemoryInfo
 
-#mp.set_start_method('spawn')
-
-
 
 
 def get_gpu_memory(gpu_id):
@@ -51,11 +38,8 @@ def get_gpu_memory(gpu_id):
 class NAS:
     def __init__(self, train_loader, valid_loader, metadata,resume_from=None, test=False):
         self.test=test
-        if self.test:
-            self.SUBMISSION_PATH="our_submission/"
-        else:
-            self.SUBMISSION_PATH=""
-        SAVE_PATH=f"{os.getenv('WORK')}/NAS_COMPETITION_RESULTS/full_training_evonas"
+        self.SUBMISSION_PATH=""
+        SAVE_PATH=f"results/full_training_evonas"
         self.regnet_space=RegNet(metadata,
                     W0=[16, 120, 8],
                     WA=[16, 64, 8],
