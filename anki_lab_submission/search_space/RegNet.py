@@ -219,14 +219,32 @@ class RegNet:
         ranking_predict_df=pd.DataFrame([ranking_predict]).T.rename(columns={0:"score"}).sort_values(by="score", ascending=False)
         return ranking_predict_df
     
+    def get_ranking_regressor(self, ranking_test_df, test_column):
+        ranking_predict={}
+        for ind in list(ranking_test_df.name_A.unique())+list(ranking_test_df.name_B.unique()):
+            ranking_predict[ind]=0
+        for index, row in ranking_test_df.iterrows():
+            ranking_predict[row["name_A"]]=ranking_predict[row["name_A"]]+row[test_column]
+            ranking_predict[row["name_B"]]=ranking_predict[row["name_B"]]-row[test_column]
+        ranking_predict_df=pd.DataFrame([ranking_predict]).T.rename(columns={0:"score"}).sort_values(by="score", ascending=False)
+        return ranking_predict_df
+
     def create_first_generation(self, save_folder,gen, size, config_updates=None, metadata=None):
         #config_updates=["REGNET.DROP_RATE",0.05, "REGNET.DROPOUT",0.1]
         # Create the Cartesian product of these values
         models, chromosomes=self.create_random_generation(save_folder=None,gen=None, size=size*5, config_updates=None)
-        rf_classifier=load(f'tests/classifiers/{metadata["codename"]}/rfc_model_50.joblib')
+        #rf_classifier=load(f'tests/classifiers/{metadata["codename"]}/rfc_model_50.joblib')
+        sgd_regressor=load(f'tests/regressors/sgdr_model_50.joblib')
         
+
         gen_df=pd.DataFrame(chromosomes).T.reset_index().rename(columns={"index":"name"})[["name","num_stages","params","WA","W0","WM","DEPTH"]]
         
+        standardize=True
+        if standardize:
+            scaler = StandardScaler()
+            cols=["num_stages","params","WA","W0","WM","DEPTH"]
+            gen_df[cols] = scaler.fit_transform(gen_df[cols])
+
         pairs = list(combinations(gen_df.index, 2))
         combined_data = []
 
@@ -267,9 +285,9 @@ class RegNet:
         
         ranking_test_df=combined_df[["name_A","name_B"]]
         pred_column="rf_prediction"
-        ranking_test_df[pred_column]=rf_classifier.predict(X_test)
+        ranking_test_df[pred_column]=sgd_regressor.predict(X_test)
         
-        ranking_prediction_df=self.get_ranking(ranking_test_df, pred_column).head(size)
+        ranking_prediction_df=self.get_ranking_regressor(ranking_test_df, pred_column).head(size)
         print(ranking_prediction_df)
         best_individuals=list(ranking_prediction_df.index)
 
