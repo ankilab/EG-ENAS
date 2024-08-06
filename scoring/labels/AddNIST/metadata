@@ -1,1 +1,0 @@
-{"num_classes": 20, "input_shape": [50000, 3, 28, 28], "codename": "Adaline", "benchmark":89.850}

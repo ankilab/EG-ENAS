@@ -1,1 +1,0 @@
-{"num_classes": 10, "codename": "LaMelo", "input_shape": [50000, 1, 24, 24], "benchmark":85.200}

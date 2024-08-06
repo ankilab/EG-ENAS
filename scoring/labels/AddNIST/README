@@ -1,9 +1,0 @@
-The AddNIST dataset is a constructed dataset from MNIST Images. The intention of this dataset is to require machine learning models to do more than just image classification but also perform a calculation, in this case addition. For each image, three MNIST Images were randomly chosen and combined together through the colour channels, resulting in a three colour-channel image so each MNIST image represents one colour channel. 
-
-The data is in a channels-first format with a shape of (n, 3, 28, 28) where n is the number of samples in the corresponding set (45,000 for training, 15,000 for validation, and 10,000 for testing).
-
-There are twenty classes in the dataset, with 3,500 examples of each, distributed evenly between the three subsets.
-
-The label of each image is generated using the formula "(r + b + g) - 1" where r, g, and b are the red, green, and blue colour channels respectively. An example of an AddNIST Image would be a rgb configuation of 3, 7, and 4 respectively, which would result in a label of 13 ((3 + 7 + 4) - 1).
-
-The six files containing the dataset are the NumPy (.npy) files. These files can be opened through the NumPy Python library, using the `numpy.load()` function by inputting the path to the file into the function as a parameter. The metadata file contains some basic information about the datasets, and can be opened in many text editors such as vim, nano, notepad++, notepad, etc.
