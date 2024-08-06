@@ -1,0 +1,19 @@
+{
+    "Sadie": [
+        {
+            "Gradient Boosting": 0.9414316702819957,
+            "Random Forest": 0.913232104121475,
+            "XGBoost": 0.9327548806941431
+        },
+        {
+            "Gradient Boosting": 0.9414316702819957,
+            "Random Forest": 0.913232104121475,
+            "XGBoost": 0.9327548806941431
+        },
+        {
+            "Gradient Boosting": 0.9414316702819957,
+            "Random Forest": 0.913232104121475,
+            "XGBoost": 0.9327548806941431
+        }
+    ]
+}

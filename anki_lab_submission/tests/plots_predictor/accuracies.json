@@ -1,0 +1,121 @@
+{
+    "Chester": [
+        {
+            "Gradient Boosting": 0.9343891402714932,
+            "Random Forest": 0.918552036199095,
+            "XGBoost": 0.9479638009049773
+        },
+        {
+            "Gradient Boosting": 0.9343891402714932,
+            "Random Forest": 0.918552036199095,
+            "XGBoost": 0.9479638009049773
+        },
+        {
+            "Gradient Boosting": 0.9343891402714932,
+            "Random Forest": 0.918552036199095,
+            "XGBoost": 0.9479638009049773
+        }
+    ],
+    "Adaline": [
+        {
+            "Gradient Boosting": 0.9389140271493213,
+            "Random Forest": 0.9117647058823529,
+            "XGBoost": 0.9457013574660633
+        },
+        {
+            "Gradient Boosting": 0.9389140271493213,
+            "Random Forest": 0.9117647058823529,
+            "XGBoost": 0.9457013574660633
+        },
+        {
+            "Gradient Boosting": 0.9389140271493213,
+            "Random Forest": 0.9117647058823529,
+            "XGBoost": 0.9457013574660633
+        }
+    ],
+    "Sadie": [
+        {
+            "Gradient Boosting": 0.9414316702819957,
+            "Random Forest": 0.913232104121475,
+            "XGBoost": 0.9327548806941431
+        },
+        {
+            "Gradient Boosting": 0.9414316702819957,
+            "Random Forest": 0.913232104121475,
+            "XGBoost": 0.9327548806941431
+        },
+        {
+            "Gradient Boosting": 0.9414316702819957,
+            "Random Forest": 0.913232104121475,
+            "XGBoost": 0.9327548806941431
+        }
+    ],
+    "Mateo": [
+        {
+            "Gradient Boosting": 0.9276018099547512,
+            "Random Forest": 0.918552036199095,
+            "XGBoost": 0.9389140271493213
+        },
+        {
+            "Gradient Boosting": 0.9276018099547512,
+            "Random Forest": 0.918552036199095,
+            "XGBoost": 0.9389140271493213
+        },
+        {
+            "Gradient Boosting": 0.9276018099547512,
+            "Random Forest": 0.918552036199095,
+            "XGBoost": 0.9389140271493213
+        }
+    ],
+    "LaMelo": [
+        {
+            "Gradient Boosting": 0.9389140271493213,
+            "Random Forest": 0.9253393665158371,
+            "XGBoost": 0.9343891402714932
+        },
+        {
+            "Gradient Boosting": 0.9389140271493213,
+            "Random Forest": 0.9253393665158371,
+            "XGBoost": 0.9343891402714932
+        },
+        {
+            "Gradient Boosting": 0.9389140271493213,
+            "Random Forest": 0.9253393665158371,
+            "XGBoost": 0.9343891402714932
+        }
+    ],
+    "Gutenberg": [
+        {
+            "Gradient Boosting": 0.9434389140271493,
+            "Random Forest": 0.9140271493212669,
+            "XGBoost": 0.9389140271493213
+        },
+        {
+            "Gradient Boosting": 0.9434389140271493,
+            "Random Forest": 0.9140271493212669,
+            "XGBoost": 0.9389140271493213
+        },
+        {
+            "Gradient Boosting": 0.9434389140271493,
+            "Random Forest": 0.9140271493212669,
+            "XGBoost": 0.9389140271493213
+        }
+    ],
+    "Caitie": [
+        {
+            "Gradient Boosting": 0.9355555555555556,
+            "Random Forest": 0.9222222222222223,
+            "XGBoost": 0.9444444444444444
+        },
+        {
+            "Gradient Boosting": 0.9355555555555556,
+            "Random Forest": 0.9222222222222223,
+            "XGBoost": 0.9444444444444444
+        },
+        {
+            "Gradient Boosting": 0.9355555555555556,
+            "Random Forest": 0.9222222222222223,
+            "XGBoost": 0.9444444444444444
+        }
+    ]
+}
