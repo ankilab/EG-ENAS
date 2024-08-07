@@ -68,7 +68,7 @@ class NAS:
                 mp.set_start_method("spawn")
             
         self.population_size=20
-        self.total_generations=3
+        self.total_generations=2
         self.num_best_parents=5
         self.sim_threshold=0.1
         

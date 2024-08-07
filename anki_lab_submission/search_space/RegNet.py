@@ -12,6 +12,7 @@ from .utils import compute_model_size, load_checkpoint
 from itertools import product, combinations
 from joblib import dump, load
 import pandas as pd
+from sklearn.preprocessing import StandardScaler
 
 class RegNet:
     """
@@ -233,7 +234,7 @@ class RegNet:
         #config_updates=["REGNET.DROP_RATE",0.05, "REGNET.DROPOUT",0.1]
         # Create the Cartesian product of these values
         models, chromosomes=self.create_random_generation(save_folder=None,gen=None, size=size*5, config_updates=None)
-        #rf_classifier=load(f'tests/classifiers/{metadata["codename"]}/rfc_model_50.joblib')
+        #rfr_classifier=load(f'tests/classifiers/rfr_model_50.joblib')
         sgd_regressor=load(f'tests/regressors/sgdr_model_50.joblib')
         
 
@@ -277,16 +278,17 @@ class RegNet:
         combined_df["num_channels"]=metadata["input_shape"][1]
 
         cols_train=[ 
-        'num_stages_A', 'WA_A', 'W0_A', "params_A",
-       'WM_A', 'DEPTH_A',
-        'num_stages_B', 'WA_B', 'W0_B', "params_B",
-       'WM_B', 'DEPTH_B',"num_classes", "benchmark", "num_channels"]
+        'num_stages_A', 'params_A', 'WA_A', 'W0_A','WM_A', 'DEPTH_A',
+        'num_stages_B', 'params_B', 'WA_B', 'W0_B', 'WM_B', 'DEPTH_B',#]
+        'num_classes', 'benchmark', "num_channels"]
         X_test=combined_df[cols_train]
         
         ranking_test_df=combined_df[["name_A","name_B"]]
         pred_column="rf_prediction"
+        #ranking_test_df[pred_column]=rfr_classifier.predict(X_test)
         ranking_test_df[pred_column]=sgd_regressor.predict(X_test)
         
+        #ranking_prediction_df=self.get_ranking(ranking_test_df, pred_column).head(size)
         ranking_prediction_df=self.get_ranking_regressor(ranking_test_df, pred_column).head(size)
         print(ranking_prediction_df)
         best_individuals=list(ranking_prediction_df.index)

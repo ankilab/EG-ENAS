@@ -166,7 +166,7 @@ class DataProcessor:
             train_transform = self._determine_train_transform() if self.metadata["select_augment"] else [RandomPixelChange(0.01), v2.ToTensor(), v2.RandomHorizontalFlip(),v2.RandomVerticalFlip()]                
         else:
             train_transform = self._determine_train_transform()
-
+            #train_transform = []
         
         # Create dataloaders with final transforms
         train_ds = Dataset(self.train_x, self.train_y, train=True, transform=train_transform)
