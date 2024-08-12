@@ -221,6 +221,8 @@ class DataProcessor:
             
             print(train_acc.cpu().numpy())
             print(val_acc.cpu().numpy())
+            
+            del trainer, train_loader, valid_loader, train_ds, valid_ds, model, new_conv1
             torch.cuda.empty_cache()
             gc.collect()
 
@@ -301,7 +303,7 @@ class DataProcessor:
                 output_queue = Queue()
                 ic("initial memory")
                 print(f"Gpu free memory: {get_gpu_memory(0) / (1024 ** 3):.3f} GB")
-                required_memory= 3*2 ** 30
+                required_memory= 8*2 ** 30
                 processes = []
                 total_processes_to_run=len(augmentation_combinations)
                 while idx < total_processes_to_run:#or any(p.is_alive() for p in processes):
@@ -318,15 +320,18 @@ class DataProcessor:
                         p.start()
                         processes.append(p)
                         idx += 1
+
+                        torch.cuda.empty_cache()
                         print(f"Gpu free memory: {available_memory / (1024 ** 3):.3f} GB")
                         ic(idx)
-
+                        
                     time.sleep(sleep_time)  # Sleep for a while before checking again
 
 
                 get_gpu_memory(0)
                 for p in processes:
                     p.join()
+                    torch.cuda.empty_cache()
 
                 while not output_queue.empty():
                     idx,train_acc, val_acc, epoch_time=output_queue.get()

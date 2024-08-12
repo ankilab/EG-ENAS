@@ -1,3 +1,25 @@
+import os
+flag_file = "packages_installed.flag"
+
+# Check if the flag file exists
+if not os.path.exists(flag_file):
+    # List of packages to install
+    packages = [
+        "torch", "torchvision", "ipython==8.25.0", "icecream==2.1.3", 
+        "yacs==0.1.8", "iopath==0.1.10", "timm==1.0.3", "coolname==2.2.0",
+        "plotly==5.22.0", "pandas==2.2.2", "scikit-learn==1.5.0", 
+        "pynvml==11.5.0", "xgboost"
+    ]
+    
+    # Install the packages
+    for package in packages:
+        os.system(f'pip -q install {package}')
+    
+    # Create the flag file to indicate the packages are installed
+    with open(flag_file, 'w') as f:
+        f.write("Packages installed")
+
+
 import sys
 import ast
 import torch
@@ -16,7 +38,6 @@ from trainer import Trainer, TrainerDistillation
 from utils.train_cfg import get_cfg, show_cfg
 ###################################################
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-import os
 from datetime import datetime
 import itertools
 import pandas as pd
@@ -71,7 +92,11 @@ class NAS:
         self.total_generations=2
         self.num_best_parents=5
         self.sim_threshold=0.1
-        
+
+        ic("Time remaining:")
+        ic(metadata['time_remaining'])
+
+
         self.study_name=f"tests_{metadata['codename']}_{current_date}"
         self.test_folder=f"{SAVE_PATH}/{self.study_name}"
         self.current_gen=1
@@ -140,6 +165,12 @@ class NAS:
             self.current_gen+=1
             self.sim_threshold=self.sim_threshold-0.01
             
+            ic(self.total_time)
+            ic(self.metadata["time_remaining"])
+            if self.total_time>14400 and self.current_gen==2:
+                self.total_generations=1
+            if self.metadata["time_remaining"]<2*self.total_time and self.current_gen==2:
+                self.total_generations=1
         self.export_results()
         
         weights_file=self.best_model["model_path"]
@@ -156,8 +187,11 @@ class NAS:
         self.metadata["experiment_name"]=f"{self.test_folder}/Generation_{self.current_gen}/{student}"
         trainer=TrainerDistillation(model, self.device, self.train_loader, self.valid_loader, self.metadata, self.test) 
         trainer.train()
+        del trainer, model, student
         torch.cuda.empty_cache()
         gc.collect()
+
+        
         
     def train_generation(self,models,chromosomes):
         
@@ -196,7 +230,7 @@ class NAS:
                 torch.cuda.empty_cache()
                 gc.collect()
         else:
-                
+                torch.cuda.empty_cache()
                 next_process_index = 0
                 ic("initial memory")
                 print(f"Gpu free memory: {get_gpu_memory(0) / (1024 ** 3):.3f} GB")
@@ -222,6 +256,7 @@ class NAS:
                         p.start()
                         processes.append(p)
                         next_process_index += 1
+                        torch.cuda.empty_cache()
                         print(f"Gpu free memory: {available_memory / (1024 ** 3):.3f} GB")
                         ic(next_process_index)
                         ic(student)
@@ -235,6 +270,7 @@ class NAS:
                 get_gpu_memory(0)
                 for p in processes:
                     p.join()
+                    torch.cuda.empty_cache()
             
 
         self.total_time=time.time()-self.current_time+self.total_time
@@ -405,17 +441,17 @@ class NAS:
 
         for gen in range(1,self.current_gen):
             print(gen)
-            with open(f"{self.test_folder}/Generation_{gen}/corr.txt", 'r') as file:
-                content = file.read()
-                corr = ast.literal_eval(content)
-                results_file["correlation"].append(pd.DataFrame(corr, columns=[gen]).T.reset_index(names="generation"))
+            #with open(f"{self.test_folder}/Generation_{gen}/corr.txt", 'r') as file:
+            #    content = file.read()
+            #    corr = ast.literal_eval(content)
+            #    results_file["correlation"].append(pd.DataFrame(corr, columns=[gen]).T.reset_index(names="generation"))
             df_r=pd.read_csv(f"{self.test_folder}/Generation_{gen}/results.csv", index_col=0)
             df_r["generation"]=gen
             results_file["results"].append(df_r)
             if gen!=1:
                 results_file["parents"].append(pd.read_csv(f"{self.test_folder}/Generation_{gen}/parents.csv", index_col=0))
 
-        results_file["correlation"]=pd.concat(results_file["correlation"]).reset_index(drop=True).to_json()
+        #results_file["correlation"]=pd.concat(results_file["correlation"]).reset_index(drop=True).to_json()
         results_file["results"]=pd.concat(results_file["results"]).reset_index(drop=True).to_json()
         if len(results_file["parents"])>0:
             results_file["parents"]=pd.concat(results_file["parents"]).reset_index(drop=True).to_json()

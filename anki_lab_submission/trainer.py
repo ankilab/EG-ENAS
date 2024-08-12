@@ -85,7 +85,8 @@ class TrainerDistillation:
         
         self.distiller = Vanilla(model, self.cfg.SOLVER.LABEL_SMOOTHING) #No distillation at the moment
         if torch.cuda.is_available():
-            self.distiller= torch.nn.DataParallel(self.distiller.cuda())
+            #self.distiller= torch.nn.DataParallel(self.distiller.cuda())
+            self.distiller.to("cuda")
         self.train_loader = train_dataloader
         self.val_loader = valid_dataloader
         
@@ -117,13 +118,13 @@ class TrainerDistillation:
     def init_optimizer(self):
         if self.cfg.SOLVER.TYPE == "SGD":
             optimizer = optim.SGD(
-                self.distiller.module.get_learnable_parameters() if torch.cuda.is_available() else self.distiller.get_learnable_parameters(),
+                self.distiller.get_learnable_parameters() if torch.cuda.is_available() else self.distiller.get_learnable_parameters(),
                 lr=self.cfg.SOLVER.LR,
                 momentum=self.cfg.SOLVER.MOMENTUM,
                 weight_decay=self.cfg.SOLVER.WEIGHT_DECAY,
             )
         elif self.cfg.SOLVER.TYPE=="Adam":
-            optimizer=optim.AdamW(self.distiller.module.get_learnable_parameters() if torch.cuda.is_available() else self.distiller.get_learnable_parameters(), lr=self.cfg.SOLVER.LR, betas=(0.9, 0.999), eps=1e-08, weight_decay=self.cfg.SOLVER.WEIGHT_DECAY)
+            optimizer=optim.AdamW(self.distiller.get_learnable_parameters() if torch.cuda.is_available() else self.distiller.get_learnable_parameters(), lr=self.cfg.SOLVER.LR, betas=(0.9, 0.999), eps=1e-08, weight_decay=self.cfg.SOLVER.WEIGHT_DECAY)
         else:
             raise NotImplementedError(self.cfg.SOLVER.TYPE)
         return optimizer
@@ -159,7 +160,7 @@ class TrainerDistillation:
         if return_acc:
             return self.train_acc,self.best_acc, self.epoch_time
         else:
-            return self.distiller.module.student if torch.cuda.is_available() else self.distiller.student
+            return self.distiller.student if torch.cuda.is_available() else self.distiller.student
 
     def train_epoch(self, epoch):
         #lr = adjust_learning_rate(epoch, self.cfg, self.optimizer)
@@ -215,7 +216,7 @@ class TrainerDistillation:
 
         if test_acc >= self.best_acc:
             
-            student_state = {"model": self.distiller.module.student.state_dict() if torch.cuda.is_available() else self.distiller.student.state_dict() }
+            student_state = {"model": self.distiller.student.state_dict() if torch.cuda.is_available() else self.distiller.student.state_dict() }
             #save_checkpoint(state, os.path.join(self.log_path, "best"))
             self.train_acc=train_meters["top1"].avg
             self.epoch_time=log_dict["epoch_time"]
@@ -322,7 +323,7 @@ class Trainer(TrainerDistillation):
         ic(self.cfg.SOLVER.LR)
         ic(self.cfg.SOLVER.EPOCHS-self.cfg.SOLVER.SWA_START)
         ic(self.cfg.SOLVER.EPOCHS)
-        self.swa_model = torch.optim.swa_utils.AveragedModel(self.distiller.module.student)
+        self.swa_model = torch.optim.swa_utils.AveragedModel(self.distiller.student)
         self.swa_start =self.cfg.SOLVER.SWA_START
         self.swa_scheduler = SWALR(self.optimizer, swa_lr=self.cfg.SOLVER.MIN_LR, anneal_strategy="cos", anneal_epochs=self.cfg.SOLVER.EPOCHS-self.cfg.SOLVER.SWA_START)
 
@@ -349,7 +350,7 @@ class Trainer(TrainerDistillation):
         if return_acc:
             return self.train_acc,self.best_acc, self.epoch_time
         else:
-            return self.distiller.module.student if torch.cuda.is_available() else self.distiller.student
+            return self.distiller.student if torch.cuda.is_available() else self.distiller.student
     def train_epoch(self, epoch):
         
         lr = self.optimizer.param_groups[0]['lr']
@@ -377,7 +378,7 @@ class Trainer(TrainerDistillation):
         
         # SWA update logic
         if epoch > self.swa_start:
-            self.swa_model.update_parameters(self.distiller.module.student)
+            self.swa_model.update_parameters(self.distiller.student)
             self.swa_scheduler.step()
         elif (epoch > 1) or (self.cfg.SOLVER.WARMUP == False):
             self.scheduler.step()
@@ -403,7 +404,7 @@ class Trainer(TrainerDistillation):
 
         if test_acc >= self.best_acc:
         # saving checkpoint
-            student_state = {"model": self.distiller.module.student.state_dict() if torch.cuda.is_available() else self.distiller.student.state_dict() }
+            student_state = {"model": self.distiller.student.state_dict() if torch.cuda.is_available() else self.distiller.student.state_dict() }
             self.train_acc=train_meters["top1"].avg
             self.epoch_time=log_dict["epoch_time"]
             save_checkpoint(student_state, os.path.join(self.log_path, "student_best"))            
@@ -411,16 +412,17 @@ class Trainer(TrainerDistillation):
         else:
             self.early_stop_counter += 1
             if (self.early_stop_counter>=6) and (epoch <= self.swa_start):
-                self.swa_model.update_parameters(self.distiller.module.student)
+                self.swa_model.update_parameters(self.distiller.student)
     def predict(self, test_loader, use_swa=True):
         checkpoint_path = os.path.join(self.log_path, "student_best")
         device = 'cuda' if torch.cuda.is_available() else 'cpu'
-        self.distiller.module.student = load_checkpoint(checkpoint_path, self.distiller.module.student, device)
+        self.distiller.student = load_checkpoint(checkpoint_path, self.distiller.student, device)
         
         if use_swa:
             distiller= Vanilla(self.swa_model, 0.0)
             if torch.cuda.is_available():
-               distiller= torch.nn.DataParallel(distiller.cuda())
+               #distiller= torch.nn.DataParallel(distiller.cuda())
+               distiller.to("cuda")
         else:
             distiller=self.distiller
         distiller.eval()
