@@ -25,7 +25,7 @@ from utils.train_cfg import (
     load_checkpoint,
     log_msg,
 )
-from utils.distillers import Vanilla
+from utils.distillers import Vanilla, ParentsKD
 from tqdm import tqdm
 from collections import OrderedDict
 import os
@@ -69,7 +69,7 @@ class TrainerDistillation:
             'time_remaining': The amount of compute time left for your submission
             plus anything else you added in the DataProcessor or NAS classes
     """
-    def __init__(self, model, device, train_dataloader, valid_dataloader, metadata, test=False):
+    def __init__(self, model, device, train_dataloader, valid_dataloader, metadata, teachers=[]):
         self.cfg = get_cfg()
 
         cfg_path=metadata["train_config_path"]
@@ -83,7 +83,7 @@ class TrainerDistillation:
         
         self.device=device
         
-        self.distiller = Vanilla(model, self.cfg.SOLVER.LABEL_SMOOTHING) #No distillation at the moment
+        self.distiller = Vanilla(model, self.cfg.SOLVER.LABEL_SMOOTHING) if not teachers else ParentsKD(model, teachers)
         if torch.cuda.is_available():
             #self.distiller= torch.nn.DataParallel(self.distiller.cuda())
             self.distiller.to("cuda")

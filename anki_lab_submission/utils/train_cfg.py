@@ -21,12 +21,8 @@ def show_cfg(cfg):
 def get_cfg():
     CFG = CN()
 
-    #CFG.device = 0
-    #CFG.if_test = False
-    #CFG.if_Augment = False
-    #CFG.if_useFactor = False
-    #CFG.if_self_train = False
-   
+
+    
     # Experiment
     CFG.EXPERIMENT = CN()
     CFG.EXPERIMENT.PROJECT = "NAS"
@@ -76,6 +72,31 @@ def get_cfg():
     CFG.KD.LOSS.KD_EPOCHS= 5
     CFG.KD.LOSS.KD_REDUCTION=True  
    
+    # CAT_KD CFG
+    #CFG.CAT_KD = CN()
+    #CFG.CAT_KD.IF_NORMALIZE = True
+    #CFG.CAT_KD.onlyCAT = False
+    #CFG.CAT_KD.IF_BINARIZE = False
+
+    #CFG.CAT_KD.IF_OnlyTransferPartialCAMs = False
+    #CFG.CAT_KD.CAMs_Nums = 100
+    #CFG.CAT_KD.Strategy = 0
+
+    #CFG.CAT_KD.LOSS = CN()
+    #CFG.CAT_KD.LOSS.CE_WEIGHT = 1.0
+    #CFG.CAT_KD.LOSS.CAT_loss_weight = 400.0
+    #CFG.CAT_KD.LOSS.CAM_RESOLUTION = 2
+
+    #CFG.CAT_KD.teacher_dir = None
+    #CFG.CAT_KD.student_dir = None
+
+    # DKD(Decoupled Knowledge Distillation) CFG
+    #CFG.DKD = CN()
+    #CFG.DKD.CE_WEIGHT = 1.0
+    #CFG.DKD.ALPHA = 1.0
+    #CFG.DKD.BETA = 8.0
+    #CFG.DKD.T = 4.0
+    #CFG.DKD.WARMUP = 1
     return CFG
 
 

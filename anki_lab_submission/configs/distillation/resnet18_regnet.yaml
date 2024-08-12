@@ -1,0 +1,17 @@
+EXPERIMENT:
+  NAME: ""
+  TAG: "kd,resnet32x4,ind1,2,9"
+  PROJECT: "cifar100_tests"
+DISTILLER:
+  TYPE: "KD"
+  TEACHER: "resnet18"
+  STUDENT: "ind1"
+SOLVER:
+  BATCH_SIZE: 64
+  EPOCHS: 5
+  LR: 0.1
+  LR_DECAY_STAGES: [2,4]
+  LR_DECAY_RATE: 0.1
+  WEIGHT_DECAY: 0.0005
+  MOMENTUM: 0.9
+  TYPE: "SGD"
