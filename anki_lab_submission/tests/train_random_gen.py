@@ -39,8 +39,8 @@ from sklearn.metrics import accuracy_score
 import torch.multiprocessing as mp
 from icecream import ic
 import gc
-import torchvision.models as models_torch
-from utils.train_cfg import load_checkpoint
+
+
 import xgboost as xgb
 from sklearn.ensemble import GradientBoostingClassifier
 from sklearn.ensemble import RandomForestClassifier
@@ -102,11 +102,11 @@ def validation(model, val_loader):
     accuracy = correct / total
     print('Accuracy on the test set: {:.2f}%'.format(accuracy * 100))
 
-def train_mp(student,student_name,teacher,  metadata, test_folder, device, train_loader,valid_loader):
+def train_mp(student,student_name, metadata, test_folder, device, train_loader,valid_loader):
         
         clear_output(wait=True)
         metadata["experiment_name"]=f"{test_folder}/{student_name}"
-        trainer=TrainerDistillation(student, device, train_loader, valid_loader,metadata, [teacher]) 
+        trainer=TrainerDistillation(student, device, train_loader, valid_loader,metadata) 
         trainer.train()
         torch.cuda.empty_cache()
         gc.collect()
@@ -134,12 +134,12 @@ if __name__ == '__main__':
                     G=[8,8,8], 
                     base_config=f"{SUBMISSION_PATH}/configs/search_space/config.yaml")
 
-
-    test_folder=f"{os.getenv('WORK')}/NAS_COMPETITION_RESULTS/kwnowledge_distillation/kd/classifier_train/{metadata['codename']}"
+    
+    test_folder=f"{os.getenv('WORK')}/NAS_COMPETITION_RESULTS/kwnowledge_distillation/vanilla/classifier_train/{metadata['codename']}"
     models, chromosomes=rg.create_random_generation(save_folder=test_folder,gen=None, size=3, config_updates=None)
     
     # Train models
-    metadata["train_config_path"]=f'{SUBMISSION_PATH}/configs/train/regnet_distillation_adam.yaml'
+    metadata["train_config_path"]=f'{SUBMISSION_PATH}/configs/train/first_generation_adam.yaml'
     train_cfg=get_cfg()
     train_cfg.merge_from_file(metadata["train_config_path"])
 
@@ -149,24 +149,6 @@ if __name__ == '__main__':
 
     models_names=sorted(list(models.keys()))[:] 
     multi=False
-
-    ############################### Load resnet teacher model #################
-    weights_file="/home/hpc/iwb3/iwb3021h/NAS_CHALLENGE/NAS_Challenge_AutoML_2024/anki_lab_submission/tests/results/full_training_evonas/augmentations_test/Gutenberg/aug_0/student_best"
-    teacher = models_torch.resnet18(weights=None)
-    new_conv1 = torch.nn.Conv2d(in_channels=metadata["input_shape"][1], 
-                            out_channels=teacher.conv1.out_channels, 
-                            kernel_size=teacher.conv1.kernel_size, 
-                            stride=teacher.conv1.stride, 
-                            padding=teacher.conv1.padding, 
-                            bias=teacher.conv1.bias)
-    # Replace the first convolutional layer
-    teacher.conv1 = new_conv1
-    teacher.fc = torch.nn.Linear(512, metadata['num_classes'])
-    state = load_checkpoint(weights_file)
-    teacher.load_state_dict(state["model"])
-    teacher.to(device)
-    ########################################################################
-
     if multi:
         #WITH MULTIPROCESSING
         next_process_index = 0
@@ -204,7 +186,7 @@ if __name__ == '__main__':
             p.join()
     else:
          for name in models_names:
-                train_mp(models[name],name,teacher, metadata, test_folder, device, train_loader,valid_loader)
+                train_mp(models[name],name, metadata, test_folder, device, train_loader,valid_loader)
 
 
 

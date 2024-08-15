@@ -137,9 +137,9 @@ class DataProcessor:
         self.test_x = test_x
         self.test_y=test_y
         self.metadata = metadata
-        self.metadata['train_config_path']="configs/train/augmentations_adam.yaml"
+        self.metadata['train_config_path']="../configs/train/augmentations_adam.yaml"
         self.SAVE_PATH="results/full_training_evonas"
-        self.multiprocessing=True
+        self.multiprocessing=False
         if self.multiprocessing:
             nvmlInit()
             current_method = mp.get_start_method(allow_none=True)
@@ -200,7 +200,7 @@ class DataProcessor:
             # Replace the first convolutional layer
             model.conv1 = new_conv1
             model.fc = torch.nn.Linear(512, self.metadata['num_classes'])
-            model.to('cuda')
+            model.to(device)
         
             train_ds = Dataset(self.train_x, self.train_y, train=True, transform=transform)
             valid_ds = Dataset(self.valid_x, self.valid_y, train=False, transform=train_ds.transform_normalization)
