@@ -69,8 +69,8 @@ def get_cfg():
     CFG.KD.LOSS = CN()
     CFG.KD.LOSS.CE_WEIGHT = 0.1
     CFG.KD.LOSS.KD_WEIGHT = 9
-    CFG.KD.LOSS.KD_EPOCHS= 5
-    CFG.KD.LOSS.KD_REDUCTION=True  
+    CFG.KD.LOSS.KD_EPOCHS = 5
+    CFG.KD.LOSS.KD_REDUCTION= 1  
    
     # CAT_KD CFG
     #CFG.CAT_KD = CN()

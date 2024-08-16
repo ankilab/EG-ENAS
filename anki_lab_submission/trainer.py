@@ -17,6 +17,7 @@ import numpy as np
 
 from utils.train_cfg import (
     get_cfg,
+    show_cfg,
     AverageMeter,
     accuracy,
     validate,
@@ -87,32 +88,35 @@ class TrainerDistillation:
 
 
         if teachers and self.cfg.DISTILLER.TYPE is not None:
-            self.cfg.EXPERIMENT.LOGIT_STAND = True
-            kd_weight = [9]
-            base_temp = 3
-            if self.cfg.EXPERIMENT.LOGIT_STAND:
-                    if self.cfg.DISTILLER.TYPE == 'KD':
-                        self.cfg.KD.LOSS.KD_WEIGHT = kd_weight
-                        self.cfg.KD.LOSS.KD_EPOCHS= 5
-                        self.cfg.KD.TEMPERATURE = base_temp
-                    elif self.cfg.DISTILLER.TYPE == 'ParentsKD':
-                        self.cfg.KD.LOSS.KD_WEIGHT = kd_weight
-                        self.cfg.KD.TEMPERATURE = base_temp
-                        self.cfg.KD.LOSS.KD_EPOCHS= 2
-                        self.cfg.KD.LOSS.KD_REDUCTION=True
-                    elif self.cfg.DISTILLER.TYPE == 'DKD':
-                        self.cfg.DKD.ALPHA = cfg_dist.DKD.ALPHA * kd_weight[0]
-                        self.cfg.DKD.BETA = cfg_dist.DKD.ALPHA * kd_weight[0]
-                        self.cfg.KD.TEMPERATURE = base_temp
-                        self.cfg.DKD.WARMUP=1
-                    elif self.cfg.DISTILLER.TYPE == 'MLKD':
-                        self.cfg.KD.LOSS.KD_WEIGHT = kd_weight[0]
-                        self.cfg.KD.TEMPERATURE = base_temp
+            #self.cfg.EXPERIMENT.LOGIT_STAND = True
+            #kd_weight = [9]
+            #base_temp = 3
+            #if self.cfg.EXPERIMENT.LOGIT_STAND:
+            #        if self.cfg.DISTILLER.TYPE == 'KD':
+            #            self.cfg.KD.LOSS.KD_WEIGHT = kd_weight
+            #            self.cfg.KD.LOSS.KD_EPOCHS= 20
+            #            self.cfg.KD.TEMPERATURE = base_temp
+            #            self.cfg.KD.LOSS.KD_REDUCTION=False
+            #        elif self.cfg.DISTILLER.TYPE == 'ParentsKD':
+            #            self.cfg.KD.LOSS.KD_WEIGHT = kd_weight
+            #            self.cfg.KD.TEMPERATURE = base_temp
+            #            self.cfg.KD.LOSS.KD_EPOCHS= 2
+            #            self.cfg.KD.LOSS.KD_REDUCTION=True
+            #        elif self.cfg.DISTILLER.TYPE == 'DKD':
+            #            self.cfg.DKD.ALPHA = cfg_dist.DKD.ALPHA * kd_weight[0]
+            #            self.cfg.DKD.BETA = cfg_dist.DKD.ALPHA * kd_weight[0]
+            #            self.cfg.KD.TEMPERATURE = base_temp
+            #            self.cfg.DKD.WARMUP=1
+            #        elif self.cfg.DISTILLER.TYPE == 'MLKD':
+            #            self.cfg.KD.LOSS.KD_WEIGHT = kd_weight[0]
+            #            self.cfg.KD.TEMPERATURE = base_temp
             self.distiller = distiller_dict[self.cfg.DISTILLER.TYPE](
                     model,teachers, self.cfg
                 )
+            #ic(distiller_dict[self.cfg.DISTILLER.TYPE])
             ic("Distiller created")
-            ic(self.cfg.DISTILLER.TYPE)
+            #ic(show_cfg(self.cfg))
+            #ic(self.cfg.DISTILLER.TYPE)
         else:
             self.distiller =  distiller_dict[self.cfg.DISTILLER.TYPE](model, self.cfg.SOLVER.LABEL_SMOOTHING)
         ####################################################################################

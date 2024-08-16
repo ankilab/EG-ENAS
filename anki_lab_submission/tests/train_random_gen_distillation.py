@@ -134,24 +134,27 @@ if __name__ == '__main__':
                     G=[8,8,8], 
                     base_config=f"{SUBMISSION_PATH}/configs/search_space/config.yaml")
 
-
-    test_folder=f"{os.getenv('WORK')}/NAS_COMPETITION_RESULTS/kwnowledge_distillation/kd/classifier_train/{metadata['codename']}"
-    models, chromosomes=rg.create_random_generation(save_folder=test_folder,gen=None, size=3, config_updates=None)
+    current_time=datetime.now().strftime("%d_%m_%Y_%H_%M")
+    test_folder=f"{os.getenv('WORK')}/NAS_COMPETITION_RESULTS/kwnowledge_distillation/kd/{current_time}/{metadata['codename']}"
+    
+    folder=f"/home/woody/iwb3/iwb3021h/NAS_COMPETITION_RESULTS/classifier_train/{Dataset}"
+    models, chromosomes=rg.load_generation(folder)
+    #models, chromosomes=rg.create_random_generation(save_folder=test_folder,gen=None, size=1, config_updates=None)
     
     # Train models
     metadata["train_config_path"]=f'{SUBMISSION_PATH}/configs/train/regnet_distillation_adam.yaml'
     train_cfg=get_cfg()
     train_cfg.merge_from_file(metadata["train_config_path"])
-
-    output_file_path = f"{test_folder}//config.yaml"
+    os.makedirs(test_folder, exist_ok=True)
+    output_file_path = f"{test_folder}/config.yaml"
     with open(output_file_path, "w") as f:
             f.write(train_cfg.dump()) 
 
     models_names=sorted(list(models.keys()))[:] 
     multi=False
-
+    ic((get_gpu_memory(0) / (1024 ** 3)))
     ############################### Load resnet teacher model #################
-    weights_file="/home/hpc/iwb3/iwb3021h/NAS_CHALLENGE/NAS_Challenge_AutoML_2024/anki_lab_submission/tests/results/full_training_evonas/augmentations_test/Gutenberg/aug_0/student_best"
+    weights_file="/home/hpc/iwb3/iwb3021h/NAS_CHALLENGE/NAS_Challenge_AutoML_2024/anki_lab_submission/tests/results/full_training_evonas/augmentations_test/Gutenberg/aug_2/student_best"
     teacher = models_torch.resnet18(weights=None)
     new_conv1 = torch.nn.Conv2d(in_channels=metadata["input_shape"][1], 
                             out_channels=teacher.conv1.out_channels, 

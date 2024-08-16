@@ -134,21 +134,26 @@ if __name__ == '__main__':
                     G=[8,8,8], 
                     base_config=f"{SUBMISSION_PATH}/configs/search_space/config.yaml")
 
-    
-    test_folder=f"{os.getenv('WORK')}/NAS_COMPETITION_RESULTS/kwnowledge_distillation/vanilla/classifier_train/{metadata['codename']}"
-    models, chromosomes=rg.create_random_generation(save_folder=test_folder,gen=None, size=3, config_updates=None)
+    current_time=datetime.now().strftime("%d_%m_%Y_%H_%M")
+    test_folder=f"{os.getenv('WORK')}/NAS_COMPETITION_RESULTS/kwnowledge_distillation/vanilla/{current_time}/{metadata['codename']}"
+
+    folder=f"/home/woody/iwb3/iwb3021h/NAS_COMPETITION_RESULTS/classifier_train/{Dataset}"
+    models, chromosomes=rg.load_generation(folder)
+    #models, chromosomes=rg.create_random_generation(save_folder=test_folder,gen=None, size=3, config_updates=None)
     
     # Train models
     metadata["train_config_path"]=f'{SUBMISSION_PATH}/configs/train/first_generation_adam.yaml'
     train_cfg=get_cfg()
     train_cfg.merge_from_file(metadata["train_config_path"])
-
-    output_file_path = f"{test_folder}//config.yaml"
+    
+    os.makedirs(test_folder, exist_ok=True)
+    output_file_path = f"{test_folder}/config.yaml"
     with open(output_file_path, "w") as f:
             f.write(train_cfg.dump()) 
 
     models_names=sorted(list(models.keys()))[:] 
     multi=False
+    ic((get_gpu_memory(0) / (1024 ** 3)))
     if multi:
         #WITH MULTIPROCESSING
         next_process_index = 0

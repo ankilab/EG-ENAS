@@ -89,7 +89,7 @@ class NAS:
                 mp.set_start_method("spawn")
             
         self.population_size=20
-        self.total_generations=2
+        self.total_generations=2 if (get_gpu_memory(0) / (1024 ** 3)) > 15.0 else 1
         self.num_best_parents=5
         self.sim_threshold=0.1
 

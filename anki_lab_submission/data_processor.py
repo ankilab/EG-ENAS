@@ -137,8 +137,9 @@ class DataProcessor:
         self.test_x = test_x
         self.test_y=test_y
         self.metadata = metadata
-        self.metadata['train_config_path']="../configs/train/augmentations_adam.yaml"
-        self.SAVE_PATH="results/full_training_evonas"
+        results_path="anki_lab_submission"
+        self.metadata['train_config_path']=f"{results_path}/configs/train/augmentations_adam.yaml"
+        self.SAVE_PATH=f"{results_path}/tests/results/full_training_evonas"
         self.multiprocessing=False
         if self.multiprocessing:
             nvmlInit()
@@ -163,7 +164,9 @@ class DataProcessor:
         """
         # Try different transforms for training, we select the best one and use it
         if "select_augment" in self.metadata:
-            train_transform = self._determine_train_transform() if self.metadata["select_augment"] else [RandomPixelChange(0.01), v2.ToTensor(), v2.RandomHorizontalFlip(),v2.RandomVerticalFlip()]                
+            train_transform = self._determine_train_transform() if self.metadata["select_augment"] else [RandomPixelChange(0.05), v2.ToTensor()] 
+            
+            #[RandomPixelChange(0.01), v2.ToTensor(), v2.RandomHorizontalFlip(),v2.RandomVerticalFlip()]                
         else:
             train_transform = self._determine_train_transform()
             #train_transform = []
