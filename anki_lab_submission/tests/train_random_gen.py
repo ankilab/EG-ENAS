@@ -119,10 +119,10 @@ if __name__ == '__main__':
         # Set the start method if it hasn't been set yet
         mp.set_start_method("spawn")
     SUBMISSION_PATH="anki_lab_submission"
-    Dataset="Gutenberg"
+    Dataset="AddNIST"
     (train_x, train_y), (valid_x, valid_y), (test_x), metadata = load_datasets(Dataset, truncate=False)
     test_y = np.load(os.path.join('datasets/'+Dataset,'test_y.npy'))
-    metadata["select_augment"]=False
+    metadata["select_augment"]=True
     data_processor = DataProcessor(train_x[:], train_y[:], valid_x, valid_y, test_x, metadata)
     train_loader, valid_loader, test_loader = data_processor.process()
     
@@ -137,7 +137,7 @@ if __name__ == '__main__':
     current_time=datetime.now().strftime("%d_%m_%Y_%H_%M")
     test_folder=f"{os.getenv('WORK')}/NAS_COMPETITION_RESULTS/kwnowledge_distillation/vanilla/{current_time}/{metadata['codename']}"
 
-    folder=f"/home/woody/iwb3/iwb3021h/NAS_COMPETITION_RESULTS/classifier_train/{Dataset}"
+    folder=f"/home/woody/iwb3/iwb3021h/NAS_COMPETITION_RESULTS/classifier_train/{metadata['codename']}"
     models, chromosomes=rg.load_generation(folder)
     #models, chromosomes=rg.create_random_generation(save_folder=test_folder,gen=None, size=3, config_updates=None)
     

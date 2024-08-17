@@ -164,8 +164,17 @@ class DataProcessor:
         """
         # Try different transforms for training, we select the best one and use it
         if "select_augment" in self.metadata:
-            train_transform = self._determine_train_transform() if self.metadata["select_augment"] else [RandomPixelChange(0.05), v2.ToTensor()] 
-            
+            C,H,W=self.metadata['input_shape'][1:4]
+            PH,PW=int(H/8),int(W/8)
+            unique_values=np.unique(self.train_x)
+
+            dict_transforms={"Chester":[v2.RandomErasing(p=0.2, scale=(0.02, 0.2), ratio=(0.3, 3.3)),v2.RandomCrop((H,W), padding=(PH,PW)),v2.RandomHorizontalFlip()],
+                            "Gutenberg":[RandomPixelChange(0.05), v2.ToTensor()] ,
+                            "Mateo": [ v2.RandomCrop((H,W), padding=(PH,PW)),v2.RandomHorizontalFlip()]}
+            train_transform = self._determine_train_transform() if self.metadata["select_augment"] else dict_transforms[self.metadata["codename"]]
+            # Chester [v2.RandomErasing(p=0.2, scale=(0.02, 0.2), ratio=(0.3, 3.3)),v2.RandomCrop((H,W), padding=(PH,PW)),v2.RandomHorizontalFlip()]
+            # MultNIST [ v2.RandomCrop((H,W), padding=(PH,PW)),v2.RandomHorizontalFlip()]
+            # Gutenberg [RandomPixelChange(0.05), v2.ToTensor()] 
             #[RandomPixelChange(0.01), v2.ToTensor(), v2.RandomHorizontalFlip(),v2.RandomVerticalFlip()]                
         else:
             train_transform = self._determine_train_transform()

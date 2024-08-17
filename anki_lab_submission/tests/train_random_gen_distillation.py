@@ -119,7 +119,7 @@ if __name__ == '__main__':
         # Set the start method if it hasn't been set yet
         mp.set_start_method("spawn")
     SUBMISSION_PATH="anki_lab_submission"
-    Dataset="Gutenberg"
+    Dataset="Chesseract"
     (train_x, train_y), (valid_x, valid_y), (test_x), metadata = load_datasets(Dataset, truncate=False)
     test_y = np.load(os.path.join('datasets/'+Dataset,'test_y.npy'))
     metadata["select_augment"]=False
@@ -137,7 +137,7 @@ if __name__ == '__main__':
     current_time=datetime.now().strftime("%d_%m_%Y_%H_%M")
     test_folder=f"{os.getenv('WORK')}/NAS_COMPETITION_RESULTS/kwnowledge_distillation/kd/{current_time}/{metadata['codename']}"
     
-    folder=f"/home/woody/iwb3/iwb3021h/NAS_COMPETITION_RESULTS/classifier_train/{Dataset}"
+    folder=f"/home/woody/iwb3/iwb3021h/NAS_COMPETITION_RESULTS/classifier_train/{metadata['codename']}"
     models, chromosomes=rg.load_generation(folder)
     #models, chromosomes=rg.create_random_generation(save_folder=test_folder,gen=None, size=1, config_updates=None)
     
@@ -154,7 +154,27 @@ if __name__ == '__main__':
     multi=False
     ic((get_gpu_memory(0) / (1024 ** 3)))
     ############################### Load resnet teacher model #################
-    weights_file="/home/hpc/iwb3/iwb3021h/NAS_CHALLENGE/NAS_Challenge_AutoML_2024/anki_lab_submission/tests/results/full_training_evonas/augmentations_test/Gutenberg/aug_2/student_best"
+    # save the results to a file
+    aug_path=f"/home/hpc/iwb3/iwb3021h/NAS_CHALLENGE/NAS_Challenge_AutoML_2024/anki_lab_submission/tests/results/full_training_evonas/augmentations_test/{metadata['codename']}"
+    print(aug_path)
+    with open(f"{aug_path}/augmentation_results.json", 'r') as f:
+        results = json.load(f)
+    print(results)
+    
+    # Sort the dictionary by value in descending order
+    # Sorting by 'val_acc'
+    sorted_items = sorted(results.items(), key=lambda item: item[1]['val_acc'], reverse=True)
+    print(sorted_items)
+    print(f"First best key: {sorted_items[0][0]}")
+    print(f"Second best key: {sorted_items[1][0]}")
+    
+    max_key = sorted_items[0][0] if sorted_items[0][0]!="0" else sorted_items[1][0]
+    max_value = results[max_key]
+
+    print(f'The key with the maximum value is "{max_key}" with a value of {max_value}.')
+
+    
+    weights_file=f"{aug_path}/aug_{max_key}/student_best"
     teacher = models_torch.resnet18(weights=None)
     new_conv1 = torch.nn.Conv2d(in_channels=metadata["input_shape"][1], 
                             out_channels=teacher.conv1.out_channels, 
