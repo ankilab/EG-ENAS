@@ -65,7 +65,7 @@ def get_cfg():
     CFG.SOLVER.TOPK=5
 
     CFG.KD = CN()
-    CFG.KD.TEMPERATURE = 2
+    CFG.KD.TEMPERATURE = 3
     CFG.KD.LOSS = CN()
     CFG.KD.LOSS.CE_WEIGHT = 0.1
     CFG.KD.LOSS.KD_WEIGHT = 9
@@ -91,12 +91,12 @@ def get_cfg():
     #CFG.CAT_KD.student_dir = None
 
     # DKD(Decoupled Knowledge Distillation) CFG
-    #CFG.DKD = CN()
-    #CFG.DKD.CE_WEIGHT = 1.0
-    #CFG.DKD.ALPHA = 1.0
-    #CFG.DKD.BETA = 8.0
-    #CFG.DKD.T = 4.0
-    #CFG.DKD.WARMUP = 1
+    CFG.DKD = CN()
+    CFG.DKD.CE_WEIGHT = 1.0
+    CFG.DKD.ALPHA = 1.0
+    CFG.DKD.BETA = 8.0
+    CFG.DKD.T = 4.0
+    CFG.DKD.WARMUP = 1
     return CFG
 
 

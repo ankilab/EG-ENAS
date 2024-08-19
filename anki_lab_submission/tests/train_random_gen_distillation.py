@@ -119,7 +119,7 @@ if __name__ == '__main__':
         # Set the start method if it hasn't been set yet
         mp.set_start_method("spawn")
     SUBMISSION_PATH="anki_lab_submission"
-    Dataset="Chesseract"
+    Dataset="GeoClassing"
     (train_x, train_y), (valid_x, valid_y), (test_x), metadata = load_datasets(Dataset, truncate=False)
     test_y = np.load(os.path.join('datasets/'+Dataset,'test_y.npy'))
     metadata["select_augment"]=False
@@ -226,7 +226,7 @@ if __name__ == '__main__':
         for p in processes:
             p.join()
     else:
-         for name in models_names:
+         for name in models_names[:]:
                 train_mp(models[name],name,teacher, metadata, test_folder, device, train_loader,valid_loader)
 
 

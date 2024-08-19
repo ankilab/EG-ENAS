@@ -170,7 +170,11 @@ class DataProcessor:
 
             dict_transforms={"Chester":[v2.RandomErasing(p=0.2, scale=(0.02, 0.2), ratio=(0.3, 3.3)),v2.RandomCrop((H,W), padding=(PH,PW)),v2.RandomHorizontalFlip()],
                             "Gutenberg":[RandomPixelChange(0.05), v2.ToTensor()] ,
-                            "Mateo": [ v2.RandomCrop((H,W), padding=(PH,PW)),v2.RandomHorizontalFlip()]}
+                            "Mateo": [ v2.RandomCrop((H,W), padding=(PH,PW)),v2.RandomHorizontalFlip()],
+                            "LaMelo": [RandomPixelChange(0.05), v2.ToTensor()],
+                            "Adaline": [ v2.RandomCrop((H,W), padding=(PH,PW)),v2.RandomHorizontalFlip()],
+                            "Caitie": [ v2.RandomCrop((H,W), padding=(PH,PW)),v2.RandomHorizontalFlip()],
+                            "Sadie": [v2.RandomHorizontalFlip(), v2.RandomVerticalFlip()]}
             train_transform = self._determine_train_transform() if self.metadata["select_augment"] else dict_transforms[self.metadata["codename"]]
             # Chester [v2.RandomErasing(p=0.2, scale=(0.02, 0.2), ratio=(0.3, 3.3)),v2.RandomCrop((H,W), padding=(PH,PW)),v2.RandomHorizontalFlip()]
             # MultNIST [ v2.RandomCrop((H,W), padding=(PH,PW)),v2.RandomHorizontalFlip()]
