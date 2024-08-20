@@ -119,10 +119,10 @@ if __name__ == '__main__':
         # Set the start method if it hasn't been set yet
         mp.set_start_method("spawn")
     SUBMISSION_PATH="anki_lab_submission"
-    Dataset="GeoClassing"
+    Dataset="CIFARTile"
     (train_x, train_y), (valid_x, valid_y), (test_x), metadata = load_datasets(Dataset, truncate=False)
     test_y = np.load(os.path.join('datasets/'+Dataset,'test_y.npy'))
-    metadata["select_augment"]=True
+    metadata["select_augment"]=False
     data_processor = DataProcessor(train_x[:], train_y[:], valid_x, valid_y, test_x, metadata)
     train_loader, valid_loader, test_loader = data_processor.process()
     
@@ -191,7 +191,8 @@ if __name__ == '__main__':
             p.join()
     else:
          for name in models_names:
-                train_mp(models[name],name, metadata, test_folder, device, train_loader,valid_loader)
+                if name>"divergent_mole":
+                    train_mp(models[name],name, metadata, test_folder, device, train_loader,valid_loader)
 
 
 

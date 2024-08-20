@@ -52,7 +52,8 @@ class Vanilla(nn.Module):
         self.label_smoothing=label_smoothing
 
     def get_learnable_parameters(self):
-        return [v for k, v in self.student.named_parameters()]
+        #return [v for k, v in self.student.named_parameters()]
+        return [v for k, v in self.student.named_parameters() if v.requires_grad]
 
     def forward_train(self, image, target, **kwargs):
         #logits_student, _ = self.student(image)

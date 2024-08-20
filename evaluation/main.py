@@ -102,7 +102,7 @@ if __name__ == '__main__':
         runclock = Clock(total_runtime_seconds)
 
         # iterate over datasets in the datasets directory
-        for dataset in os.listdir("datasets")[:3]:
+        for dataset in os.listdir("datasets")[:1]:
             # load and display data info
             (train_x, train_y), (valid_x, valid_y), (test_x), metadata = load_datasets(dataset, truncate=False)
             metadata['time_remaining'] = runclock.check()
@@ -115,6 +115,7 @@ if __name__ == '__main__':
             # perform data processing/augmentation/etc using your DataProcessor
             print("\n=== Processing Data ===")
             print("  Allotted compute time remaining: ~{}".format(show_time(runclock.check())))
+            metadata["select_augment"]=False
             data_processor = DataProcessor(train_x, train_y, valid_x, valid_y, test_x, metadata)
             train_loader, valid_loader, test_loader = data_processor.process()
             metadata['time_remaining'] = runclock.check()

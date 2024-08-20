@@ -90,6 +90,8 @@ class NAS:
             
         self.population_size=20
         self.total_generations=2 if (get_gpu_memory(0) / (1024 ** 3)) > 15.0 else 1
+        ic(get_gpu_memory(0))
+        ic(self.total_generations)
         self.num_best_parents=5
         self.sim_threshold=0.1
 

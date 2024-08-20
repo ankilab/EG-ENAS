@@ -84,5 +84,7 @@ class KD(Distiller):
     def forward_test(self, image):
         return self.student(image)
 
-    
+    def get_learnable_parameters(self):
+        #return [v for k, v in self.student.named_parameters()]
+        return [v for k, v in self.student.named_parameters() if v.requires_grad]  
 

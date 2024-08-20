@@ -1,9 +1,9 @@
 EXPERIMENT:
   NAME: ""
   PROJECT: "KD_tests"
-  LOGIT_STAND: False
+  LOGIT_STAND: True
 DISTILLER:
-  TYPE: "KD"
+  TYPE: "NONE"
   TEACHER: "resnet18"
   STUDENT: "ind1"
 KD:
@@ -12,7 +12,7 @@ KD:
     CE_WEIGHT: 0.1
     KD_WEIGHT: 18
     KD_EPOCHS: 10
-    KD_REDUCTION: 0
+    KD_REDUCTION: 1
 SOLVER:
   BATCH_SIZE: 128
   EPOCHS: 10

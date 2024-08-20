@@ -160,6 +160,15 @@ class TrainerDistillation:
                 weight_decay=self.cfg.SOLVER.WEIGHT_DECAY,
             )
         elif self.cfg.SOLVER.TYPE=="Adam":
+            #learnable_params = self.distiller.get_learnable_parameters()
+            # Get non-learnable parameters (parameters with requires_grad=False)
+            #non_learnable_params = [v for k, v in self.distiller.named_parameters() if not v.requires_grad]
+
+            # Define the optimizer with two parameter groups
+            #optimizer = optim.AdamW([
+            #    {'params': learnable_params, 'lr': self.cfg.SOLVER.LR},          # Learnable parameters with default LR
+            #    {'params': non_learnable_params, 'lr': 1e-4}                     # Non-learnable parameters with small LR
+            #], betas=(0.9, 0.999), eps=1e-08, weight_decay=self.cfg.SOLVER.WEIGHT_DECAY)
             optimizer=optim.AdamW(self.distiller.get_learnable_parameters() if torch.cuda.is_available() else self.distiller.get_learnable_parameters(), lr=self.cfg.SOLVER.LR, betas=(0.9, 0.999), eps=1e-08, weight_decay=self.cfg.SOLVER.WEIGHT_DECAY)
         else:
             raise NotImplementedError(self.cfg.SOLVER.TYPE)
