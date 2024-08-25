@@ -159,15 +159,27 @@ class TrainerDistillation:
                 momentum=self.cfg.SOLVER.MOMENTUM,
                 weight_decay=self.cfg.SOLVER.WEIGHT_DECAY,
             )
-        elif self.cfg.SOLVER.TYPE=="Adam":
-            #learnable_params = self.distiller.get_learnable_parameters()
-            # Get non-learnable parameters (parameters with requires_grad=False)
-            #non_learnable_params = [v for k, v in self.distiller.named_parameters() if not v.requires_grad]
+        elif self.cfg.SOLVER.TYPE=="Adam":  
+            #specific_layers = ["s1.b2","s1.b3","s3", "s2.b2","s2.b3","s2.b4","s2.b5","s2.b6","s2.b7"]
 
-            # Define the optimizer with two parameter groups
+            # Get all parameters of the model
+            #all_params = self.distiller.named_parameters()
+
+            # Separate parameters into different groups
+            #specific_params = []
+            #other_params = []
+
+            #for name, param in all_params:
+            #    if any(layer_name in name for layer_name in specific_layers):
+            #        print(name)
+            #        specific_params.append(param)
+            #    else:
+            #        other_params.append(param)
+
+            # Define the optimizer with different parameter groups
             #optimizer = optim.AdamW([
-            #    {'params': learnable_params, 'lr': self.cfg.SOLVER.LR},          # Learnable parameters with default LR
-            #    {'params': non_learnable_params, 'lr': 1e-4}                     # Non-learnable parameters with small LR
+            #    {'params': specific_params, 'lr': self.cfg.SOLVER.LR * 0.1},  # Lower learning rate for specific layers
+            #    {'params': other_params, 'lr': self.cfg.SOLVER.LR}  # Default learning rate for other layers
             #], betas=(0.9, 0.999), eps=1e-08, weight_decay=self.cfg.SOLVER.WEIGHT_DECAY)
             optimizer=optim.AdamW(self.distiller.get_learnable_parameters() if torch.cuda.is_available() else self.distiller.get_learnable_parameters(), lr=self.cfg.SOLVER.LR, betas=(0.9, 0.999), eps=1e-08, weight_decay=self.cfg.SOLVER.WEIGHT_DECAY)
         else:

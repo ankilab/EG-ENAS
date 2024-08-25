@@ -16,7 +16,7 @@ from search_space.utils import create_widths_plot, scatter_results, get_generati
 from trainer import TrainerDistillation
 from utils.train_cfg import get_cfg, show_cfg
 ###################################################
-random_seed = 1
+random_seed = 2
 random.seed(random_seed)
 # Set seed for NumPy
 np.random.seed(random_seed)
@@ -106,7 +106,7 @@ def train_mp(student,student_name,teacher,  metadata, test_folder, device, train
         
         clear_output(wait=True)
         metadata["experiment_name"]=f"{test_folder}/{student_name}"
-        trainer=TrainerDistillation(student, device, train_loader, valid_loader,metadata, [teacher]) 
+        trainer=TrainerDistillation(student, device, train_loader, valid_loader,metadata, teacher) 
         trainer.train()
         torch.cuda.empty_cache()
         gc.collect()
@@ -119,7 +119,7 @@ if __name__ == '__main__':
         # Set the start method if it hasn't been set yet
         mp.set_start_method("spawn")
     SUBMISSION_PATH="anki_lab_submission"
-    Dataset="GeoClassing"
+    Dataset="MultNIST"
     (train_x, train_y), (valid_x, valid_y), (test_x), metadata = load_datasets(Dataset, truncate=False)
     test_y = np.load(os.path.join('datasets/'+Dataset,'test_y.npy'))
     metadata["select_augment"]=False
@@ -135,14 +135,15 @@ if __name__ == '__main__':
                     base_config=f"{SUBMISSION_PATH}/configs/search_space/config.yaml")
 
     current_time=datetime.now().strftime("%d_%m_%Y_%H_%M")
-    test_folder=f"{os.getenv('WORK')}/NAS_COMPETITION_RESULTS/kwnowledge_distillation/kd/{current_time}/{metadata['codename']}"
+    #test_folder=f"{os.getenv('WORK')}/NAS_COMPETITION_RESULTS/kwnowledge_distillation/kd18/{current_time}/{metadata['codename']}"
+    test_folder=f"{os.getenv('WORK')}/NAS_COMPETITION_RESULTS/kwnowledge_distillation/dkd2_hsmoothing/{current_time}/{metadata['codename']}"
     
     folder=f"/home/woody/iwb3/iwb3021h/NAS_COMPETITION_RESULTS/classifier_train/{metadata['codename']}"
     models, chromosomes=rg.load_generation(folder)
     #models, chromosomes=rg.create_random_generation(save_folder=test_folder,gen=None, size=1, config_updates=None)
     
     # Train models
-    metadata["train_config_path"]=f'{SUBMISSION_PATH}/configs/train/regnet_distillation_adam.yaml'
+    metadata["train_config_path"]=f'{SUBMISSION_PATH}/configs/train/regnet_distillation_adam_dkd.yaml'
     train_cfg=get_cfg()
     train_cfg.merge_from_file(metadata["train_config_path"])
     os.makedirs(test_folder, exist_ok=True)
@@ -155,7 +156,7 @@ if __name__ == '__main__':
     ic((get_gpu_memory(0) / (1024 ** 3)))
     ############################### Load resnet teacher model #################
     # save the results to a file
-    aug_path=f"/home/hpc/iwb3/iwb3021h/NAS_CHALLENGE/NAS_Challenge_AutoML_2024/anki_lab_submission/tests/results/full_training_evonas/augmentations_test/{metadata['codename']}"
+    aug_path=f"/home/woody/iwb3/iwb3021h/NAS_COMPETITION_RESULTS/augmentations_test/{metadata['codename']}"
     print(aug_path)
     with open(f"{aug_path}/augmentation_results.json", 'r') as f:
         results = json.load(f)
@@ -173,7 +174,14 @@ if __name__ == '__main__':
 
     print(f'The key with the maximum value is "{max_key}" with a value of {max_value}.')
 
-    
+    #import copy
+    #best_model_name="holistic_bird"
+    #weights_file=f"/home/woody/iwb3/iwb3021h/NAS_COMPETITION_RESULTS/classifier_train/{metadata['codename']}/{best_model_name}/student_best"
+    #state = load_checkpoint(weights_file)
+    #teacher=copy.deepcopy(models[best_model_name])
+    #teacher.load_state_dict(state["model"])
+    #teacher.to(device)
+    ########################## Resnet teacher ###########################
     weights_file=f"{aug_path}/aug_{max_key}/student_best"
     teacher = models_torch.resnet18(weights=None)
     new_conv1 = torch.nn.Conv2d(in_channels=metadata["input_shape"][1], 
@@ -226,7 +234,7 @@ if __name__ == '__main__':
         for p in processes:
             p.join()
     else:
-         for name in models_names[:]:
+         for name in models_names[:20]:
                 train_mp(models[name],name,teacher, metadata, test_folder, device, train_loader,valid_loader)
 
 

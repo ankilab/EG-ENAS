@@ -342,7 +342,7 @@ class RegNet:
             chromosomes[random_name]=info
         return models, chromosomes
 
-    def load_generation(self,folder, config_updates=None):
+    def load_generation(self,folder, config_updates=None, return_models=True):
         """
         Loads a generation of models from the specified folder.
 
@@ -358,11 +358,16 @@ class RegNet:
         #configs={}
         individuals=os.listdir(folder)
         individuals=[ind for ind in individuals if os.path.isdir(os.path.join(folder, ind)) and ".ipynb" not in ind]
-        for ind in individuals:
-            ind_config=f"{folder}/{ind}/config.yaml"
-            models[ind], chromosomes[ind]=self.load_model(config_file=ind_config, config_updates=config_updates)
-        return models,chromosomes
-
+        if return_models:
+            for ind in individuals:
+                ind_config=f"{folder}/{ind}/config.yaml"
+                models[ind], chromosomes[ind]=self.load_model(config_file=ind_config, config_updates=config_updates)
+            return models,chromosomes
+        else:
+            for ind in individuals:
+                ind_config=f"{folder}/{ind}/config.yaml"
+                _, chromosomes[ind]=self.load_model(config_file=ind_config, config_updates=config_updates)
+            return chromosomes
     def compare_chromosomes(self, c1, c2):
         #wa,w0,wm,D
         max_range=[max(self.WA_OPTIONS), max(self.W0_OPTIONS), max(self.WM_OPTIONS), max(self.D_OPTIONS)]

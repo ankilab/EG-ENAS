@@ -1,4 +1,5 @@
 import sys
+import functools
 import ast
 import torch
 import random
@@ -119,7 +120,7 @@ if __name__ == '__main__':
         # Set the start method if it hasn't been set yet
         mp.set_start_method("spawn")
     SUBMISSION_PATH="anki_lab_submission"
-    Dataset="CIFARTile"
+    Dataset="MultNIST"
     (train_x, train_y), (valid_x, valid_y), (test_x), metadata = load_datasets(Dataset, truncate=False)
     test_y = np.load(os.path.join('datasets/'+Dataset,'test_y.npy'))
     metadata["select_augment"]=False
@@ -135,14 +136,125 @@ if __name__ == '__main__':
                     base_config=f"{SUBMISSION_PATH}/configs/search_space/config.yaml")
 
     current_time=datetime.now().strftime("%d_%m_%Y_%H_%M")
-    test_folder=f"{os.getenv('WORK')}/NAS_COMPETITION_RESULTS/kwnowledge_distillation/vanilla/{current_time}/{metadata['codename']}"
+    test_folder=f"{os.getenv('WORK')}/NAS_COMPETITION_RESULTS/kwnowledge_distillation/inheritance/{current_time}/{metadata['codename']}"
 
     folder=f"/home/woody/iwb3/iwb3021h/NAS_COMPETITION_RESULTS/classifier_train/{metadata['codename']}"
     models, chromosomes=rg.load_generation(folder)
     #models, chromosomes=rg.create_random_generation(save_folder=test_folder,gen=None, size=3, config_updates=None)
     
+    ##################################### LOAD PRETRAINED RESULTS DATAFRAME ########################
+    df_models=pd.DataFrame(chromosomes).T[["ws","ds","num_stages", "DEPTH"]]
+    df_results=pd.read_csv("df_blocks_pool.csv", index_col=0)
+    df_results=df_results[df_results.dataset!=metadata["codename"]]
+    
+    #WHOLE LOOP SELECTION PRETRAINED INDIVIDUALS
+    total_pool_individuals={}
+
+    for model_name in list(chromosomes.keys()):
+        df_current_model=df_models.loc[model_name]
+
+        filtered_dfs=[]
+        df_results_aux=df_results.drop(columns=["ws","ds"])
+        df_results_aux["diff_stages"]=abs(df_results_aux["num_stages"]-df_current_model["num_stages"])
+        df_results_aux["diff_depth"]=abs(df_results_aux["DEPTH"]-df_current_model["DEPTH"])
+
+        for stage in range(1, df_current_model["num_stages"]+1):
+            df_results_aux[f"diff_ws{stage}"]=abs(df_results_aux[f"ws{stage}"]-df_current_model["ws"][stage-1])
+            df_results_aux[f"diff_d{stage}"]=abs(df_results_aux[f"ds{stage}"]-df_current_model["ds"][stage-1])
+
+        for stage in range(1, df_current_model["num_stages"]+1):
+            if stage==1:
+                df_results_aux=df_results_aux.sort_values(["diff_ws1","diff_d1","diff_stages","diff_ws2","diff_depth"])
+            else:
+                df_results_aux=df_results_aux.sort_values([f"diff_ws{stage}",f"diff_d{stage}",f"diff_ws{stage-1}","diff_stages", "diff_depth"])
+
+            if stage==1:
+                first_row_values = df_results_aux[["diff_stages", f"diff_ws{stage}", f"diff_d{stage}"]].iloc[0]
+                # Filter the DataFrame based on these values
+                filtered_df = df_results_aux[
+                    (df_results_aux["diff_stages"] == first_row_values["diff_stages"]) &
+                    (df_results_aux[f"diff_ws{stage}"] == first_row_values[f"diff_ws{stage}"]) &
+                    (df_results_aux[f"diff_d{stage}"] == first_row_values[f"diff_d{stage}"])
+                ]
+            else:
+                first_row_values = df_results_aux[["diff_stages",f"diff_ws{stage-1}", f"diff_ws{stage}", f"diff_d{stage}"]].iloc[0]
+                # Filter the DataFrame based on these values
+                filtered_df = df_results_aux[
+                    (df_results_aux["diff_stages"] == first_row_values["diff_stages"]) &
+                    (df_results_aux[f"diff_ws{stage-1}"] == first_row_values[f"diff_ws{stage-1}"]) &
+                    (df_results_aux[f"diff_ws{stage}"] == first_row_values[f"diff_ws{stage}"]) &
+                    (df_results_aux[f"diff_d{stage}"] == first_row_values[f"diff_d{stage}"])
+                ]
+            filtered_dfs.append(filtered_df)
+
+        pool_individuals={}
+        items=[]
+        for idx, stage_df in enumerate(filtered_dfs):
+            items.append(dict(zip(stage_df.index.tolist(),stage_df.dataset.tolist())))
+        for idx, item in enumerate(items):
+            for i in range(0,len(items)):
+                if i !=idx:
+                    common_items = item.items() & items[i].items()
+                    #print(common_items)
+                    if common_items:
+                        pool_individuals[idx+1]=next(iter(common_items))
+                        break
+            if idx+1 not in pool_individuals:
+                 pool_individuals[idx+1]=next(iter(item.items()))
+        print("########################")
+        print(model_name)
+        print(pool_individuals)
+        total_pool_individuals[model_name]=pool_individuals    
+    
+    #WHOLE MODELS INHERITANCE LOOP
+    n_access={}
+    for model_name in list(models.keys()):
+        print("Model Name: ",model_name)
+        print("#######################")
+        pool_models={}
+        pool_chroms={}
+        for stage, info in total_pool_individuals[model_name].items():
+            name, transfer_dataset=info
+            #model_name="sceptical_wildebeest"
+            #transfer_dataset="LaMelo
+            weights_file=f"/home/woody/iwb3/iwb3021h/NAS_COMPETITION_RESULTS/classifier_train/{transfer_dataset}/{name}/student_best"
+            config_file=f"/home/woody/iwb3/iwb3021h/NAS_COMPETITION_RESULTS/classifier_train/{transfer_dataset}/{name}/config.yaml"
+            pool_models[stage],pool_chroms[stage]=rg.load_model(config_file=config_file, weights_file=weights_file)
+
+        chrom=chromosomes[model_name]
+        n_access[model_name]=0
+        for stage in range(1,chrom["num_stages"]+1):
+            max_block=min(chrom["ds"][stage-1], pool_chroms[stage]["ds"][stage-1])
+            print("###### MAX BLOCK #####: ",max_block)
+            for block in range(1,max_block+1):
+                print("Block: ", block)
+                model_part = eval(f"models[model_name].s{stage}.b{block}")
+                orig_part = eval(f"pool_models[stage].s{stage}.b{block}.state_dict()")
+
+                for key in model_part.state_dict().keys():
+
+                    tensor = orig_part[key]
+                    tensor_shape = tensor.shape
+                    #print(tensor_shape)
+
+                    tensor_student_shape=model_part.state_dict()[key].shape
+                    if tensor_shape==tensor_student_shape:
+                        print(key)
+                        #print(tensor_shape)
+                        n_access[model_name]=n_access[model_name]+1
+
+
+                        keys = key.split('.')
+
+                        # Access the specific layer that contains the weight attribute
+                        param = functools.reduce(getattr, keys[:-1], model_part)
+                        #print(param.requires_grad)
+                        #param.weight.requires_grad=False
+                        # Use setattr to update the .data attribute of the weight tensor
+                        getattr(param, keys[-1]).data = tensor.clone()
+
     # Train models
-    metadata["train_config_path"]=f'{SUBMISSION_PATH}/configs/train/first_generation_adam.yaml'
+    metadata["train_config_path"]=f'{SUBMISSION_PATH}/configs/train/inheritance_generation_adam.yaml'
     train_cfg=get_cfg()
     train_cfg.merge_from_file(metadata["train_config_path"])
     
@@ -190,8 +302,7 @@ if __name__ == '__main__':
         for p in processes:
             p.join()
     else:
-         for name in models_names:
-                if name>"esoteric_husky":
+         for name in models_names[:30]:
                     train_mp(models[name],name, metadata, test_folder, device, train_loader,valid_loader)
 
 

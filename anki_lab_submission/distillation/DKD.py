@@ -69,6 +69,7 @@ class DKD(Distiller):
         self.temperature = cfg.DKD.T
         self.warmup = cfg.DKD.WARMUP
         self.logit_stand = cfg.EXPERIMENT.LOGIT_STAND 
+        self.label_smoothing=cfg.SOLVER.LABEL_SMOOTHING
 
     def forward_train(self, image, target, **kwargs):
         #logits_student, _ = self.student(image)
@@ -78,7 +79,8 @@ class DKD(Distiller):
             logits_teacher = self.teacher(image)
 
         # losses
-        loss_ce = self.ce_loss_weight * F.cross_entropy(logits_student, target)
+        loss_ce = self.ce_loss_weight * F.cross_entropy(input=logits_student, target=target, label_smoothing=self.label_smoothing)
+        #if kwargs['epoch']<=5:
         loss_dkd = min(kwargs["epoch"] / self.warmup, 1.0) * dkd_loss(
             logits_student,
             logits_teacher,
@@ -92,6 +94,11 @@ class DKD(Distiller):
             "loss_ce": loss_ce,
             "loss_kd": loss_dkd,
         }
+        #else:
+        #    losses_dict = {
+        #        "loss_ce": loss_ce,
+        #        "loss_kd": loss_ce,
+        #    }
         return logits_student, losses_dict
     
     def forward_test(self, image):
