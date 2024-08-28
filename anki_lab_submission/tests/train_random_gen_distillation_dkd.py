@@ -5,6 +5,7 @@ import random
 import numpy as np
 import time
 import os
+import functools
 from IPython.display import clear_output
 sys.path.append("anki_lab_submission")
 ####### Dataset ############
@@ -16,7 +17,7 @@ from search_space.utils import create_widths_plot, scatter_results, get_generati
 from trainer import TrainerDistillation
 from utils.train_cfg import get_cfg, show_cfg
 ###################################################
-random_seed = 2
+random_seed = 1
 random.seed(random_seed)
 # Set seed for NumPy
 np.random.seed(random_seed)
@@ -119,7 +120,7 @@ if __name__ == '__main__':
         # Set the start method if it hasn't been set yet
         mp.set_start_method("spawn")
     SUBMISSION_PATH="anki_lab_submission"
-    Dataset="MultNIST"
+    Dataset="AddNIST"
     (train_x, train_y), (valid_x, valid_y), (test_x), metadata = load_datasets(Dataset, truncate=False)
     test_y = np.load(os.path.join('datasets/'+Dataset,'test_y.npy'))
     metadata["select_augment"]=False
@@ -135,13 +136,139 @@ if __name__ == '__main__':
                     base_config=f"{SUBMISSION_PATH}/configs/search_space/config.yaml")
 
     current_time=datetime.now().strftime("%d_%m_%Y_%H_%M")
-    #test_folder=f"{os.getenv('WORK')}/NAS_COMPETITION_RESULTS/kwnowledge_distillation/kd18/{current_time}/{metadata['codename']}"
-    test_folder=f"{os.getenv('WORK')}/NAS_COMPETITION_RESULTS/kwnowledge_distillation/dkd2_hsmoothing/{current_time}/{metadata['codename']}"
+    test_folder=f"{os.getenv('WORK')}/NAS_COMPETITION_RESULTS/kwnowledge_distillation/dkd2_inheritance/{current_time}/{metadata['codename']}"
+    #test_folder=f"{os.getenv('WORK')}/NAS_COMPETITION_RESULTS/kwnowledge_distillation/dkd2_hsmoothing/{current_time}/{metadata['codename']}"
     
     folder=f"/home/woody/iwb3/iwb3021h/NAS_COMPETITION_RESULTS/classifier_train/{metadata['codename']}"
     models, chromosomes=rg.load_generation(folder)
     #models, chromosomes=rg.create_random_generation(save_folder=test_folder,gen=None, size=1, config_updates=None)
     
+    inheritance=True
+
+    if inheritance: 
+        ##################################### LOAD PRETRAINED RESULTS DATAFRAME ########################
+        df_models=pd.DataFrame(chromosomes).T[["ws","ds","num_stages", "DEPTH"]]
+        #df_results=pd.read_csv("/home/hpc/iwb3/iwb3021h/NAS_CHALLENGE/NAS_Challenge_AutoML_2024/anki_lab_submission/tests/df_blocks_pool_update.csv", index_col=0)
+        df_results=pd.read_csv("/home/hpc/iwb3/iwb3021h/NAS_CHALLENGE/NAS_Challenge_AutoML_2024/anki_lab_submission/tests/df_blocks_pool.csv", index_col=0)
+        df_results=df_results[df_results.dataset!=metadata["codename"]]
+        
+        #WHOLE LOOP SELECTION PRETRAINED INDIVIDUALS
+        total_pool_individuals={}
+
+        for model_name in list(chromosomes.keys()):
+            df_current_model=df_models.loc[model_name]
+
+            filtered_dfs=[]
+            df_results_aux=df_results.drop(columns=["ws","ds"])
+            df_results_aux["diff_stages"]=abs(df_results_aux["num_stages"]-df_current_model["num_stages"])
+            df_results_aux["diff_depth"]=abs(df_results_aux["DEPTH"]-df_current_model["DEPTH"])
+
+            for stage in range(1, df_current_model["num_stages"]+1):
+                df_results_aux[f"diff_ws{stage}"]=abs(df_results_aux[f"ws{stage}"]-df_current_model["ws"][stage-1])
+                df_results_aux[f"diff_d{stage}"]=abs(df_results_aux[f"ds{stage}"]-df_current_model["ds"][stage-1])
+
+            for stage in range(1, df_current_model["num_stages"]+1):
+                if stage==1:
+                    df_results_aux=df_results_aux.sort_values(["diff_ws1","diff_d1","diff_stages","diff_ws2","diff_depth"])
+                else:
+                    df_results_aux=df_results_aux.sort_values([f"diff_ws{stage}",f"diff_d{stage}",f"diff_ws{stage-1}","diff_stages", "diff_depth"])
+
+                if stage==1:
+                    first_row_values = df_results_aux[["diff_stages", f"diff_ws{stage}", f"diff_d{stage}"]].iloc[0]
+                    # Filter the DataFrame based on these values
+                    filtered_df = df_results_aux[
+                        (df_results_aux["diff_stages"] == first_row_values["diff_stages"]) &
+                        (df_results_aux[f"diff_ws{stage}"] == first_row_values[f"diff_ws{stage}"]) &
+                        (df_results_aux[f"diff_d{stage}"] == first_row_values[f"diff_d{stage}"])
+                    ]
+                else:
+                    first_row_values = df_results_aux[["diff_stages",f"diff_ws{stage-1}", f"diff_ws{stage}", f"diff_d{stage}"]].iloc[0]
+                    # Filter the DataFrame based on these values
+                    filtered_df = df_results_aux[
+                        (df_results_aux["diff_stages"] == first_row_values["diff_stages"]) &
+                        (df_results_aux[f"diff_ws{stage-1}"] == first_row_values[f"diff_ws{stage-1}"]) &
+                        (df_results_aux[f"diff_ws{stage}"] == first_row_values[f"diff_ws{stage}"]) &
+                        (df_results_aux[f"diff_d{stage}"] == first_row_values[f"diff_d{stage}"])
+                    ]
+                filtered_dfs.append(filtered_df)
+
+            pool_individuals={}
+            items=[]
+            for idx, stage_df in enumerate(filtered_dfs):
+                items.append(dict(zip(stage_df.index.tolist(),stage_df.dataset.tolist())))
+            for idx, item in enumerate(items):
+                for i in range(0,len(items)):
+                    if i !=idx:
+                        common_items = item.items() & items[i].items()
+                        #print(common_items)
+                        if common_items:
+                            pool_individuals[idx+1]=next(iter(common_items))
+                            break
+                if idx+1 not in pool_individuals:
+                    pool_individuals[idx+1]=next(iter(item.items()))
+            print("########################")
+            print(model_name)
+            print(pool_individuals)
+            total_pool_individuals[model_name]=pool_individuals    
+        
+        #WHOLE MODELS INHERITANCE LOOP
+        n_access={}
+        for model_name in list(models.keys()):
+            print("Model Name: ",model_name)
+            print("#######################")
+            pool_models={}
+            pool_chroms={}
+            for stage, info in total_pool_individuals[model_name].items():
+                name, transfer_dataset=info
+                #model_name="sceptical_wildebeest"
+                #transfer_dataset="LaMelo
+                #weights_file=f"/home/woody/iwb3/iwb3021h/NAS_COMPETITION_RESULTS/kwnowledge_distillation/vanilla/{transfer_dataset}/{name}/student_best"
+                weights_file=f"/home/woody/iwb3/iwb3021h/NAS_COMPETITION_RESULTS/classifier_train/{transfer_dataset}/{name}/student_best"
+                config_file=f"/home/woody/iwb3/iwb3021h/NAS_COMPETITION_RESULTS/classifier_train/{transfer_dataset}/{name}/config.yaml"
+                pool_models[stage],pool_chroms[stage]=rg.load_model(config_file=config_file, weights_file=weights_file)
+
+            chrom=chromosomes[model_name]
+            n_access[model_name]=0
+            for stage in range(1,chrom["num_stages"]+1):
+                max_block=min(chrom["ds"][stage-1], pool_chroms[stage]["ds"][stage-1])
+                print("###### MAX BLOCK #####: ",max_block)
+                for block in range(1,max_block+1):
+                    print("Block: ", block)
+                    model_part = eval(f"models[model_name].s{stage}.b{block}")
+                    orig_part = eval(f"pool_models[stage].s{stage}.b{block}.state_dict()")
+
+                    for key in model_part.state_dict().keys():
+
+                        tensor = orig_part[key]
+                        tensor_shape = tensor.shape
+                        #print(tensor_shape)
+
+                        tensor_student_shape=model_part.state_dict()[key].shape
+                        if tensor_shape==tensor_student_shape:
+                            print(key)
+                            #print(tensor_shape)
+                            n_access[model_name]=n_access[model_name]+1
+
+
+                            keys = key.split('.')
+
+                            # Access the specific layer that contains the weight attribute
+                            param = functools.reduce(getattr, keys[:-1], model_part)
+                            #print(param.requires_grad)
+                            #param.weight.requires_grad=False
+                            # Use setattr to update the .data attribute of the weight tensor
+                            getattr(param, keys[-1]).data = tensor.clone()
+
+    ######### Load stem from parent #############################
+    #weights_file=f"/home/woody/iwb3/iwb3021h/NAS_COMPETITION_RESULTS/kwnowledge_distillation/vanilla/{metadata['codename']}/chirpy_swallow/student_best"
+    #weights_file=f"/home/woody/iwb3/iwb3021h/NAS_COMPETITION_RESULTS/classifier_train/{metadata['codename']}/chirpy_swallow/student_best" 
+    #config_file=f"/home/woody/iwb3/iwb3021h/NAS_COMPETITION_RESULTS/classifier_train/{metadata['codename']}/chirpy_swallow/config.yaml"
+    #pretrained_stem,_=rg.load_model(config_file=config_file, weights_file=weights_file)
+    #for model_name in list(models.keys()):
+    #    models[model_name].stem.load_state_dict(pretrained_stem.stem.state_dict())
+
+
+
     # Train models
     metadata["train_config_path"]=f'{SUBMISSION_PATH}/configs/train/regnet_distillation_adam_dkd.yaml'
     train_cfg=get_cfg()
@@ -174,8 +301,24 @@ if __name__ == '__main__':
 
     print(f'The key with the maximum value is "{max_key}" with a value of {max_value}.')
 
-    #import copy
-    #best_model_name="holistic_bird"
+    import copy
+    #best_model_name="holistic_bird" #Gutenberg
+    if metadata["codename"]=="Mateo":
+        best_model_name="awesome_dodo"
+    elif metadata["codename"]=="Gutenberg":
+        best_model_name="holistic_bird"
+    elif metadata["codename"]=="Chester":
+        best_model_name="satisfied_manul"
+    elif metadata["codename"]=="Adaline":
+        best_model_name="chirpy_swallow"
+    elif metadata["codename"]=="LaMelo":
+        best_model_name="pistachio_wren"
+    elif metadata["codename"]=="Caitie":
+        best_model_name="heavenly_moose"
+    elif metadata["codename"]=="Sadie":
+        best_model_name="exotic_ladybug"
+        
+    #weights_file=f"/home/woody/iwb3/iwb3021h/NAS_COMPETITION_RESULTS/kwnowledge_distillation/vanilla/{metadata['codename']}/{best_model_name}/student_best"
     #weights_file=f"/home/woody/iwb3/iwb3021h/NAS_COMPETITION_RESULTS/classifier_train/{metadata['codename']}/{best_model_name}/student_best"
     #state = load_checkpoint(weights_file)
     #teacher=copy.deepcopy(models[best_model_name])

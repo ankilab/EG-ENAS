@@ -120,7 +120,8 @@ if __name__ == '__main__':
         # Set the start method if it hasn't been set yet
         mp.set_start_method("spawn")
     SUBMISSION_PATH="anki_lab_submission"
-    Dataset="MultNIST"
+    Dataset="CIFARTile"
+    #Adaline, Chester, Mateo, Gutenberg, Sadie, Caitie.
     (train_x, train_y), (valid_x, valid_y), (test_x), metadata = load_datasets(Dataset, truncate=False)
     test_y = np.load(os.path.join('datasets/'+Dataset,'test_y.npy'))
     metadata["select_augment"]=False
@@ -144,7 +145,8 @@ if __name__ == '__main__':
     
     ##################################### LOAD PRETRAINED RESULTS DATAFRAME ########################
     df_models=pd.DataFrame(chromosomes).T[["ws","ds","num_stages", "DEPTH"]]
-    df_results=pd.read_csv("df_blocks_pool.csv", index_col=0)
+    #df_results=pd.read_csv("/home/hpc/iwb3/iwb3021h/NAS_CHALLENGE/NAS_Challenge_AutoML_2024/anki_lab_submission/tests/df_blocks_pool_update.csv", index_col=0)
+    df_results=pd.read_csv("/home/hpc/iwb3/iwb3021h/NAS_CHALLENGE/NAS_Challenge_AutoML_2024/anki_lab_submission/tests/df_blocks_pool.csv", index_col=0)
     df_results=df_results[df_results.dataset!=metadata["codename"]]
     
     #WHOLE LOOP SELECTION PRETRAINED INDIVIDUALS
@@ -217,6 +219,7 @@ if __name__ == '__main__':
             name, transfer_dataset=info
             #model_name="sceptical_wildebeest"
             #transfer_dataset="LaMelo
+            #weights_file=f"/home/woody/iwb3/iwb3021h/NAS_COMPETITION_RESULTS/kwnowledge_distillation/vanilla/{transfer_dataset}/{name}/student_best"
             weights_file=f"/home/woody/iwb3/iwb3021h/NAS_COMPETITION_RESULTS/classifier_train/{transfer_dataset}/{name}/student_best"
             config_file=f"/home/woody/iwb3/iwb3021h/NAS_COMPETITION_RESULTS/classifier_train/{transfer_dataset}/{name}/config.yaml"
             pool_models[stage],pool_chroms[stage]=rg.load_model(config_file=config_file, weights_file=weights_file)
@@ -252,6 +255,30 @@ if __name__ == '__main__':
                         #param.weight.requires_grad=False
                         # Use setattr to update the .data attribute of the weight tensor
                         getattr(param, keys[-1]).data = tensor.clone()
+
+    ######### Load stem from parent #############################
+    import copy
+    #best_model_name="holistic_bird"
+    if metadata["codename"]=="Mateo":
+        best_model_name="awesome_dodo"
+    elif metadata["codename"]=="Gutenberg":
+        best_model_name="holistic_bird"
+    elif metadata["codename"]=="Chester":
+        best_model_name="satisfied_manul"
+    elif metadata["codename"]=="Adaline":
+        best_model_name="chirpy_swallow"
+    elif metadata["codename"]=="LaMelo":
+        best_model_name="pistachio_wren"
+    elif metadata["codename"]=="Caitie":
+        best_model_name="heavenly_moose"
+    elif metadata["codename"]=="Sadie":
+        best_model_name="exotic_ladybug"
+    weights_file=f"/home/woody/iwb3/iwb3021h/NAS_COMPETITION_RESULTS/kwnowledge_distillation/vanilla/{metadata['codename']}/{best_model_name}/student_best"
+    #weights_file=f"/home/woody/iwb3/iwb3021h/NAS_COMPETITION_RESULTS/classifier_train/{metadata['codename']}/{best_model_name}/student_best"
+    config_file=f"/home/woody/iwb3/iwb3021h/NAS_COMPETITION_RESULTS/classifier_train/{metadata['codename']}/{best_model_name}/config.yaml"
+    pretrained_stem,_=rg.load_model(config_file=config_file, weights_file=weights_file)
+    for model_name in list(models.keys()):
+        models[model_name].stem.load_state_dict(pretrained_stem.stem.state_dict())
 
     # Train models
     metadata["train_config_path"]=f'{SUBMISSION_PATH}/configs/train/inheritance_generation_adam.yaml'
@@ -302,7 +329,8 @@ if __name__ == '__main__':
         for p in processes:
             p.join()
     else:
-         for name in models_names[:30]:
+         for name in models_names[:]:
+
                     train_mp(models[name],name, metadata, test_folder, device, train_loader,valid_loader)
 
 

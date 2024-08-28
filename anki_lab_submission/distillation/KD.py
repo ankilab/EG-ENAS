@@ -51,8 +51,8 @@ class KD(Distiller):
         
         if kwargs['epoch']<=self.kd_epochs:
             if self.kd_reduction==1:
-                #kd_loss_w=self.kd_loss_weight*(1-(kwargs['epoch']-1)/self.kd_epochs)
-                kd_loss_w=self.kd_loss_weight/self.kd_epochs
+                kd_loss_w=self.kd_loss_weight*(1-(kwargs['epoch']-1)/self.kd_epochs)
+                #kd_loss_w=self.kd_loss_weight/self.kd_epochs
                 #loss_ce = kwargs['epoch']*self.ce_loss_weight * F.cross_entropy(logits_student, target)
                 loss_ce = self.ce_loss_weight * F.cross_entropy(input=logits_student, target=target, label_smoothing=self.label_smoothing)
                 

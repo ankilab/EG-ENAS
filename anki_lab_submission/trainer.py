@@ -222,6 +222,12 @@ class TrainerDistillation:
         self.log(0.0, 0, log_dict)
         ##############################################
 
+        #for name, param in self.distiller.named_parameters():
+        #    param.requires_grad = True
+        
+        #self.optimizer=optim.AdamW(self.distiller.get_learnable_parameters() if torch.cuda.is_available() else self.distiller.get_learnable_parameters(), lr=self.cfg.SOLVER.LR, betas=(0.9, 0.999),
+        #     eps=1e-08, weight_decay=self.cfg.SOLVER.WEIGHT_DECAY)
+
         while epoch < self.cfg.SOLVER.EPOCHS + 1:
             self.train_epoch(epoch)
             epoch += 1
