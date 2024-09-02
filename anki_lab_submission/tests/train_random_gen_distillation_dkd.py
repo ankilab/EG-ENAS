@@ -120,7 +120,7 @@ if __name__ == '__main__':
         # Set the start method if it hasn't been set yet
         mp.set_start_method("spawn")
     SUBMISSION_PATH="anki_lab_submission"
-    Dataset="AddNIST"
+    Dataset="MultNIST"
     (train_x, train_y), (valid_x, valid_y), (test_x), metadata = load_datasets(Dataset, truncate=False)
     test_y = np.load(os.path.join('datasets/'+Dataset,'test_y.npy'))
     metadata["select_augment"]=False
@@ -136,14 +136,14 @@ if __name__ == '__main__':
                     base_config=f"{SUBMISSION_PATH}/configs/search_space/config.yaml")
 
     current_time=datetime.now().strftime("%d_%m_%Y_%H_%M")
-    test_folder=f"{os.getenv('WORK')}/NAS_COMPETITION_RESULTS/kwnowledge_distillation/dkd2_inheritance/{current_time}/{metadata['codename']}"
-    #test_folder=f"{os.getenv('WORK')}/NAS_COMPETITION_RESULTS/kwnowledge_distillation/dkd2_hsmoothing/{current_time}/{metadata['codename']}"
+    #test_folder=f"{os.getenv('WORK')}/NAS_COMPETITION_RESULTS/kwnowledge_distillation/dkd2_inheritance/{current_time}/{metadata['codename']}"
+    test_folder=f"{os.getenv('WORK')}/NAS_COMPETITION_RESULTS/kwnowledge_distillation/dkd2_reduction/{current_time}/{metadata['codename']}"
     
     folder=f"/home/woody/iwb3/iwb3021h/NAS_COMPETITION_RESULTS/classifier_train/{metadata['codename']}"
     models, chromosomes=rg.load_generation(folder)
     #models, chromosomes=rg.create_random_generation(save_folder=test_folder,gen=None, size=1, config_updates=None)
     
-    inheritance=True
+    inheritance=False
 
     if inheritance: 
         ##################################### LOAD PRETRAINED RESULTS DATAFRAME ########################
@@ -377,7 +377,7 @@ if __name__ == '__main__':
         for p in processes:
             p.join()
     else:
-         for name in models_names[:20]:
+         for name in models_names[:50]:
                 train_mp(models[name],name,teacher, metadata, test_folder, device, train_loader,valid_loader)
 
 

@@ -2,7 +2,7 @@
 #
 #SBATCH --nodes=1
 #SBATCH --gres=gpu:1
-#SBATCH --time=20:59:00
+#SBATCH --time=22:59:00
 #SBATCH --job-name=hpcruns/Testjob_evonas
 #SBATCH --export=NONE
 #SBATCH --mail-user=mateo.avila@fau.de

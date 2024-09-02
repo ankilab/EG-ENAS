@@ -81,7 +81,9 @@ class DKD(Distiller):
         # losses
         loss_ce = self.ce_loss_weight * F.cross_entropy(input=logits_student, target=target, label_smoothing=self.label_smoothing)
         #if kwargs['epoch']<=5:
-        loss_dkd = min(kwargs["epoch"] / self.warmup, 1.0) * dkd_loss(
+        kd_loss_weight = 2*max((1 - ((kwargs["epoch"]-1) / 5)),0) # Gradual reduction of KD weight
+
+        loss_dkd = min(kwargs["epoch"] / self.warmup, 1.0) * kd_loss_weight * dkd_loss(
             logits_student,
             logits_teacher,
             target,

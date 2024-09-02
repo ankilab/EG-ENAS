@@ -120,7 +120,11 @@ if __name__ == '__main__':
         # Set the start method if it hasn't been set yet
         mp.set_start_method("spawn")
     SUBMISSION_PATH="anki_lab_submission"
-    Dataset="CIFARTile"
+    Dataset="MultNIST"
+    #LaMelo
+    #AddNIST no stem
+    #Language no stem
+    #MultNIST no stem
     #Adaline, Chester, Mateo, Gutenberg, Sadie, Caitie.
     (train_x, train_y), (valid_x, valid_y), (test_x), metadata = load_datasets(Dataset, truncate=False)
     test_y = np.load(os.path.join('datasets/'+Dataset,'test_y.npy'))
@@ -137,12 +141,12 @@ if __name__ == '__main__':
                     base_config=f"{SUBMISSION_PATH}/configs/search_space/config.yaml")
 
     current_time=datetime.now().strftime("%d_%m_%Y_%H_%M")
-    test_folder=f"{os.getenv('WORK')}/NAS_COMPETITION_RESULTS/kwnowledge_distillation/inheritance/{current_time}/{metadata['codename']}"
+    test_folder=f"{os.getenv('WORK')}/NAS_COMPETITION_RESULTS/kwnowledge_distillation/inheritance_no_stem/{current_time}/{metadata['codename']}"
 
     folder=f"/home/woody/iwb3/iwb3021h/NAS_COMPETITION_RESULTS/classifier_train/{metadata['codename']}"
     models, chromosomes=rg.load_generation(folder)
     #models, chromosomes=rg.create_random_generation(save_folder=test_folder,gen=None, size=3, config_updates=None)
-    
+    inherit_stem=False
     ##################################### LOAD PRETRAINED RESULTS DATAFRAME ########################
     df_models=pd.DataFrame(chromosomes).T[["ws","ds","num_stages", "DEPTH"]]
     #df_results=pd.read_csv("/home/hpc/iwb3/iwb3021h/NAS_CHALLENGE/NAS_Challenge_AutoML_2024/anki_lab_submission/tests/df_blocks_pool_update.csv", index_col=0)
@@ -257,28 +261,30 @@ if __name__ == '__main__':
                         getattr(param, keys[-1]).data = tensor.clone()
 
     ######### Load stem from parent #############################
-    import copy
-    #best_model_name="holistic_bird"
-    if metadata["codename"]=="Mateo":
-        best_model_name="awesome_dodo"
-    elif metadata["codename"]=="Gutenberg":
-        best_model_name="holistic_bird"
-    elif metadata["codename"]=="Chester":
-        best_model_name="satisfied_manul"
-    elif metadata["codename"]=="Adaline":
-        best_model_name="chirpy_swallow"
-    elif metadata["codename"]=="LaMelo":
-        best_model_name="pistachio_wren"
-    elif metadata["codename"]=="Caitie":
-        best_model_name="heavenly_moose"
-    elif metadata["codename"]=="Sadie":
-        best_model_name="exotic_ladybug"
-    weights_file=f"/home/woody/iwb3/iwb3021h/NAS_COMPETITION_RESULTS/kwnowledge_distillation/vanilla/{metadata['codename']}/{best_model_name}/student_best"
-    #weights_file=f"/home/woody/iwb3/iwb3021h/NAS_COMPETITION_RESULTS/classifier_train/{metadata['codename']}/{best_model_name}/student_best"
-    config_file=f"/home/woody/iwb3/iwb3021h/NAS_COMPETITION_RESULTS/classifier_train/{metadata['codename']}/{best_model_name}/config.yaml"
-    pretrained_stem,_=rg.load_model(config_file=config_file, weights_file=weights_file)
-    for model_name in list(models.keys()):
-        models[model_name].stem.load_state_dict(pretrained_stem.stem.state_dict())
+    if inherit_stem==True:
+        ic("-----Load Stem weights----")
+        import copy
+        #best_model_name="holistic_bird"
+        if metadata["codename"]=="Mateo":
+            best_model_name="awesome_dodo"
+        elif metadata["codename"]=="Gutenberg":
+            best_model_name="holistic_bird"
+        elif metadata["codename"]=="Chester":
+            best_model_name="satisfied_manul"
+        elif metadata["codename"]=="Adaline":
+            best_model_name="chirpy_swallow"
+        elif metadata["codename"]=="LaMelo":
+            best_model_name="pistachio_wren"
+        elif metadata["codename"]=="Caitie":
+            best_model_name="heavenly_moose"
+        elif metadata["codename"]=="Sadie":
+            best_model_name="exotic_ladybug"
+        weights_file=f"/home/woody/iwb3/iwb3021h/NAS_COMPETITION_RESULTS/kwnowledge_distillation/vanilla/{metadata['codename']}/{best_model_name}/student_best"
+        #weights_file=f"/home/woody/iwb3/iwb3021h/NAS_COMPETITION_RESULTS/classifier_train/{metadata['codename']}/{best_model_name}/student_best"
+        config_file=f"/home/woody/iwb3/iwb3021h/NAS_COMPETITION_RESULTS/classifier_train/{metadata['codename']}/{best_model_name}/config.yaml"
+        pretrained_stem,_=rg.load_model(config_file=config_file, weights_file=weights_file)
+        for model_name in list(models.keys()):
+            models[model_name].stem.load_state_dict(pretrained_stem.stem.state_dict())
 
     # Train models
     metadata["train_config_path"]=f'{SUBMISSION_PATH}/configs/train/inheritance_generation_adam.yaml'
@@ -330,7 +336,12 @@ if __name__ == '__main__':
             p.join()
     else:
          for name in models_names[:]:
-
+                #if name>"modest_goldfish":
+                #if name>"onyx_groundhog":
+                #if name>"tentacled_millipede":
+                #if name>"refined_panda": #addnist no stem
+                #if name>"tiny_sturgeon": #language no stem
+                if name>"modest_goldfish": #MultNIST no stem
                     train_mp(models[name],name, metadata, test_folder, device, train_loader,valid_loader)
 
 

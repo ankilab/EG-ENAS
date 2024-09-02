@@ -1,9 +1,8 @@
 #!/bin/bash -l
 #
 #SBATCH --nodes=1
-#SBATCH --gres=gpu:a100:1
+#SBATCH --gres=gpu:1
 #SBATCH --time=23:59:00
-#SBATCH --partition=a100
 #SBATCH --job-name=hpcruns/Testjob_evonas
 #SBATCH --export=NONE
 #SBATCH --mail-user=mateo.avila@fau.de
