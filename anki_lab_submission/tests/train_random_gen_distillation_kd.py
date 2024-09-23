@@ -136,9 +136,9 @@ if __name__ == '__main__':
                     base_config=f"{SUBMISSION_PATH}/configs/search_space/config.yaml")
 
     current_time=datetime.now().strftime("%d_%m_%Y_%H_%M")
-    test_folder=f"{os.getenv('WORK')}/NAS_COMPETITION_RESULTS/kwnowledge_distillation/kd9_noreduction/{current_time}/{metadata['codename']}"
+    #test_folder=f"{os.getenv('WORK')}/NAS_COMPETITION_RESULTS/kwnowledge_distillation/kd9_noreduction/{current_time}/{metadata['codename']}"
     #test_folder=f"{os.getenv('WORK')}/NAS_COMPETITION_RESULTS/kwnowledge_distillation/kd9_inheritance/{current_time}/{metadata['codename']}"
-    #test_folder=f"{os.getenv('WORK')}/NAS_COMPETITION_RESULTS/kwnowledge_distillation/dkd8/{current_time}/{metadata['codename']}"
+    test_folder=f"{os.getenv('WORK')}/NAS_COMPETITION_RESULTS/kwnowledge_distillation/kd9_hsmoothing/{current_time}/{metadata['codename']}"
     
     folder=f"/home/woody/iwb3/iwb3021h/NAS_COMPETITION_RESULTS/classifier_train/{metadata['codename']}"
     models, chromosomes=rg.load_generation(folder)
@@ -377,7 +377,7 @@ if __name__ == '__main__':
         for p in processes:
             p.join()
     else:
-         for name in models_names[:]:
+         for name in models_names[20:]:
                 train_mp(models[name],name,teacher, metadata, test_folder, device, train_loader,valid_loader)
 
 

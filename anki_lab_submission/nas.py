@@ -1,24 +1,23 @@
 import os
-flag_file = "packages_installed.flag"
+#flag_file = "packages_installed.flag"
 
 # Check if the flag file exists
-if not os.path.exists(flag_file):
+#if not os.path.exists(flag_file):
     # List of packages to install
-    packages = [
-        "torch", "torchvision", "ipython==8.25.0", "icecream==2.1.3", 
-        "yacs==0.1.8", "iopath==0.1.10", "timm==1.0.3", "coolname==2.2.0",
-        "plotly==5.22.0", "pandas==2.2.2", "scikit-learn==1.5.0", 
-        "pynvml==11.5.0", "xgboost"
-    ]
+#    packages = [
+#        "torch", "torchvision", "ipython==8.25.0", "icecream==2.1.3", 
+#        "yacs==0.1.8", "iopath==0.1.10", "timm==1.0.3", "coolname==2.2.0",
+#        "plotly==5.22.0", "pandas==2.2.2", "scikit-learn==1.5.0", 
+#        "pynvml==11.5.0", "xgboost"
+#    ]
     
     # Install the packages
-    for package in packages:
-        os.system(f'pip -q install {package}')
+#    for package in packages:
+#        os.system(f'pip -q install {package}')
     
     # Create the flag file to indicate the packages are installed
-    with open(flag_file, 'w') as f:
-        f.write("Packages installed")
-
+#    with open(flag_file, 'w') as f:
+#        f.write("Packages installed")
 
 import sys
 import ast
@@ -29,6 +28,8 @@ import time
 from IPython.display import clear_output
 from icecream import ic
 import gc
+import functools
+
 
 ######## Search space #########
 from search_space.RegNet import RegNet
@@ -37,6 +38,17 @@ from search_space.utils import create_widths_plot, scatter_results, get_generati
 from trainer import Trainer, TrainerDistillation
 from utils.train_cfg import get_cfg, show_cfg
 ###################################################
+random_seed = 1
+random.seed(random_seed)
+# Set seed for NumPy
+np.random.seed(random_seed)
+# Set seed for PyTorch
+torch.manual_seed(random_seed)
+torch.cuda.manual_seed_all(random_seed)
+# Additional steps if using CuDNN (optional, for GPU acceleration)
+torch.backends.cudnn.deterministic = True
+torch.backends.cudnn.benchmark = False
+##################################################
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 from datetime import datetime
 import itertools
@@ -60,7 +72,7 @@ class NAS:
     def __init__(self, train_loader, valid_loader, metadata,resume_from=None, test=False):
         self.test=test
         self.SUBMISSION_PATH=""
-        SAVE_PATH=f"results/full_training_evonas"
+        SAVE_PATH=f"/home/woody/iwb3/iwb3021h/THESIS_RESULTS/T1"
         self.regnet_space=RegNet(metadata,
                     W0=[16, 120, 8],
                     WA=[16, 64, 8],
@@ -71,14 +83,18 @@ class NAS:
         current_date= datetime.now().strftime("%d_%m_%Y_%H_%M")
         
         self.metadata=metadata
-        self.metadata["train_config_path"]=f"{self.SUBMISSION_PATH}configs/train/vanilla_generation_adam.yaml"
+        self.metadata["train_config_path"]=f"{self.SUBMISSION_PATH}configs/train/T1.yaml"
         self.metadata["mode"]="NAS"
         
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.train_loader=train_loader
         self.valid_loader=valid_loader
-        self.ENAS=True
+
+        self.ENAS=True # Use Evolutionary NAS from generation 2
+        self.proxy=True # Use regressor to generate first population
         self.multiprocessing=True
+        self.use_stages_pool=True # Transfer weights to models
+        self.pretrained_pool=True # Use the pretrained_pool for the current pool
         
         if self.multiprocessing:
             current_method = mp.get_start_method(allow_none=True)
@@ -102,7 +118,13 @@ class NAS:
         self.study_name=f"tests_{metadata['codename']}_{current_date}"
         self.test_folder=f"{SAVE_PATH}/{self.study_name}"
         self.current_gen=1
+        
+        #Pretrained pool
+        self.pool_stages_df=self.load_stages_pool(
+            pool_folders= ["/home/woody/iwb3/iwb3021h/NAS_COMPETITION_RESULTS/classifier_train/",
+            "/home/woody/iwb3/iwb3021h/NAS_COMPETITION_RESULTS/stages_pool/"]) if self.pretrained_pool else pd.DataFrame()
 
+        #####
         self.weights_pool={}
         self.best_models_info=pd.DataFrame()
         self.best_model={"score": 0,
@@ -136,7 +158,7 @@ class NAS:
 
             else:
                 if self.current_gen==1:
-                    if self.ENAS:
+                    if self.proxy:
                         ic("creating first generation")
                         models, chromosomes=self.regnet_space.create_first_generation(save_folder=self.test_folder,gen=self.current_gen, size=self.population_size, config_updates=None, metadata=self.metadata)
                     else:
@@ -158,6 +180,9 @@ class NAS:
                                                                                         gen=self.current_gen,
                                                                                         size=self.population_size,
                                                                                         config_updates=None)
+                    
+                # Weights initialization
+                models= self.transfer_weights(models, chromosomes) if self.use_stages_pool else models
                 
             create_widths_plot(chromosomes).write_html(f"{self.test_folder}/Generation_{self.current_gen}/population.html")
 
@@ -405,6 +430,156 @@ class NAS:
                 wa,w0,wm,d=p2[0], p2[1], p1[2], p1[3]
         return [wa,w0,wm,d]
     
+    def transfer_weights(self, models, chromosomes):
+        #WHOLE MODELS INHERITANCE LOOP
+        if self.pool_stages_df.empty:
+            return models
+
+        
+        #WHOLE LOOP SELECTION PRETRAINED INDIVIDUALS
+        df_models=pd.DataFrame(chromosomes).T[["ws","ds","num_stages", "DEPTH"]]
+        total_pool_individuals={}
+
+        for model_name in list(chromosomes.keys()):
+            df_current_model=df_models.loc[model_name]
+
+            filtered_dfs=[]
+            df_results_aux=self.pool_stages_df.drop(columns=["ws","ds"])
+            df_results_aux["diff_stages"]=abs(df_results_aux["num_stages"]-df_current_model["num_stages"])
+            df_results_aux["diff_depth"]=abs(df_results_aux["DEPTH"]-df_current_model["DEPTH"])
+
+            for stage in range(1, df_current_model["num_stages"]+1):
+                df_results_aux[f"diff_ws{stage}"]=abs(df_results_aux[f"ws{stage}"]-df_current_model["ws"][stage-1])
+                df_results_aux[f"diff_d{stage}"]=abs(df_results_aux[f"ds{stage}"]-df_current_model["ds"][stage-1])
+
+            for stage in range(1, df_current_model["num_stages"]+1):
+                if stage==1:
+                    df_results_aux=df_results_aux.sort_values(["diff_ws1","diff_d1","diff_stages","diff_ws2","diff_depth"])
+                else:
+                    df_results_aux=df_results_aux.sort_values([f"diff_ws{stage}",f"diff_d{stage}",f"diff_ws{stage-1}","diff_stages", "diff_depth"])
+
+                if stage==1:
+                    first_row_values = df_results_aux[["diff_stages", f"diff_ws{stage}", f"diff_d{stage}"]].iloc[0]
+                    # Filter the DataFrame based on these values
+                    filtered_df = df_results_aux[
+                        (df_results_aux["diff_stages"] == first_row_values["diff_stages"]) &
+                        (df_results_aux[f"diff_ws{stage}"] == first_row_values[f"diff_ws{stage}"]) &
+                        (df_results_aux[f"diff_d{stage}"] == first_row_values[f"diff_d{stage}"])
+                    ]
+                else:
+                    first_row_values = df_results_aux[["diff_stages",f"diff_ws{stage-1}", f"diff_ws{stage}", f"diff_d{stage}"]].iloc[0]
+                    # Filter the DataFrame based on these values
+                    filtered_df = df_results_aux[
+                        (df_results_aux["diff_stages"] == first_row_values["diff_stages"]) &
+                        (df_results_aux[f"diff_ws{stage-1}"] == first_row_values[f"diff_ws{stage-1}"]) &
+                        (df_results_aux[f"diff_ws{stage}"] == first_row_values[f"diff_ws{stage}"]) &
+                        (df_results_aux[f"diff_d{stage}"] == first_row_values[f"diff_d{stage}"])
+                    ]
+                filtered_dfs.append(filtered_df)
+
+            pool_individuals={}
+            items=[]
+            for idx, stage_df in enumerate(filtered_dfs):
+                items.append(dict(zip(stage_df.index.tolist(),stage_df.dataset.tolist())))
+            for idx, item in enumerate(items):
+                for i in range(0,len(items)):
+                    if i !=idx:
+                        common_items = item.items() & items[i].items()
+                        #print(common_items)
+                        if common_items:
+                            pool_individuals[idx+1]=next(iter(common_items))
+                            break
+                if idx+1 not in pool_individuals:
+                     pool_individuals[idx+1]=next(iter(item.items()))
+            print("########################")
+            print(model_name)
+            print(pool_individuals)
+            total_pool_individuals[model_name]=pool_individuals    
+
+        
+        n_access={}
+        for model_name in list(models.keys()):
+            print("Model Name: ",model_name)
+            print("#######################")
+            pool_models={}
+            pool_chroms={}
+            for stage, info in total_pool_individuals[model_name].items():
+                name, transfer_dataset=info
+                weights_file=f"{transfer_dataset}/{name}/student_best"
+                config_file=f"{transfer_dataset}/{name}/config.yaml"
+                pool_models[stage],pool_chroms[stage]=self.regnet_space.load_model(config_file=config_file, weights_file=weights_file)
+
+            chrom=chromosomes[model_name]
+            n_access[model_name]=0
+            for stage in range(1,chrom["num_stages"]+1):
+                max_block=min(chrom["ds"][stage-1], pool_chroms[stage]["ds"][stage-1])
+                print("###### MAX BLOCK #####: ",max_block)
+                for block in range(1,max_block+1):
+                    print("Block: ", block)
+                    model_part = eval(f"models[model_name].s{stage}.b{block}")
+                    orig_part = eval(f"pool_models[stage].s{stage}.b{block}.state_dict()")
+
+                    for key in model_part.state_dict().keys():
+
+                        tensor = orig_part[key]
+                        tensor_shape = tensor.shape
+
+                        tensor_student_shape=model_part.state_dict()[key].shape
+                        if tensor_shape==tensor_student_shape:
+                            print(key)
+                            #print(tensor_shape)
+                            n_access[model_name]=n_access[model_name]+1
+
+
+                            keys = key.split('.')
+
+                            # Access the specific layer that contains the weight attribute
+                            param = functools.reduce(getattr, keys[:-1], model_part)
+                            #print(param.requires_grad)
+                            #param.weight.requires_grad=False
+                            # Use setattr to update the .data attribute of the weight tensor
+                            getattr(param, keys[-1]).data = tensor.clone()
+                            
+        pd.DataFrame([n_access]).T.sort_values(by=0).to_csv("n_access.csv")
+        return models
+    
+    def load_stages_pool(self, pool_folders):
+        df_results_list=[]
+        for pool_folder in pool_folders:
+            df_results=pd.read_csv(f"{pool_folder}/df_blocks_pool.csv", index_col=0)
+            df_results=df_results[df_results.dataset!=self.metadata["codename"]]
+            df_results["dataset"]=pool_folder+df_results["dataset"]
+            df_results_list.append(df_results)
+        df_results=pd.concat(df_results_list)
+        df_results.to_csv("initial_pool.csv")
+        return df_results
+        
+    def update_stages_pool(self,chromosomes):
+        df_results=pd.DataFrame(chromosomes).T[["ws","ds","num_stages", "DEPTH"]].reset_index()
+        df_results["dataset"]=f"{self.test_folder}/Generation_{self.current_gen}"
+
+        for idx, row in df_results.iterrows():
+            #for i, w in enumerate(ast.literal_eval(row["ws"])):
+            for i, w in enumerate(row["ws"]):
+                df_results.at[idx, f"ws{i+1}"] = int(w)
+
+        for col in ["ws1","ws2","ws3","ws4","ws5"]:
+            df_results[col]=df_results[col].fillna(0).astype(int)
+
+        #########################################################
+
+        for idx, row in df_results.iterrows():
+            for i, w in enumerate(row["ds"]):
+            #for i, w in enumerate(ast.literal_eval(row["ds"])):
+                df_results.at[idx, f"ds{i+1}"] = int(w)
+
+        for col in ["ds1","ds2","ds3","ds4","ds5"]:
+            df_results[col]=df_results[col].fillna(0).astype(int)
+            
+        self.pool_stages_df = pd.concat([self.pool_stages_df, df_results]) if not self.pool_stages_df.empty else df_results
+        self.pool_stages_df.to_csv(f"updated_pool_generation_{self.current_gen}")
+        
+    
     def _save_backup(self):
         log={}
         log["old_chromosomes"]=self.old_chromosomes
@@ -460,6 +635,9 @@ class NAS:
         results_file["metadata"]=self.metadata
         results_file["best_model"]=self.best_model
         results_file["parameters"]={"ENAS":self.ENAS,
+                                    "proxy":self.proxy,
+                                    "transfer_weights": self.use_stages_pool,
+                                    "pretrained_pool": self.pretrained_pool,
                                    "population_size":self.population_size,
                                    "total_generations":self.total_generations,
                                    "num_best_parents": self.num_best_parents,

@@ -10,6 +10,7 @@ from datetime import datetime
 from torch.optim.swa_utils import AveragedModel, SWALR
 from torchvision.transforms import v2
 import numpy as np
+from distillation.base import Vanilla
 
             
 
@@ -394,7 +395,7 @@ class Trainer(TrainerDistillation):
             if "experiment_name" in key:
                 self.cfg.EXPERIMENT.NAME=metadata["experiment_name"]
             else:
-                SAVE_PATH=f"{os.getenv('WORK')}/NAS_COMPETITION_RESULTS/full_training_evonas"
+                SAVE_PATH=f"{os.getenv('WORK')}/THESIS_RESULTS/full_training_evonas"
                 self.cfg.EXPERIMENT.NAME=f"{SAVE_PATH}/finetuning/{metadata['codename']}"
         self.log_path=self.cfg.EXPERIMENT.NAME
 

@@ -16,16 +16,16 @@ from search_space.utils import create_widths_plot, scatter_results, get_generati
 from trainer import TrainerDistillation
 from utils.train_cfg import get_cfg, show_cfg
 ###################################################
-random_seed = 1
-random.seed(random_seed)
+#random_seed = 1
+#random.seed(random_seed)
 # Set seed for NumPy
-np.random.seed(random_seed)
+#np.random.seed(random_seed)
 # Set seed for PyTorch
-torch.manual_seed(random_seed)
-torch.cuda.manual_seed_all(random_seed)
+#torch.manual_seed(random_seed)
+#torch.cuda.manual_seed_all(random_seed)
 # Additional steps if using CuDNN (optional, for GPU acceleration)
-torch.backends.cudnn.deterministic = True
-torch.backends.cudnn.benchmark = False
+#torch.backends.cudnn.deterministic = True
+#torch.backends.cudnn.benchmark = False
 ########################################
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 import os
@@ -119,7 +119,7 @@ if __name__ == '__main__':
         # Set the start method if it hasn't been set yet
         mp.set_start_method("spawn")
     SUBMISSION_PATH="anki_lab_submission"
-    Dataset="Language"
+    Dataset="CIFARTile"
     (train_x, train_y), (valid_x, valid_y), (test_x), metadata = load_datasets(Dataset, truncate=False)
     test_y = np.load(os.path.join('datasets/'+Dataset,'test_y.npy'))
     metadata["select_augment"]=False
@@ -135,11 +135,13 @@ if __name__ == '__main__':
                     base_config=f"{SUBMISSION_PATH}/configs/search_space/config.yaml")
 
     current_time=datetime.now().strftime("%d_%m_%Y_%H_%M")
-    test_folder=f"{os.getenv('WORK')}/NAS_COMPETITION_RESULTS/kwnowledge_distillation/vanilla_hs/{current_time}/{metadata['codename']}"
+    #test_folder=f"{os.getenv('WORK')}/NAS_COMPETITION_RESULTS/stages_pool/{current_time}/{metadata['codename']}"
+    test_folder=f"{os.getenv('WORK')}/NAS_COMPETITION_RESULTS/stages_pool/{metadata['codename']}"
 
-    folder=f"/home/woody/iwb3/iwb3021h/NAS_COMPETITION_RESULTS/classifier_train/{metadata['codename']}"
-    models, chromosomes=rg.load_generation(folder)
-    #models, chromosomes=rg.create_random_generation(save_folder=test_folder,gen=None, size=3, config_updates=None)
+
+    #folder=f"/home/woody/iwb3/iwb3021h/NAS_COMPETITION_RESULTS/stages_pool/{metadata['codename']}"
+    #models, chromosomes=rg.load_generation(folder)
+    models, chromosomes=rg.create_random_generation(save_folder=test_folder,gen=None, size=120, config_updates=None)
     
     # Train models
     metadata["train_config_path"]=f'{SUBMISSION_PATH}/configs/train/first_generation_adam.yaml'
@@ -190,7 +192,7 @@ if __name__ == '__main__':
         for p in processes:
             p.join()
     else:
-         for name in models_names[:50]:
+         for name in models_names[:]:
                 train_mp(models[name],name, metadata, test_folder, device, train_loader,valid_loader)
 
 
