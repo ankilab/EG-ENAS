@@ -18,7 +18,7 @@ import os
     # Create the flag file to indicate the packages are installed
 #    with open(flag_file, 'w') as f:
 #        f.write("Packages installed")
-
+import copy
 import sys
 import ast
 import torch
@@ -72,7 +72,8 @@ class NAS:
     def __init__(self, train_loader, valid_loader, metadata,resume_from=None, test=False):
         self.test=test
         self.SUBMISSION_PATH=""
-        SAVE_PATH=f"/home/woody/iwb3/iwb3021h/THESIS_RESULTS/T1"
+        SAVE_PATH=f"/home/woody/iwb3/iwb3021h/THESIS_RESULTS/T3"
+        #SAVE_PATH=f"results/THESIS_RESULTS/T1"
         self.regnet_space=RegNet(metadata,
                     W0=[16, 120, 8],
                     WA=[16, 64, 8],
@@ -81,9 +82,10 @@ class NAS:
                     G=[8,8,8], 
                     base_config=f"{self.SUBMISSION_PATH}configs/search_space/config.yaml")
         current_date= datetime.now().strftime("%d_%m_%Y_%H_%M")
-        
+
+
         self.metadata=metadata
-        self.metadata["train_config_path"]=f"{self.SUBMISSION_PATH}configs/train/T1.yaml"
+        self.metadata["train_config_path"]=f"{self.SUBMISSION_PATH}configs/train/T3.yaml"
         self.metadata["mode"]="NAS"
         
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -91,11 +93,13 @@ class NAS:
         self.valid_loader=valid_loader
 
         self.ENAS=True # Use Evolutionary NAS from generation 2
-        self.proxy=True # Use regressor to generate first population
+        self.proxy=False # Use regressor to generate first population
         self.multiprocessing=True
         self.use_stages_pool=True # Transfer weights to models
         self.pretrained_pool=True # Use the pretrained_pool for the current pool
-        
+        self.initial_population_size=20
+        self.update_pool=True # Add stem from first generation and add trained models to pool
+
         if self.multiprocessing:
             current_method = mp.get_start_method(allow_none=True)
             print(current_method)
@@ -105,7 +109,7 @@ class NAS:
                 mp.set_start_method("spawn")
             
         self.population_size=20
-        self.total_generations=2 if (get_gpu_memory(0) / (1024 ** 3)) > 15.0 else 1
+        self.total_generations=3 if (get_gpu_memory(0) / (1024 ** 3)) > 15.0 else 1
         ic(get_gpu_memory(0))
         ic(self.total_generations)
         self.num_best_parents=5
@@ -160,7 +164,8 @@ class NAS:
                 if self.current_gen==1:
                     if self.proxy:
                         ic("creating first generation")
-                        models, chromosomes=self.regnet_space.create_first_generation(save_folder=self.test_folder,gen=self.current_gen, size=self.population_size, config_updates=None, metadata=self.metadata)
+                        models, chromosomes=self.regnet_space.create_first_generation(save_folder=self.test_folder,gen=self.current_gen, size=self.initial_population_size, config_updates=None, metadata=self.metadata)
+                        ic(self.regnet_space.cfg)
                     else:
                         models, chromosomes= self.regnet_space.create_random_generation( 
                                                                                         save_folder=self.test_folder,
@@ -168,9 +173,13 @@ class NAS:
                                                                                         size=self.population_size,
                                                                                         config_updates=None)
                 else:
+                    ic(self.regnet_space.cfg)
                     offsprings_chromosomes=self.breeding(self.best_parents, self.population_size)
+                    ic(self.regnet_space.cfg)
                     self._save_backup()
+                    ic(self.regnet_space.cfg)
                     if self.ENAS:
+                        ic(self.regnet_space.cfg)
                         models, chromosomes=self.regnet_space.create_generation(offsprings_chromosomes,
                                                                                 save_folder=self.test_folder,
                                                                                 gen=self.current_gen)
@@ -182,13 +191,20 @@ class NAS:
                                                                                         config_updates=None)
                     
                 # Weights initialization
-                models= self.transfer_weights(models, chromosomes) if self.use_stages_pool else models
-                
-            create_widths_plot(chromosomes).write_html(f"{self.test_folder}/Generation_{self.current_gen}/population.html")
+                if self.use_stages_pool:
+                    models= self.transfer_weights(models, chromosomes )
+                    if self.update_pool:
+                        self.update_stages_pool(chromosomes)
+                    ic(self.regnet_space.cfg)
 
+            create_widths_plot(chromosomes).write_html(f"{self.test_folder}/Generation_{self.current_gen}/population.html")
+            ic(self.regnet_space.cfg)
             generation_df, corr=self.train_generation(models, chromosomes)
+            ic(self.regnet_space.cfg)
             self.best_parents=self.selection(generation_df)
+            ic(self.regnet_space.cfg)
             self._save_backup()
+            ic(self.regnet_space.cfg)
             self.current_gen+=1
             self.sim_threshold=self.sim_threshold-0.01
             
@@ -496,7 +512,9 @@ class NAS:
             print(pool_individuals)
             total_pool_individuals[model_name]=pool_individuals    
 
-        
+        with open('individuals_pool.json', 'w') as f:
+            json.dump(total_pool_individuals, f)
+
         n_access={}
         for model_name in list(models.keys()):
             print("Model Name: ",model_name)
@@ -539,8 +557,25 @@ class NAS:
                             #param.weight.requires_grad=False
                             # Use setattr to update the .data attribute of the weight tensor
                             getattr(param, keys[-1]).data = tensor.clone()
-                            
         pd.DataFrame([n_access]).T.sort_values(by=0).to_csv("n_access.csv")
+
+        if self.current_gen>1 and self.update_pool:
+            weights_file=self.best_model["model_path"]
+            ind_path = weights_file.rfind('/')
+            config_file = weights_file[:ind_path]
+            best_model,info=self.regnet_space.load_model(config_file=f"{config_file}/config.yaml",
+                                            weights_file=weights_file)
+
+            for model_name in list(models.keys()):
+                models[model_name].stem.load_state_dict(best_model.stem.state_dict())
+
+        self.regnet_space=RegNet(self.metadata,
+                    W0=[16, 120, 8],
+                    WA=[16, 64, 8],
+                    WM=[2.05,2.9,0.05],
+                    D=[8,22,1], 
+                    G=[8,8,8], 
+                    base_config=f"{self.SUBMISSION_PATH}configs/search_space/config.yaml")
         return models
     
     def load_stages_pool(self, pool_folders):
@@ -555,16 +590,21 @@ class NAS:
         return df_results
         
     def update_stages_pool(self,chromosomes):
+        ic("update_stages_pool")
         df_results=pd.DataFrame(chromosomes).T[["ws","ds","num_stages", "DEPTH"]].reset_index()
         df_results["dataset"]=f"{self.test_folder}/Generation_{self.current_gen}"
-
+        df_results.to_csv(f"{self.current_gen}_gen_df.csv")
         for idx, row in df_results.iterrows():
             #for i, w in enumerate(ast.literal_eval(row["ws"])):
             for i, w in enumerate(row["ws"]):
+                ic(idx, f"ws{i+1}")
                 df_results.at[idx, f"ws{i+1}"] = int(w)
 
         for col in ["ws1","ws2","ws3","ws4","ws5"]:
-            df_results[col]=df_results[col].fillna(0).astype(int)
+            if col not in df_results.columns:
+                df_results[col]=0
+            else:
+                df_results[col]=df_results[col].fillna(0).astype(int)
 
         #########################################################
 
@@ -574,10 +614,13 @@ class NAS:
                 df_results.at[idx, f"ds{i+1}"] = int(w)
 
         for col in ["ds1","ds2","ds3","ds4","ds5"]:
-            df_results[col]=df_results[col].fillna(0).astype(int)
-            
-        self.pool_stages_df = pd.concat([self.pool_stages_df, df_results]) if not self.pool_stages_df.empty else df_results
-        self.pool_stages_df.to_csv(f"updated_pool_generation_{self.current_gen}")
+            if col not in df_results.columns:
+                df_results[col]=0
+            else:
+                df_results[col]=df_results[col].fillna(0).astype(int)
+        ic(self.pool_stages_df.empty)
+        self.pool_stages_df = pd.concat([self.pool_stages_df, df_results.set_index("index")]) if not self.pool_stages_df.empty else df_results
+        self.pool_stages_df.to_csv(f"updated_pool_generation_{self.current_gen}.csv")
         
     
     def _save_backup(self):

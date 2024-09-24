@@ -78,9 +78,22 @@ class Dataset(torch.utils.data.Dataset):
         else:
             self.y = torch.tensor(y)
 
-
+        if len(self.x.shape) == 3:  # Case: [batch_size, height, width]
+            # Add a channel dimension to make it [batch_size, 1, height, width]
+            self.x = self.x.unsqueeze(1)
+        elif len(self.x.shape) == 2:  # Case: [batch_size, feature_dim] or [height, width]
+            # If it’s a 2D tensor (e.g., flattened), treat it as [batch_size, feature_dim]
+            # Reshape to [batch_size, 1, feature_dim, 1]
+            self.x = self.x.unsqueeze(1).unsqueeze(3)
+        elif len(self.x.shape) == 4:  # Case: [batch_size, channels, height, width]
+            # Already in the correct 4D format, nothing needs to be done
+            pass
+        else:
+            raise ValueError(f"Unsupported tensor shape: {self.x.shape}")
+        ic(self.x.shape)
         # example transform
         if train:
+
             self.mean = torch.mean(self.x, [0, 2, 3])
             self.std = torch.std(self.x, [0, 2, 3])
             self.transform_normalization=[transforms.Normalize(self.mean, self.std)]
@@ -175,7 +188,8 @@ class DataProcessor:
                             "Mateo": [ v2.RandomCrop((H,W), padding=(PH,PW)),v2.RandomHorizontalFlip()],
                             "Adaline": [ v2.RandomCrop((H,W), padding=(PH,PW)),v2.RandomHorizontalFlip()],
                             "Caitie": [ v2.RandomCrop((H,W), padding=(PH,PW)),v2.RandomHorizontalFlip()],
-                            "Sadie": [v2.RandomHorizontalFlip(), v2.RandomVerticalFlip()]}
+                            "Sadie": [v2.RandomHorizontalFlip(), v2.RandomVerticalFlip()],
+                            "Sokoto": [v2.RandomHorizontalFlip(),v2.RandomVerticalFlip()]} # 5
             train_transform = self._determine_train_transform() if self.metadata["select_augment"] else dict_transforms[self.metadata["codename"]]
             # Chester [v2.RandomErasing(p=0.2, scale=(0.02, 0.2), ratio=(0.3, 3.3)),v2.RandomCrop((H,W), padding=(PH,PW)),v2.RandomHorizontalFlip()]
             # MultNIST [ v2.RandomCrop((H,W), padding=(PH,PW)),v2.RandomHorizontalFlip()]

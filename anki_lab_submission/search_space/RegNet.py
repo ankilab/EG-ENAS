@@ -5,6 +5,7 @@ from coolname import generate_slug
 import torch
 import random
 import yaml
+import copy
 import torch
 import numpy as np
 import plotly.graph_objects as go
@@ -13,6 +14,7 @@ from itertools import product, combinations
 from joblib import dump, load
 import pandas as pd
 from sklearn.preprocessing import StandardScaler
+from icecream import ic
 
 class RegNet:
     """
@@ -42,7 +44,8 @@ class RegNet:
             G (list): A list containing the group width parameter options: [start, end, step].
         """
         reset_cfg()
-        cfg.merge_from_file(base_config)
+        self.base_config=base_config
+        cfg.merge_from_file(self.base_config)
         cfg.MODEL.NUM_CLASSES=metadata["num_classes"]
         cfg.REGNET.STEM_W=metadata["input_shape"][-1]
         cfg.REGNET.INPUT_CHANNELS=metadata["input_shape"][1]
@@ -93,7 +96,6 @@ class RegNet:
 
         """
         # Load the config
-
         if params is None:
             cfg.REGNET.WA=float(random.choice(self.WA_OPTIONS))
             cfg.REGNET.W0=int(random.choice(self.W0_OPTIONS))
@@ -231,11 +233,12 @@ class RegNet:
         return ranking_predict_df
 
     def create_first_generation(self, save_folder,gen, size, config_updates=None, metadata=None):
+        ic(self.cfg)
         #config_updates=["REGNET.DROP_RATE",0.05, "REGNET.DROPOUT",0.1]
         # Create the Cartesian product of these values
         models, chromosomes=self.create_random_generation(save_folder=None,gen=None, size=size*5, config_updates=None)
         #rfr_classifier=load(f'tests/classifiers/rfr_model_50.joblib')
-        sgd_regressor=load(f'tests/regressors/sgdr_model_50.joblib')
+        sgd_regressor=load(f'tests/regressors/{metadata["codename"]}/rfr_model_50.joblib')
         
 
         gen_df=pd.DataFrame(chromosomes).T.reset_index().rename(columns={"index":"name"})[["name","num_stages","params","WA","W0","WM","DEPTH"]]
@@ -307,6 +310,7 @@ class RegNet:
         return best_models, best_chromosomes
     
     def create_generation(self,params, save_folder,gen, config_updates=None):
+        ic(self.cfg)
         models={}
         chromosomes={}
         for name,param in params.items():

@@ -87,7 +87,7 @@ def general_num_params(model):
 # === MAIN =============================================================================================================
 # the available runtime will change at various stages of the competition, but feel free to change for local tests
 # note, this is approximate, your runtime will be controlled externally by our server
-total_runtime_hours = 2
+total_runtime_hours = 30
 total_runtime_seconds = total_runtime_hours * 60 * 60
 
 if __name__ == '__main__':
@@ -102,7 +102,7 @@ if __name__ == '__main__':
         runclock = Clock(total_runtime_seconds)
 
         # iterate over datasets in the datasets directory
-        for dataset in os.listdir("datasets")[:1]:
+        for dataset in os.listdir("datasets")[1:2]:
             # load and display data info
             (train_x, train_y), (valid_x, valid_y), (test_x), metadata = load_datasets(dataset, truncate=False)
             metadata['time_remaining'] = runclock.check()
