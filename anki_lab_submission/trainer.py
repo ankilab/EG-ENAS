@@ -377,10 +377,10 @@ class Trainer(TrainerDistillation):
             SUBMISSION_PATH=""
         ic(metadata)
         #cfg_path=f"{SUBMISSION_PATH}../configs/train/finetuning_generation_adam.yaml"
-        if (metadata['input_shape'][1]==1 or metadata['input_shape'][1]==3) and len(np.unique(self.train_loader.dataset.x))>3:
-            current_transforms=self.train_loader.dataset.transform.transforms
-            self.train_loader.dataset.transform=v2.Compose([v2.RandAugment(magnitude=9)]+[current_transforms[-1]])
-            ic(self.train_loader.dataset.transform)
+        #if (metadata['input_shape'][1]==1 or metadata['input_shape'][1]==3) and len(np.unique(self.train_loader.dataset.x))>3:
+        #    current_transforms=self.train_loader.dataset.transform.transforms
+        #    self.train_loader.dataset.transform=v2.Compose([v2.RandAugment(magnitude=9)]+[current_transforms[-1]])
+        #    ic(self.train_loader.dataset.transform)
         
         
         cfg_path=metadata["train_config_path"]
@@ -391,12 +391,12 @@ class Trainer(TrainerDistillation):
         self.cfg.DATASET.CLASSES=metadata["num_classes"]
         self.cfg.DATASET.INPUT_SHAPE=metadata["input_shape"]
         
-        for key in metadata.keys():
-            if "experiment_name" in key:
+        #if not self.metadata["experiment_name"]
+        if "experiment_name" in list(metadata.keys()):
                 self.cfg.EXPERIMENT.NAME=metadata["experiment_name"]
-            else:
+        else:
                 SAVE_PATH=f"{os.getenv('WORK')}/THESIS_RESULTS/full_training_evonas"
-                self.cfg.EXPERIMENT.NAME=f"{SAVE_PATH}/finetuning/{metadata['codename']}"
+                self.cfg.EXPERIMENT.NAME=f"{SAVE_PATH}/finetuning/{metadata['codename']}/{metadata['test_type']}"
         self.log_path=self.cfg.EXPERIMENT.NAME
 
         os.makedirs(self.log_path, exist_ok=True)

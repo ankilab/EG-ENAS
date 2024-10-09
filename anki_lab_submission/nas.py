@@ -69,10 +69,14 @@ def get_gpu_memory(gpu_id):
     return info.free
 
 class NAS:
-    def __init__(self, train_loader, valid_loader, metadata,resume_from=None, test=False):
+    def __init__(self, train_loader, valid_loader, metadata,mode,select_augment, resume_from=None, test=False):
         self.test=test
         self.SUBMISSION_PATH=""
-        SAVE_PATH=f"/home/woody/iwb3/iwb3021h/THESIS_RESULTS/T3"
+
+        ic(mode)
+        
+        epochs=10 if mode=="T7" else 5
+        SAVE_PATH=f"/home/woody/iwb3/iwb3021h/THESIS_RESULTS/{mode}_{select_augment}/seed_{random_seed}"
         #SAVE_PATH=f"results/THESIS_RESULTS/T1"
         self.regnet_space=RegNet(metadata,
                     W0=[16, 120, 8],
@@ -82,32 +86,94 @@ class NAS:
                     G=[8,8,8], 
                     base_config=f"{self.SUBMISSION_PATH}configs/search_space/config.yaml")
         current_date= datetime.now().strftime("%d_%m_%Y_%H_%M")
-
-
+       
+        
         self.metadata=metadata
-        self.metadata["train_config_path"]=f"{self.SUBMISSION_PATH}configs/train/T3.yaml"
+        self.metadata["test_type"]=f"{mode}_{select_augment}/seed_{random_seed}"
+        if epochs==10:
+            self.metadata["train_config_path"]=f"{self.SUBMISSION_PATH}configs/train/T10.yaml" 
+        elif epochs==5:
+            self.metadata["train_config_path"]=f"{self.SUBMISSION_PATH}configs/train/T5.yaml" 
+        else:
+            self.metadata["train_config_path"]=f"{self.SUBMISSION_PATH}configs/train/T.yaml"
         self.metadata["mode"]="NAS"
         
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.train_loader=train_loader
         self.valid_loader=valid_loader
 
-        self.ENAS=True # Use Evolutionary NAS from generation 2
-        self.proxy=False # Use regressor to generate first population
-        self.multiprocessing=True
-        self.use_stages_pool=True # Transfer weights to models
-        self.pretrained_pool=True # Use the pretrained_pool for the current pool
-        self.initial_population_size=20
-        self.update_pool=True # Add stem from first generation and add trained models to pool
+        self.zcost_nas=False
+        if "T0" in mode:
+            self.zcost_nas=True #If using regressor for selecting best model instead of NAS
+            self.ENAS=False # Use Evolutionary NAS from generation 2
+            self.proxy=False # Use regressor to generate first population
+            self.use_stages_pool=False # Transfer weights to models
+            self.pretrained_pool=False # Use the pretrained_pool for the current pool
+            self.initial_population_size=120
+            self.update_pool=False
+        elif "T1" in mode:
+            self.ENAS=False # Use Evolutionary NAS from generation 2
+            self.proxy=False # Use regressor to generate first population
+            self.use_stages_pool=False # Transfer weights to models
+            self.pretrained_pool=False # Use the pretrained_pool for the current pool
+            self.initial_population_size=20
+            self.update_pool=False # Add stem from first generation and add trained models to pool
+        elif "T2" in mode:
+            self.ENAS=True # Use Evolutionary NAS from generation 2
+            self.proxy=False # Use regressor to generate first population     
+            self.use_stages_pool=False # Transfer weights to models
+            self.pretrained_pool=False # Use the pretrained_pool for the current pool
+            self.initial_population_size=20
+            self.update_pool=False # Add stem from first generation and add trained models to pool
+        elif "T3" in mode:
+            self.ENAS=True # Use Evolutionary NAS from generation 2
+            self.proxy=True # Use regressor to generate first population
+            self.use_stages_pool=False # Transfer weights to models
+            self.pretrained_pool=False # Use the pretrained_pool for the current pool
+            self.initial_population_size=20
+            self.update_pool=False # Add stem from first generation and add trained models to pool
+        elif "T4" in mode:
+            self.ENAS=True # Use Evolutionary NAS from generation 2
+            self.proxy=False # Use regressor to generate first population
+            self.use_stages_pool=True # Transfer weights to models
+            self.pretrained_pool=True # Use the pretrained_pool for the current pool
+            self.initial_population_size=20
+            self.update_pool=True # Add stem from first generation and add trained models to pool
+        elif "T5" in mode:
+            self.ENAS=True # Use Evolutionary NAS from generation 2
+            self.proxy=True # Use regressor to generate first population
+            self.use_stages_pool=True # Transfer weights to models
+            self.pretrained_pool=True # Use the pretrained_pool for the current pool
+            self.initial_population_size=20
+            self.update_pool=False # Add stem from first generation and add trained models to pool
+        elif "T6" in mode:
+            self.ENAS=True # Use Evolutionary NAS from generation 2
+            self.proxy=True # Use regressor to generate first population
+            self.use_stages_pool=True # Transfer weights to models
+            self.pretrained_pool=True # Use the pretrained_pool for the current pool
+            self.initial_population_size=20
+            self.update_pool=True # Add stem from first generation and add trained models to pool
+        elif "T7" in mode:
+            self.ENAS=True # Use Evolutionary NAS from generation 2
+            self.proxy=True # Use regressor to generate first population
+            self.use_stages_pool=True # Transfer weights to models
+            self.pretrained_pool=True # Use the pretrained_pool for the current pool
+            self.initial_population_size=20
+            self.update_pool=True # Add stem from first generation and add trained models to pool
+        ic(f"Mode {mode}")
 
-        if self.multiprocessing:
-            current_method = mp.get_start_method(allow_none=True)
-            print(current_method)
-            if current_method!="spawn":
+        self.multiprocessing=False
+        #if self.multiprocessing:
+        current_method = mp.get_start_method(allow_none=True)
+        print(current_method)
+        if current_method!="spawn":
                 nvmlInit()
                 # Set the start method if it hasn't been set yet
                 mp.set_start_method("spawn")
             
+        #if self.metadata["codename"] in ["Caitie"]:
+        #    ic(self.metadata["codename"])
+        
         self.population_size=20
         self.total_generations=3 if (get_gpu_memory(0) / (1024 ** 3)) > 15.0 else 1
         ic(get_gpu_memory(0))
@@ -154,75 +220,93 @@ class NAS:
             if self.current_gen>1:
                 self._load_backup()
 
-    def search(self):     
-        while self.current_gen<self.total_generations+1:
-            
-            if self.resume:
-                models, chromosomes =self.regnet_space.load_generation(folder=f"{self.test_folder}/Generation_{self.current_gen}")
+    def search(self):   
+        ic(self.zcost_nas)
+        if self.zcost_nas:
+            best_models,best_croms=self.regnet_space.create_first_generation(save_folder=None,gen=None, size=1, config_updates=None, metadata=self.metadata, samples=self.initial_population_size)
+            ic(best_models.keys())
+            ic(self.initial_population_size)
+            #self.best_model={
+            #    "model_path": f"{self.test_folder}/Generation_{self.current_gen}/{new_name}/student_best",
+            #    "name": new_name,
+            #    "gen":self.current_gen
+            #}
+            #weights_file=self.best_model["model_path"]
+            #ind_path = weights_file.rfind('/')
+            #config_file = weights_file[:ind_path]
+            #best_model,info=self.regnet_space.load_model(config_file=f"{config_file}/config.yaml",
+            #                                weights_file=weights_file)
+            self.metadata["train_config_path"]=f"{self.SUBMISSION_PATH}configs/train/finetuning_generation_adam.yaml"
+            return best_models[list(best_models.keys())[0]]
+        else:  
+            while self.current_gen<self.total_generations+1:
+                
+                if self.resume:
+                    models, chromosomes =self.regnet_space.load_generation(folder=f"{self.test_folder}/Generation_{self.current_gen}")
 
-            else:
-                if self.current_gen==1:
-                    if self.proxy:
-                        ic("creating first generation")
-                        models, chromosomes=self.regnet_space.create_first_generation(save_folder=self.test_folder,gen=self.current_gen, size=self.initial_population_size, config_updates=None, metadata=self.metadata)
-                        ic(self.regnet_space.cfg)
-                    else:
-                        models, chromosomes= self.regnet_space.create_random_generation( 
-                                                                                        save_folder=self.test_folder,
-                                                                                        gen=self.current_gen,
-                                                                                        size=self.population_size,
-                                                                                        config_updates=None)
                 else:
-                    ic(self.regnet_space.cfg)
-                    offsprings_chromosomes=self.breeding(self.best_parents, self.population_size)
-                    ic(self.regnet_space.cfg)
-                    self._save_backup()
-                    ic(self.regnet_space.cfg)
-                    if self.ENAS:
-                        ic(self.regnet_space.cfg)
-                        models, chromosomes=self.regnet_space.create_generation(offsprings_chromosomes,
-                                                                                save_folder=self.test_folder,
-                                                                                gen=self.current_gen)
+                    if self.current_gen==1:
+                        if self.proxy:
+                            ic("creating first generation")
+                            models, chromosomes=self.regnet_space.create_first_generation(save_folder=self.test_folder,gen=self.current_gen, size=self.initial_population_size, config_updates=None, metadata=self.metadata)
+                            ic(self.regnet_space.cfg)
+                        else:
+                            models, chromosomes= self.regnet_space.create_random_generation( 
+                                                                                            save_folder=self.test_folder,
+                                                                                            gen=self.current_gen,
+                                                                                            size=self.population_size,
+                                                                                            config_updates=None)
                     else:
-                        models, chromosomes= self.regnet_space.create_random_generation( 
-                                                                                        save_folder=self.test_folder,
-                                                                                        gen=self.current_gen,
-                                                                                        size=self.population_size,
-                                                                                        config_updates=None)
-                    
-                # Weights initialization
-                if self.use_stages_pool:
-                    models= self.transfer_weights(models, chromosomes )
-                    if self.update_pool:
-                        self.update_stages_pool(chromosomes)
-                    ic(self.regnet_space.cfg)
+                        ic(self.regnet_space.cfg)
+                        offsprings_chromosomes=self.breeding(self.best_parents, self.population_size)
+                        ic(self.regnet_space.cfg)
+                        self._save_backup()
+                        ic(self.regnet_space.cfg)
+                        if self.ENAS:
+                            ic(self.regnet_space.cfg)
+                            models, chromosomes=self.regnet_space.create_generation(offsprings_chromosomes,
+                                                                                    save_folder=self.test_folder,
+                                                                                    gen=self.current_gen)
+                        else:
+                            models, chromosomes= self.regnet_space.create_random_generation( 
+                                                                                            save_folder=self.test_folder,
+                                                                                            gen=self.current_gen,
+                                                                                            size=self.population_size,
+                                                                                            config_updates=None)
+                        
+                    # Weights initialization
+                    if self.use_stages_pool:
+                        models= self.transfer_weights(models, chromosomes )
+                        if self.update_pool:
+                            self.update_stages_pool(chromosomes)
+                        ic(self.regnet_space.cfg)
 
-            create_widths_plot(chromosomes).write_html(f"{self.test_folder}/Generation_{self.current_gen}/population.html")
-            ic(self.regnet_space.cfg)
-            generation_df, corr=self.train_generation(models, chromosomes)
-            ic(self.regnet_space.cfg)
-            self.best_parents=self.selection(generation_df)
-            ic(self.regnet_space.cfg)
-            self._save_backup()
-            ic(self.regnet_space.cfg)
-            self.current_gen+=1
-            self.sim_threshold=self.sim_threshold-0.01
+                create_widths_plot(chromosomes).write_html(f"{self.test_folder}/Generation_{self.current_gen}/population.html")
+                ic(self.regnet_space.cfg)
+                generation_df, corr=self.train_generation(models, chromosomes)
+                ic(self.regnet_space.cfg)
+                self.best_parents=self.selection(generation_df)
+                ic(self.regnet_space.cfg)
+                self._save_backup()
+                ic(self.regnet_space.cfg)
+                self.current_gen+=1
+                self.sim_threshold=self.sim_threshold-0.01
+                
+                ic(self.total_time)
+                ic(self.metadata["time_remaining"])
+                if self.total_time>14400 and self.current_gen==2:
+                    self.total_generations=1
+                if self.metadata["time_remaining"]<2*self.total_time and self.current_gen==2:
+                    self.total_generations=1
+            self.export_results()
             
-            ic(self.total_time)
-            ic(self.metadata["time_remaining"])
-            if self.total_time>14400 and self.current_gen==2:
-                self.total_generations=1
-            if self.metadata["time_remaining"]<2*self.total_time and self.current_gen==2:
-                self.total_generations=1
-        self.export_results()
-        
-        weights_file=self.best_model["model_path"]
-        ind_path = weights_file.rfind('/')
-        config_file = weights_file[:ind_path]
-        best_model,info=self.regnet_space.load_model(config_file=f"{config_file}/config.yaml",
-                                           weights_file=weights_file)
-        self.metadata["train_config_path"]=f"{self.SUBMISSION_PATH}configs/train/finetuning_generation_adam.yaml"
-        return best_model
+            weights_file=self.best_model["model_path"]
+            ind_path = weights_file.rfind('/')
+            config_file = weights_file[:ind_path]
+            best_model,info=self.regnet_space.load_model(config_file=f"{config_file}/config.yaml",
+                                            weights_file=weights_file)
+            self.metadata["train_config_path"]=f"{self.SUBMISSION_PATH}configs/train/finetuning_generation_adam.yaml"
+            return best_model
     
     def train_mp(self,model,student):
         
@@ -277,7 +361,12 @@ class NAS:
                 next_process_index = 0
                 ic("initial memory")
                 print(f"Gpu free memory: {get_gpu_memory(0) / (1024 ** 3):.3f} GB")
-                required_memory= 7*2 ** 30
+                if self.metadata["codename"]=="Caitie":
+                    required_memory = 33 * (2 ** 30)
+                if self.metadata["codename"]=="Sadie":
+                    required_memory = 15 * (2 ** 30)
+                else:
+                    required_memory = 7 * (2 ** 30)
                 self.total_time=time.time()-self.current_time+self.total_time
                 self.current_time=time.time()
                 with open(f"{self.test_folder}/log.json", 'w') as json_file:
@@ -523,40 +612,47 @@ class NAS:
             pool_chroms={}
             for stage, info in total_pool_individuals[model_name].items():
                 name, transfer_dataset=info
+
                 weights_file=f"{transfer_dataset}/{name}/student_best"
                 config_file=f"{transfer_dataset}/{name}/config.yaml"
-                pool_models[stage],pool_chroms[stage]=self.regnet_space.load_model(config_file=config_file, weights_file=weights_file)
-
+                if os.path.exists(weights_file):
+                    pool_models[stage],pool_chroms[stage]=self.regnet_space.load_model(config_file=config_file, weights_file=weights_file)
+                else:
+                    ic(f"Weights file does not exits {weights_file}")
+                    pool_chroms[stage]=None
             chrom=chromosomes[model_name]
             n_access[model_name]=0
             for stage in range(1,chrom["num_stages"]+1):
-                max_block=min(chrom["ds"][stage-1], pool_chroms[stage]["ds"][stage-1])
-                print("###### MAX BLOCK #####: ",max_block)
-                for block in range(1,max_block+1):
-                    print("Block: ", block)
-                    model_part = eval(f"models[model_name].s{stage}.b{block}")
-                    orig_part = eval(f"pool_models[stage].s{stage}.b{block}.state_dict()")
+                if pool_chroms[stage] is not None:
+                    max_block=min(chrom["ds"][stage-1], pool_chroms[stage]["ds"][stage-1])
+                    print("###### MAX BLOCK #####: ",max_block)
+                    for block in range(1,max_block+1):
+                        print("Block: ", block)
+                        model_part = eval(f"models[model_name].s{stage}.b{block}")
+                        orig_part = eval(f"pool_models[stage].s{stage}.b{block}.state_dict()")
 
-                    for key in model_part.state_dict().keys():
+                        for key in model_part.state_dict().keys():
 
-                        tensor = orig_part[key]
-                        tensor_shape = tensor.shape
+                            tensor = orig_part[key]
+                            tensor_shape = tensor.shape
 
-                        tensor_student_shape=model_part.state_dict()[key].shape
-                        if tensor_shape==tensor_student_shape:
-                            print(key)
-                            #print(tensor_shape)
-                            n_access[model_name]=n_access[model_name]+1
+                            tensor_student_shape=model_part.state_dict()[key].shape
+                            if tensor_shape==tensor_student_shape:
+                                print(key)
+                                #print(tensor_shape)
+                                n_access[model_name]=n_access[model_name]+1
 
 
-                            keys = key.split('.')
+                                keys = key.split('.')
 
-                            # Access the specific layer that contains the weight attribute
-                            param = functools.reduce(getattr, keys[:-1], model_part)
-                            #print(param.requires_grad)
-                            #param.weight.requires_grad=False
-                            # Use setattr to update the .data attribute of the weight tensor
-                            getattr(param, keys[-1]).data = tensor.clone()
+                                # Access the specific layer that contains the weight attribute
+                                param = functools.reduce(getattr, keys[:-1], model_part)
+                                #print(param.requires_grad)
+                                #param.weight.requires_grad=False
+                                # Use setattr to update the .data attribute of the weight tensor
+                                getattr(param, keys[-1]).data = tensor.clone()
+                else:
+                    ic(f"Stage {stage} is None")
         pd.DataFrame([n_access]).T.sort_values(by=0).to_csv("n_access.csv")
 
         if self.current_gen>1 and self.update_pool:
@@ -684,7 +780,10 @@ class NAS:
                                    "population_size":self.population_size,
                                    "total_generations":self.total_generations,
                                    "num_best_parents": self.num_best_parents,
-                                   "sim_threshold":self.sim_threshold
+                                   "sim_threshold":self.sim_threshold,
+                                    "multiprocessing":self.multiprocessing,
+                                    "update_pool":self.update_pool,
+                                    "initial_population_size":self.initial_population_size
                                   }
         results_file["total_time"]=self.total_time
 

@@ -11,6 +11,7 @@ from torch.utils.data import RandomSampler
 from nas import NAS
 from data_processor import DataProcessor
 from trainer import Trainer
+import argparse
 
 
 # === DATA LOADING HELPERS =============================================================================================
@@ -91,6 +92,27 @@ total_runtime_hours = 30
 total_runtime_seconds = total_runtime_hours * 60 * 60
 
 if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description="Main NAS pipeline")
+    ############# NAS mode #############
+    # T0
+    # T1
+    # T2
+    # T3
+    # T4
+    # T5
+    # T6
+    # T7
+    #########################
+    parser.add_argument('--mode', type=str, required=True, help='NAS tests options. Check dict above')
+    ################ Select augment ##########
+    # None: No augmentation
+    # Basic: RandomErasing+ RandomCrop + HorizontalFlip
+    # Proxy: Fisher + Jacob_cov proxy
+    # Resnet: Use RegNet training as proxy
+    #########################################
+    parser.add_argument('--select_augment', type=str, required=True, help='Augmentation selection strategy')
+    args = parser.parse_args()
+    print(f"Mode: {args.mode}")
     # this try/except statement will ensure that exceptions are logged when running from the makefile
     try:
         # print main header
@@ -102,7 +124,9 @@ if __name__ == '__main__':
         runclock = Clock(total_runtime_seconds)
 
         # iterate over datasets in the datasets directory
-        for dataset in os.listdir("datasets")[1:2]:
+        
+        for dataset in ["Language","Gutenberg","AddNIST","Chesseract", "GeoClassing","MultNIST", "CIFARTile"]:
+
             # load and display data info
             (train_x, train_y), (valid_x, valid_y), (test_x), metadata = load_datasets(dataset, truncate=False)
             metadata['time_remaining'] = runclock.check()
@@ -115,8 +139,8 @@ if __name__ == '__main__':
             # perform data processing/augmentation/etc using your DataProcessor
             print("\n=== Processing Data ===")
             print("  Allotted compute time remaining: ~{}".format(show_time(runclock.check())))
-            metadata["select_augment"]=False
-            data_processor = DataProcessor(train_x, train_y, valid_x, valid_y, test_x, metadata)
+            #metadata["select_augment"]=True
+            data_processor = DataProcessor(train_x, train_y, valid_x, valid_y, test_x, metadata, args.select_augment)
             train_loader, valid_loader, test_loader = data_processor.process()
             metadata['time_remaining'] = runclock.check()
 
@@ -128,7 +152,7 @@ if __name__ == '__main__':
             # search for best model using your NAS algorithm
             print("\n=== Performing NAS ===")
             print("  Allotted compute time remaining: ~{}".format(show_time(runclock.check())))
-            model = NAS(train_loader, valid_loader, metadata).search()
+            model = NAS(train_loader, valid_loader, metadata, args.mode, args.select_augment).search()
             model_params = int(general_num_params(model))
             metadata['time_remaining'] = runclock.check()
 

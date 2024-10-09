@@ -232,13 +232,20 @@ class RegNet:
         ranking_predict_df=pd.DataFrame([ranking_predict]).T.rename(columns={0:"score"}).sort_values(by="score", ascending=False)
         return ranking_predict_df
 
-    def create_first_generation(self, save_folder,gen, size, config_updates=None, metadata=None):
+    def create_first_generation(self, save_folder,gen, size, config_updates=None, metadata=None, samples=None):
         ic(self.cfg)
         #config_updates=["REGNET.DROP_RATE",0.05, "REGNET.DROPOUT",0.1]
         # Create the Cartesian product of these values
-        models, chromosomes=self.create_random_generation(save_folder=None,gen=None, size=size*5, config_updates=None)
+        if samples is None:
+            samples=size*5
+        ic(samples)
+        models, chromosomes=self.create_random_generation(save_folder=None,gen=None, size=samples, config_updates=None)
+
         #rfr_classifier=load(f'tests/classifiers/rfr_model_50.joblib')
-        sgd_regressor=load(f'tests/regressors/{metadata["codename"]}/rfr_model_50.joblib')
+        if metadata["codename"] not in ["Adaline","Caitie","Chester","Gutenberg","LaMelo","Mateo","Sadie"]:
+            sgd_regressor=load(f'tests/regressors/Sokoto/sgdr_model_50.joblib')        
+        else:
+            sgd_regressor=load(f'tests/regressors/{metadata["codename"]}/rfr_model_50.joblib')
         
 
         gen_df=pd.DataFrame(chromosomes).T.reset_index().rename(columns={"index":"name"})[["name","num_stages","params","WA","W0","WM","DEPTH"]]
@@ -293,7 +300,7 @@ class RegNet:
         
         #ranking_prediction_df=self.get_ranking(ranking_test_df, pred_column).head(size)
         ranking_prediction_df=self.get_ranking_regressor(ranking_test_df, pred_column).head(size)
-        print(ranking_prediction_df)
+        ic(ranking_prediction_df)
         best_individuals=list(ranking_prediction_df.index)
 
         best_models={}

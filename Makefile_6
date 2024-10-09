@@ -1,0 +1,34 @@
+ifndef submission
+$(error submission is undefined)
+endif
+
+build:
+	rm -Rf /home/woody/iwb3/iwb3021h/THESIS_RESULTS/package6
+	mkdir /home/woody/iwb3/iwb3021h/THESIS_RESULTS/package6
+	mkdir /home/woody/iwb3/iwb3021h/THESIS_RESULTS/package6/predictions
+	mkdir /home/woody/iwb3/iwb3021h/THESIS_RESULTS/package6/datasets
+	rsync -ar --exclude='**/test_y.npy' datasets/* /home/woody/iwb3/iwb3021h/THESIS_RESULTS/package6/datasets/
+	cp -R evaluation/main.py /home/woody/iwb3/iwb3021h/THESIS_RESULTS/package6/main.py
+	cp -R $(submission)/* /home/woody/iwb3/iwb3021h/THESIS_RESULTS/package6
+
+run:
+	cd /home/woody/iwb3/iwb3021h/THESIS_RESULTS/package6; python3 main.py --mode T6 --select_augment Proxy
+
+score:
+	rm -Rf /home/woody/iwb3/iwb3021h/THESIS_RESULTS/scoring6
+	mkdir /home/woody/iwb3/iwb3021h/THESIS_RESULTS/scoring6
+	mkdir /home/woody/iwb3/iwb3021h/THESIS_RESULTS/scoring6/labels
+	mkdir /home/woody/iwb3/iwb3021h/THESIS_RESULTS/scoring6/predictions
+	rsync -avr --exclude='**/*x.npy' --exclude='**/train*.npy' --exclude='**/valid*.npy'   --include='**/test_y.npy' datasets/* /home/woody/iwb3/iwb3021h/THESIS_RESULTS/scoring6/labels/
+	cp -R /home/woody/iwb3/iwb3021h/THESIS_RESULTS/package6/predictions /home/woody/iwb3/iwb3021h/THESIS_RESULTS/scoring6
+	cp evaluation/score.py /home/woody/iwb3/iwb3021h/THESIS_RESULTS/scoring6/score.py
+	cd /home/woody/iwb3/iwb3021h/THESIS_RESULTS/scoring6; python3 score.py
+
+clean:
+	rm -Rf /home/woody/iwb3/iwb3021h/THESIS_RESULTS/scoring6
+	rm -Rf /home/woody/iwb3/iwb3021h/THESIS_RESULTS/package6
+
+zip:
+	cd $(submission);  zip -r ../submission.zip *
+
+all: clean build run score
