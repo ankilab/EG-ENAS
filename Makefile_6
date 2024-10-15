@@ -12,7 +12,7 @@ build:
 	cp -R $(submission)/* /home/woody/iwb3/iwb3021h/THESIS_RESULTS/package6
 
 run:
-	cd /home/woody/iwb3/iwb3021h/THESIS_RESULTS/package6; python3 main.py --mode T6 --select_augment Proxy
+	cd /home/woody/iwb3/iwb3021h/THESIS_RESULTS/package6; python3 main.py --mode T6 --select_augment Basic
 
 score:
 	rm -Rf /home/woody/iwb3/iwb3021h/THESIS_RESULTS/scoring6

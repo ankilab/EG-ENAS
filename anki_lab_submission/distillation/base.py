@@ -56,7 +56,6 @@ class Vanilla(nn.Module):
         return [v for k, v in self.student.named_parameters() if v.requires_grad]
 
     def forward_train(self, image, target, **kwargs):
-        #logits_student, _ = self.student(image)
         logits_student = self.student(image)
         loss = F.cross_entropy(input=logits_student, target=target, label_smoothing=self.label_smoothing)
         return logits_student, {"ce": loss}

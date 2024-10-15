@@ -124,6 +124,7 @@ if __name__ == '__main__':
         runclock = Clock(total_runtime_seconds)
 
         # iterate over datasets in the datasets directory
+        #for dataset in [ "GeoClassing","MultNIST", "CIFARTile"]:
         
         for dataset in ["Language","Gutenberg","AddNIST","Chesseract", "GeoClassing","MultNIST", "CIFARTile"]:
 

@@ -38,7 +38,7 @@ from search_space.utils import create_widths_plot, scatter_results, get_generati
 from trainer import Trainer, TrainerDistillation
 from utils.train_cfg import get_cfg, show_cfg
 ###################################################
-random_seed = 1
+random_seed = 2
 random.seed(random_seed)
 # Set seed for NumPy
 np.random.seed(random_seed)

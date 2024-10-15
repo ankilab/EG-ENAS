@@ -12,7 +12,7 @@ build:
 	cp -R $(submission)/* /home/woody/iwb3/iwb3021h/THESIS_RESULTS/package0
 
 run:
-	cd /home/woody/iwb3/iwb3021h/THESIS_RESULTS/package0; python3 main.py --mode T0 --select_augment Proxy
+	cd /home/woody/iwb3/iwb3021h/THESIS_RESULTS/package0; python3 main.py --mode T0 --select_augment Resnet
 
 score:
 	rm -Rf /home/woody/iwb3/iwb3021h/THESIS_RESULTS/scoring0
