@@ -159,3 +159,17 @@ cython_debug/
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #.idea/
 datasets
+datasets_val
+results
+package
+package2
+package3
+scoring
+scoring2
+Testjob*
+hpcruns
+.testvenv/
+submission.zip
+anki_lab_submission/tests/None
+anki_lab_submission/tests/regressors
+anki_lab_submission/tests/zcost_proxies
