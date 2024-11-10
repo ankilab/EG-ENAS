@@ -175,6 +175,11 @@ class DataProcessor:
             train_transform = self._find_train_transform_proxy()
         elif self.select_augment=="Resnet":
             train_transform = self._find_train_transform_resnet()
+        elif self.select_augment=="AutoAugment":
+            C,H,W=self.metadata['input_shape'][1:4]
+            PH,PW=int(H/8),int(W/8)
+            unique_values=np.unique(self.train_x)
+            train_transform = [v2.AutoAugment()] if C in [1,3] else [v2.RandomErasing(p=0.2, scale=(0.02, 0.2), ratio=(0.3, 3.3)),v2.RandomCrop((H,W), padding=(PH,PW)),v2.RandomHorizontalFlip()]
 
         #dict_transforms={"Chester":[v2.RandomErasing(p=0.2, scale=(0.02, 0.2), ratio=(0.3, 3.3)),
         #                                v2.RandomCrop((H,W), padding=(PH,PW)),v2.RandomHorizontalFlip()],
@@ -306,8 +311,8 @@ class DataProcessor:
                 [RandomPixelChange(0.01), v2.ToTensor(), v2.RandomHorizontalFlip(),v2.RandomVerticalFlip()],
                 [RandomPixelChange(0.01), v2.ToTensor(),v2.RandomErasing(p=0.2, scale=(0.05, 0.2), ratio=(0.3, 3.3))],
                 [RandomPixelChange(0.01), v2.ToTensor(), v2.RandomCrop((H,W), padding=(PH,PW))],
-                [RandomPixelChange(0.01), v2.ToTensor(),v2.RandomHorizontalFlip(),v2.RandomVerticalFlip(), v2.RandomErasing(p=0.2, scale=(0.05, 0.2), ratio=(0.3, 3.3))]
-
+                [RandomPixelChange(0.01), v2.ToTensor(),v2.RandomHorizontalFlip(),v2.RandomVerticalFlip(), v2.RandomErasing(p=0.2, scale=(0.05, 0.2), ratio=(0.3, 3.3))],
+                [v2.AutoAugment()]
             ]
             
 
@@ -466,14 +471,14 @@ class DataProcessor:
                 [RandomPixelChange(0.01), v2.ToTensor(), v2.RandomHorizontalFlip(),v2.RandomVerticalFlip()],
                 [RandomPixelChange(0.01), v2.ToTensor(),v2.RandomErasing(p=0.2, scale=(0.05, 0.2), ratio=(0.3, 3.3))],
                 [RandomPixelChange(0.01), v2.ToTensor(), v2.RandomCrop((H,W), padding=(PH,PW))],
-                [RandomPixelChange(0.01), v2.ToTensor(),v2.RandomHorizontalFlip(),v2.RandomVerticalFlip(), v2.RandomErasing(p=0.2, scale=(0.05, 0.2), ratio=(0.3, 3.3))]
-
+                [RandomPixelChange(0.01), v2.ToTensor(),v2.RandomHorizontalFlip(),v2.RandomVerticalFlip(), v2.RandomErasing(p=0.2, scale=(0.05, 0.2), ratio=(0.3, 3.3))]#,
+                #[v2.AutoAugment()]
             ]
 
                 
         ic(poss_augs)
         
-        models, chromosomes= regnet_space.create_random_generation(save_folder=None,gen=None, size=10, config_updates=None)
+        models, chromosomes= regnet_space.create_random_generation(save_folder=None,gen=None, size=20, config_updates=None)
         individuals=list(chromosomes.keys())
         ic(individuals)
         params_dict={}

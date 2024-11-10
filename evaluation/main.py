@@ -111,6 +111,7 @@ if __name__ == '__main__':
     # Resnet: Use RegNet training as proxy
     #########################################
     parser.add_argument('--select_augment', type=str, required=True, help='Augmentation selection strategy')
+    parser.add_argument('--seed', type=str, required=False, default=None, help='Starting point for the random number generator')
     args = parser.parse_args()
     print(f"Mode: {args.mode}")
     # this try/except statement will ensure that exceptions are logged when running from the makefile
@@ -124,9 +125,12 @@ if __name__ == '__main__':
         runclock = Clock(total_runtime_seconds)
 
         # iterate over datasets in the datasets directory
-        #for dataset in [ "GeoClassing","MultNIST", "CIFARTile"]:
+        for dataset in ["ImageNet16-120","Voxel", "Sudoku","CIFAR10"]:
+        #for dataset in ["CIFAR10"]:
+ 
         
-        for dataset in ["Language","Gutenberg","AddNIST","Chesseract", "GeoClassing","MultNIST", "CIFARTile"]:
+        #for dataset in ["Language","Gutenberg","AddNIST","Chesseract", "GeoClassing","MultNIST", "CIFARTile"]:
+        #for dataset in ["MultNIST", "CIFARTile"]:
 
             # load and display data info
             (train_x, train_y), (valid_x, valid_y), (test_x), metadata = load_datasets(dataset, truncate=False)
@@ -153,7 +157,7 @@ if __name__ == '__main__':
             # search for best model using your NAS algorithm
             print("\n=== Performing NAS ===")
             print("  Allotted compute time remaining: ~{}".format(show_time(runclock.check())))
-            model = NAS(train_loader, valid_loader, metadata, args.mode, args.select_augment).search()
+            model = NAS(train_loader, valid_loader, metadata, args.mode, args.select_augment, args.seed).search()
             model_params = int(general_num_params(model))
             metadata['time_remaining'] = runclock.check()
 

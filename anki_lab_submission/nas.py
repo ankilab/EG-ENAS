@@ -38,16 +38,7 @@ from search_space.utils import create_widths_plot, scatter_results, get_generati
 from trainer import Trainer, TrainerDistillation
 from utils.train_cfg import get_cfg, show_cfg
 ###################################################
-random_seed = 2
-random.seed(random_seed)
-# Set seed for NumPy
-np.random.seed(random_seed)
-# Set seed for PyTorch
-torch.manual_seed(random_seed)
-torch.cuda.manual_seed_all(random_seed)
-# Additional steps if using CuDNN (optional, for GPU acceleration)
-torch.backends.cudnn.deterministic = True
-torch.backends.cudnn.benchmark = False
+
 ##################################################
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 from datetime import datetime
@@ -69,22 +60,49 @@ def get_gpu_memory(gpu_id):
     return info.free
 
 class NAS:
-    def __init__(self, train_loader, valid_loader, metadata,mode,select_augment, resume_from=None, test=False):
+    def __init__(self, train_loader, valid_loader, metadata,mode,select_augment,seed, resume_from=None, test=False):
         self.test=test
         self.SUBMISSION_PATH=""
 
         ic(mode)
-        
+        ic(seed)
+        ic(select_augment)
+        if (seed is not None) and (seed!="None"):
+            random_seed = int(seed)
+            random.seed(random_seed)
+            # Set seed for NumPy
+            np.random.seed(random_seed)
+            # Set seed for PyTorch
+            torch.manual_seed(random_seed)
+            torch.cuda.manual_seed_all(random_seed)
+            # Additional steps if using CuDNN (optional, for GPU acceleration)
+            torch.backends.cudnn.deterministic = True
+            torch.backends.cudnn.benchmark = False
+        else:
+            random_seed="random"
+
         epochs=10 if mode=="T7" else 5
         SAVE_PATH=f"/home/woody/iwb3/iwb3021h/THESIS_RESULTS/{mode}_{select_augment}/seed_{random_seed}"
         #SAVE_PATH=f"results/THESIS_RESULTS/T1"
-        self.regnet_space=RegNet(metadata,
-                    W0=[16, 120, 8],
-                    WA=[16, 64, 8],
-                    WM=[2.05,2.9,0.05],
-                    D=[8,22,1], 
-                    G=[8,8,8], 
-                    base_config=f"{self.SUBMISSION_PATH}configs/search_space/config.yaml")
+        if "+" in mode:
+            ic("Extended + Regnet mode")
+            self.regnet_space=RegNet(metadata,
+                        W0=[64, 240, 8],
+                        WA=[32, 128, 8],
+                        WM=[2.05,2.9,0.05],
+                        D=[12,25,1], 
+                        G=[8,8,8], 
+                        base_config=f"{self.SUBMISSION_PATH}configs/search_space/config.yaml")
+        else:
+            ic("No extended Regnet")
+            self.regnet_space=RegNet(metadata,
+            W0=[16, 120, 8],
+            WA=[16, 64, 8],
+            WM=[2.05,2.9,0.05],
+            D=[8,22,1], 
+            G=[8,8,8], 
+            base_config=f"{self.SUBMISSION_PATH}configs/search_space/config.yaml")
+
         current_date= datetime.now().strftime("%d_%m_%Y_%H_%M")
        
         
@@ -791,4 +809,3 @@ class NAS:
                 json.dump(results_file, json_file)
         
         
-

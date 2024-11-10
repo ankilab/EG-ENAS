@@ -1,32 +1,41 @@
 ifndef submission
-$(error submission is undefined)
+  $(error "submission is undefined")
+endif
+ifndef save_folder
+  $(error "save_folder is undefined")
+endif
+ifndef mode
+  $(error "mode is undefined")
+endif
+ifndef augment
+  $(error "augment is undefined")
 endif
 
 build:
-	rm -Rf package
-	mkdir package
-	mkdir package/predictions
-	mkdir package/datasets
-	rsync -ar --exclude='**/test_y.npy' datasets/* package/datasets/
-	cp -R evaluation/main.py package/main.py
-	cp -R $(submission)/* package
+	rm -Rf $(save_folder)/package
+	mkdir $(save_folder)/package
+	mkdir $(save_folder)/package/predictions
+	mkdir $(save_folder)/package/datasets
+	rsync -ar --exclude='**/test_y.npy' datasets/* $(save_folder)/package/datasets/
+	cp -R evaluation/main.py $(save_folder)/package/main.py
+	cp -R $(submission)/* $(save_folder)/package
 
 run:
-	cd package; python3 main.py
+	cd $(save_folder)/package; python3 main.py --mode $(mode) --select_augment $(augment) --seed $(seed)
 
 score:
-	rm -Rf scoring
-	mkdir scoring
-	mkdir scoring/labels
-	mkdir scoring/predictions
-	rsync -avr --exclude='**/*x.npy' --exclude='**/train*.npy' --exclude='**/valid*.npy'   --include='**/test_y.npy' datasets/* scoring/labels/
-	cp -R package/predictions scoring
-	cp evaluation/score.py scoring/score.py
-	cd scoring; python3 score.py
+	rm -Rf $(save_folder)/scoring
+	mkdir $(save_folder)/scoring
+	mkdir $(save_folder)/scoring/labels
+	mkdir $(save_folder)/scoring/predictions
+	rsync -avr --exclude='**/*x.npy' --exclude='**/train*.npy' --exclude='**/valid*.npy'   --include='**/test_y.npy' datasets/* $(save_folder)/scoring/labels/
+	cp -R $(save_folder)/package/predictions $(save_folder)/scoring
+	cp evaluation/score.py $(save_folder)/scoring/score.py
+	cd $(save_folder)/scoring; python3 score.py
 
 clean:
-	rm -Rf scoring
-	rm -Rf package
+	rm -Rf $(save_folder)/scoring
+	rm -Rf $(save_folder)/package
 
 zip:
 	cd $(submission);  zip -r ../submission.zip *
