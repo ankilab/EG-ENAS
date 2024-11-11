@@ -1,0 +1,13 @@
+,LaMelo,Gutenberg,Adaline,Chester,Sadie,Mateo,Caitie
+1,ResNet-18,BestCompetition,Bonsai-Net,Random Bonsai,Ours,DrNAS,PC-DARTS
+2,ResNext,ResNet-18,Ours,BestCompetition,BestCompetition,Bonsai-Net,Bonsai-Net
+3,PC-DARTS,PC-DARTS,Random DARTS,Ours,DrNAS,PC-DARTS,Random DARTS
+4,Random DARTS,Bonsai-Net,DrNAS,Bonsai-Net,Bonsai-Net,Random DARTS,Ours
+5,BestCompetition,Ours,PC-DARTS,DenseNet,Random DARTS,Ours,DrNAS
+6,DrNAS,Random DARTS,BestCompetition,Random DARTS,PC-DARTS,BestCompetition,BestCompetition
+7,Ours,DrNAS,DenseNet,DrNAS,DenseNet,DenseNet,DenseNet
+8,Bonsai-Net,VGG16,ResNet-18,ResNet-18,VGG16,ResNet-18,MNASNet
+9,MNASNet,DenseNet,VGG16,PC-DARTS,ResNext,ResNext,ResNext
+10,DenseNet,ResNext,ResNext,MNASNet,MNASNet,VGG16,ResNet-18
+11,VGG16,MNASNet,MNASNet,VGG16,ResNet-18,MNASNet,Random Bonsai
+12,Random Bonsai,Random Bonsai,Random Bonsai,ResNext,Random Bonsai,Random Bonsai,VGG16

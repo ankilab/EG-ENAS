@@ -4,7 +4,7 @@ import pickle as pkl
 import os
 
 from sklearn.metrics import accuracy_score
-
+##
 if __name__ == '__main__':
     # this try/except statement will ensure that exceptions are logged when running from the makefile
     try:
@@ -17,6 +17,8 @@ if __name__ == '__main__':
         total_score = 0
         overall_stats = {}
         for dataset in os.listdir("labels"):
+
+ 
             print("== Scoring {} ==".format(dataset))
 
             # load user predictions from file
