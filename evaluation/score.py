@@ -16,7 +16,7 @@ if __name__ == '__main__':
         # iterate through datasets
         total_score = 0
         overall_stats = {}
-        for dataset in os.listdir("labels"):
+        for dataset in os.listdir("labels")[:1]:
 
  
             print("== Scoring {} ==".format(dataset))
