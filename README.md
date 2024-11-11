@@ -12,7 +12,7 @@ Follow these steps to set up the project in a virtual environment:
 1. **Clone the repository**:
    ```bash
    git clone https://github.com/ankilab/NAS_Challenge_AutoML_2024.git
-   cd repo-name
+   cd NAS_Challenge_AutoML_2024
    ```
 
 2. **Create a virtual environment** (optional but recommended):
