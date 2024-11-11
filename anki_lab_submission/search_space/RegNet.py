@@ -243,9 +243,9 @@ class RegNet:
 
         #rfr_classifier=load(f'tests/classifiers/rfr_model_50.joblib')
         if metadata["codename"] not in ["Adaline","Caitie","Chester","Gutenberg","LaMelo","Mateo","Sadie"]:
-            sgd_regressor=load(f'tests/regressors/Sokoto/sgdr_model_50.joblib')        
+            sgd_regressor=load(f'regressors/rfr_model_50.joblib')        
         else:
-            sgd_regressor=load(f'tests/regressors/{metadata["codename"]}/rfr_model_50.joblib')
+            sgd_regressor=load(f'regressors/{metadata["codename"]}/rfr_model_50.joblib')
         
 
         gen_df=pd.DataFrame(chromosomes).T.reset_index().rename(columns={"index":"name"})[["name","num_stages","params","WA","W0","WM","DEPTH"]]

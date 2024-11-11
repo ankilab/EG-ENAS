@@ -13,6 +13,10 @@ module load python/pytorch-1.13py3.10
 source /home/hpc/iwb3/iwb3021h/NAS_CHALLENGE/NAS_Challenge_AutoML_2024/.testvenv/bin/activate
 cd /home/hpc/iwb3/iwb3021h/NAS_CHALLENGE/NAS_Challenge_AutoML_2024
 #srun python3 -W "ignore" our_submission/main.py Language 
-make -f Makefile submission=anki_lab_submission mode=T0 augment=Basic seed=1 all
-
+make -f Makefile save_folder=/home/woody/iwb3/iwb3021h/THESIS_RESULTS \
+        submission=anki_lab_submission \
+        mode=T0 \
+        augment=Basic \
+        seed=1 \
+        all
 deactivate
