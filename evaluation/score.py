@@ -16,11 +16,9 @@ if __name__ == '__main__':
         # iterate through datasets
         total_score = 0
         overall_stats = {}
-        for dataset in ["Voxel","ImageNet16-120", "Sudoku","CIFAR10"]:
+        for dataset in os.listdir("labels"):
 
-        #for dataset in ["Language","Gutenberg","AddNIST","Chesseract", "GeoClassing","MultNIST", "CIFARTile"]:
-        #for dataset in ["MultNIST", "CIFARTile"]:
-
+ 
             print("== Scoring {} ==".format(dataset))
 
             # load user predictions from file

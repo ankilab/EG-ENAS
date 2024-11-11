@@ -117,20 +117,11 @@ if __name__ == '__main__':
     # this try/except statement will ensure that exceptions are logged when running from the makefile
     try:
         # print main header
-        print("=" * 75)
-        print("="*13 + "    Your Unseen Data 2024 Submission is running     " + "="*13)
-        print("="*75)
-
         # start tracking submission runtime
         runclock = Clock(total_runtime_seconds)
 
         # iterate over datasets in the datasets directory
-        for dataset in ["ImageNet16-120","Voxel", "Sudoku","CIFAR10"]:
-        #for dataset in ["CIFAR10"]:
- 
-        
-        #for dataset in ["Language","Gutenberg","AddNIST","Chesseract", "GeoClassing","MultNIST", "CIFARTile"]:
-        #for dataset in ["MultNIST", "CIFARTile"]:
+        for dataset in os.listdir("datasets"):
 
             # load and display data info
             (train_x, train_y), (valid_x, valid_y), (test_x), metadata = load_datasets(dataset, truncate=False)

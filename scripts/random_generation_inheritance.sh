@@ -13,6 +13,6 @@ module load python/pytorch-1.13py3.10
 #module load cuda/11.6.1
 source /home/hpc/iwb3/iwb3021h/NAS_CHALLENGE/NAS_Challenge_AutoML_2024/.testvenv/bin/activate
 cd /home/hpc/iwb3/iwb3021h/NAS_CHALLENGE/NAS_Challenge_AutoML_2024
-srun python3 -W "ignore" anki_lab_submission/tests/train_random_gen_inheritance.py 
+srun python3 -W "ignore" egenas/tests/train_random_gen_inheritance.py 
 
 deactivate
