@@ -121,7 +121,7 @@ if __name__ == '__main__':
         runclock = Clock(total_runtime_seconds)
 
         # iterate over datasets in the datasets directory
-        for dataset in os.listdir("datasets")[:1]:
+        for dataset in os.listdir("datasets")[:]:
 
             # load and display data info
             (train_x, train_y), (valid_x, valid_y), (test_x), metadata = load_datasets(dataset, truncate=False)
@@ -156,10 +156,7 @@ if __name__ == '__main__':
             print("\n=== Training ===")
             print("  Allotted compute time remaining: ~{}".format(show_time(runclock.check())))
             device = torch.device("cuda") if torch.cuda.is_available() else torch.device('cpu')
-
-            metadata["train_config_path"]="configs/train/vanilla_generation_complete.yaml"
-            metadata["experiment_name"]=f"final_models/{dataset}"
-            trainer = TrainerDistillation(model, device, train_loader, valid_loader, metadata)
+            trainer = Trainer(model, device, train_loader, valid_loader, metadata)
             trained_model = trainer.train()
 
             # submit predictions to file
