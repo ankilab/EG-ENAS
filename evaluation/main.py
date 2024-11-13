@@ -112,6 +112,8 @@ if __name__ == '__main__':
     #########################################
     parser.add_argument('--select_augment', type=str, required=True, help='Augmentation selection strategy')
     parser.add_argument('--seed', type=str, required=False, default=None, help='Starting point for the random number generator')
+    parser.add_argument('--pretrained_pool_path', type=str, required=False, default=None, help='Pretrained pool path')    
+    
     args = parser.parse_args()
     print(f"Mode: {args.mode}")
     # this try/except statement will ensure that exceptions are logged when running from the makefile
@@ -148,7 +150,7 @@ if __name__ == '__main__':
             # search for best model using your NAS algorithm
             print("\n=== Performing NAS ===")
             print("  Allotted compute time remaining: ~{}".format(show_time(runclock.check())))
-            model = NAS(train_loader, valid_loader, metadata, args.mode, args.select_augment, args.seed).search()
+            model = NAS(train_loader, valid_loader, metadata, args.mode, args.select_augment, args.seed, args.pretrained_pool_path).search()
             model_params = int(general_num_params(model))
             metadata['time_remaining'] = runclock.check()
 

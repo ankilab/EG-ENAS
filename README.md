@@ -99,6 +99,7 @@ The base script for running experiments is located in the `scripts` folder and n
 - **`mode`**: Specifies the EG-ENAS mode, ranging from `T0` to `T7`.
 - **`augment`**: Augmentation selection method to use (e.g., AA, P, B, etc.).
 - **`seed`**: Seed value (an integer or `None` if not used).
+- **`pretrained_pool_path`**: Folder with pretrained RegNet models (str).
 
 
 ```bash
@@ -109,13 +110,18 @@ make -f Makefile save_folder=<save_folder> \
         mode=<mode> \
         augment=<augment> \
         seed=<seed> \
+        pretrained_pool_path=<pretrained_pool_path> \
         all
 deactivate
 ```
 
-Replace `<repo_folder>`, `<save_folder>`, `<mode>`, `<augment>`, and `<seed>` with your actual values.
+Replace `<repo_folder>`, `<save_folder>`, `<mode>`, `<augment>`, `<seed>` and `<pretrained_pool_path>` with your actual values.
 
+## Contact
 
+ If you have any questions or need access to the ranking regressor models for the initial generation's population, as well as the pre-trained pool for initializing model weights, please feel free to reach out.
+
+📧 [mateo.avila@fau.de](mailto:mateo.avila@fau.de)
 
 ## References
 

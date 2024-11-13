@@ -10,6 +10,9 @@ endif
 ifndef augment
   $(error "augment is undefined")
 endif
+ifndef pretrained_pool_path
+  $(error "pretrained pool path is undefined")
+endif
 
 build:
 	rm -Rf $(save_folder)/package
@@ -21,7 +24,7 @@ build:
 	cp -R $(submission)/* $(save_folder)/package
 
 run:
-	cd $(save_folder)/package; python3 main.py --mode $(mode) --select_augment $(augment) --seed $(seed)
+	cd $(save_folder)/package; python3 main.py --mode $(mode) --select_augment $(augment) --seed $(seed) --pretrained_pool_path $(pretrained_pool_path) 
 
 score:
 	rm -Rf $(save_folder)/scoring

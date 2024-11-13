@@ -13,9 +13,9 @@ REGNET:
   DROPOUT: 0.2
 
   DEPTH: 20 # Depth
-  W0: 16 # Initial width
-  WA: 16 #Slope
-  WM: 2.5 # Quantization
+  W0: 232 # Initial width
+  WA: 115.89 #Slope
+  WM: 2.53 # Quantization
   GROUP_W: 8 # Group width
 
   BOT_MUL: 1.0 # Bottleneck multiplier (bm = 1 / b from the paper)

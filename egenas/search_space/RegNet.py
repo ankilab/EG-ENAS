@@ -31,7 +31,7 @@ class RegNet:
     Example:
         >>> regnet = RegNet(metadata)
     """
-    def __init__(self, metadata, W0=[16, 64, 8], WA=[8, 48, 8],WM=[2.05,2.9,0.05],D=[8,22,1],G=[8,16,8], base_config="../../configs/search_space/config.yaml"):
+    def __init__(self, metadata, W0=[16, 64, 8], WA=[8, 48, 8],WM=[2.05,2.9,0.05],D=[8,22,1],G=[8,16,8], base_config="../configs/search_space/config.yaml"):
         """
         Initializes the RegNet class with default or specified parameters. By default we use a reduced version of the RegNet for testing, but W0, WA and D are usually bigger depending on the dataset specified in metadata.
 
@@ -61,7 +61,6 @@ class RegNet:
         self.D_OPTIONS=np.arange(D[0],D[1]+D[2],D[2])
         self.G_OPTIONS=np.arange(G[0],G[1]+G[2],G[2])
         self.device=torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
         
     def create_model(self, params=None, save_folder=None, name=None, gen=None, config_updates=None):
         """

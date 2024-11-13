@@ -72,7 +72,7 @@ _C.REGNET.DEPTH = 10
 _C.REGNET.W0 = 32
 
 # Slope
-_C.REGNET.WA = 16
+_C.REGNET.WA = 5.0
 
 # Quantization
 _C.REGNET.WM = 2.5

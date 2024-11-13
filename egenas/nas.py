@@ -41,7 +41,7 @@ def get_gpu_memory(gpu_id):
     return info.free
 
 class NAS:
-    def __init__(self, train_loader, valid_loader, metadata,mode,select_augment,seed, resume_from=None, test=False):
+    def __init__(self, train_loader, valid_loader, metadata,mode,select_augment,seed,pretrained_pool_path, resume_from=None, test=False):
         self.test=test
         self.SUBMISSION_PATH=""
 
@@ -190,8 +190,11 @@ class NAS:
         
         #Pretrained pool
         self.pool_stages_df=self.load_stages_pool(
-            pool_folders= ["/home/woody/iwb3/iwb3021h/NAS_COMPETITION_RESULTS/classifier_train/",
-            "/home/woody/iwb3/iwb3021h/NAS_COMPETITION_RESULTS/stages_pool/"]) if self.pretrained_pool else pd.DataFrame()
+            pool_folders= [pretrained_pool_path]) if self.pretrained_pool else pd.DataFrame()
+
+        #self.pool_stages_df=self.load_stages_pool(
+        #    pool_folders= ["/home/woody/iwb3/iwb3021h/NAS_COMPETITION_RESULTS/classifier_train/",
+        #    "/home/woody/iwb3/iwb3021h/NAS_COMPETITION_RESULTS/stages_pool/"]) if self.pretrained_pool else pd.DataFrame()
 
         #####
         self.weights_pool={}
@@ -275,6 +278,7 @@ class NAS:
                         
                     # Weights initialization
                     if self.use_stages_pool:
+                        ic("start transfer weights")
                         models= self.transfer_weights(models, chromosomes )
                         if self.update_pool:
                             self.update_stages_pool(chromosomes)
@@ -539,14 +543,14 @@ class NAS:
         if self.pool_stages_df.empty:
             return models
 
-        
+        ic("load chromosomes")
         #WHOLE LOOP SELECTION PRETRAINED INDIVIDUALS
         df_models=pd.DataFrame(chromosomes).T[["ws","ds","num_stages", "DEPTH"]]
         total_pool_individuals={}
 
         for model_name in list(chromosomes.keys()):
             df_current_model=df_models.loc[model_name]
-
+            ic(model_name)
             filtered_dfs=[]
             df_results_aux=self.pool_stages_df.drop(columns=["ws","ds"])
             df_results_aux["diff_stages"]=abs(df_results_aux["num_stages"]-df_current_model["num_stages"])
@@ -595,9 +599,8 @@ class NAS:
                             break
                 if idx+1 not in pool_individuals:
                      pool_individuals[idx+1]=next(iter(item.items()))
-            print("########################")
-            print(model_name)
-            print(pool_individuals)
+            ic("########################")
+
             total_pool_individuals[model_name]=pool_individuals    
 
         with open('individuals_pool.json', 'w') as f:
@@ -605,13 +608,14 @@ class NAS:
 
         n_access={}
         for model_name in list(models.keys()):
-            print("Model Name: ",model_name)
-            print("#######################")
+            ic("Model Name: ",model_name)
+            ic("#######################")
             pool_models={}
             pool_chroms={}
             for stage, info in total_pool_individuals[model_name].items():
                 name, transfer_dataset=info
-
+                ic(name)
+                ic(transfer_dataset)
                 weights_file=f"{transfer_dataset}/{name}/student_best"
                 config_file=f"{transfer_dataset}/{name}/config.yaml"
                 if os.path.exists(weights_file):
@@ -624,9 +628,9 @@ class NAS:
             for stage in range(1,chrom["num_stages"]+1):
                 if pool_chroms[stage] is not None:
                     max_block=min(chrom["ds"][stage-1], pool_chroms[stage]["ds"][stage-1])
-                    print("###### MAX BLOCK #####: ",max_block)
+                    ic("###### MAX BLOCK #####: ",max_block)
                     for block in range(1,max_block+1):
-                        print("Block: ", block)
+                        ic("Block: ", block)
                         model_part = eval(f"models[model_name].s{stage}.b{block}")
                         orig_part = eval(f"pool_models[stage].s{stage}.b{block}.state_dict()")
 
