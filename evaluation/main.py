@@ -28,6 +28,7 @@ def load_dataset_metadata(dataset_path):
 
 # load dataset from file
 def load_datasets(data_path, truncate):
+    #data_path = 'data_path/home/woody/iwb3/iwb3021h/datasets' +data_path
     data_path = 'datasets/'+data_path
     train_x = np.load(os.path.join(data_path,'train_x.npy'))
     train_y = np.load(os.path.join(data_path,'train_y.npy'))
@@ -113,7 +114,8 @@ if __name__ == '__main__':
     parser.add_argument('--select_augment', type=str, required=True, help='Augmentation selection strategy')
     parser.add_argument('--seed', type=str, required=False, default=None, help='Starting point for the random number generator')
     parser.add_argument('--pretrained_pool_path', type=str, required=False, default=None, help='Pretrained pool path')    
-    
+    parser.add_argument('--only_processor', action='store_true', help='Only process data to get best augmentation')
+
     args = parser.parse_args()
     print(f"Mode: {args.mode}")
     # this try/except statement will ensure that exceptions are logged when running from the makefile
@@ -140,35 +142,37 @@ if __name__ == '__main__':
             #metadata["select_augment"]=True
             data_processor = DataProcessor(train_x, train_y, valid_x, valid_y, test_x, metadata, args.select_augment)
             train_loader, valid_loader, test_loader = data_processor.process()
-            metadata['time_remaining'] = runclock.check()
+            
+            if not args.only_processor:
+                metadata['time_remaining'] = runclock.check()
 
-            # check that the test_loader is configured correctly
-            assert_string = "Test Dataloader is {}, this will break evaluation. Please fix this in your DataProcessor init."
-            assert not isinstance(test_loader.sampler, RandomSampler), assert_string.format("shuffling")
-            assert not test_loader.drop_last, assert_string.format("dropping last batch")
+                # check that the test_loader is configured correctly
+                assert_string = "Test Dataloader is {}, this will break evaluation. Please fix this in your DataProcessor init."
+                assert not isinstance(test_loader.sampler, RandomSampler), assert_string.format("shuffling")
+                assert not test_loader.drop_last, assert_string.format("dropping last batch")
 
-            # search for best model using your NAS algorithm
-            print("\n=== Performing NAS ===")
-            print("  Allotted compute time remaining: ~{}".format(show_time(runclock.check())))
-            model = NAS(train_loader, valid_loader, metadata, args.mode, args.select_augment, args.seed, args.pretrained_pool_path).search()
-            model_params = int(general_num_params(model))
-            metadata['time_remaining'] = runclock.check()
+                # search for best model using your NAS algorithm
+                print("\n=== Performing NAS ===")
+                print("  Allotted compute time remaining: ~{}".format(show_time(runclock.check())))
+                model = NAS(train_loader, valid_loader, metadata, args.mode, args.select_augment, args.seed, args.pretrained_pool_path).search()
+                model_params = int(general_num_params(model))
+                metadata['time_remaining'] = runclock.check()
 
-            # train model using your Trainer
-            print("\n=== Training ===")
-            print("  Allotted compute time remaining: ~{}".format(show_time(runclock.check())))
-            device = torch.device("cuda") if torch.cuda.is_available() else torch.device('cpu')
-            trainer = Trainer(model, device, train_loader, valid_loader, metadata)
-            trained_model = trainer.train()
+                # train model using your Trainer
+                print("\n=== Training ===")
+                print("  Allotted compute time remaining: ~{}".format(show_time(runclock.check())))
+                device = torch.device("cuda") if torch.cuda.is_available() else torch.device('cpu')
+                trainer = Trainer(model, device, train_loader, valid_loader, metadata)
+                trained_model = trainer.train()
 
-            # submit predictions to file
-            print("\n=== Predicting ===")
-            print("  Allotted compute time remaining: ~{}".format(show_time(runclock.check())))
-            predictions = trainer.predict(test_loader)
-            run_data = {'Runtime': float(np.round(time.time()-this_dataset_start_time, 2)), 'Params': model_params}
-            with open("predictions/{}_stats.pkl".format(metadata['codename']), "wb") as f:
-                pkl.dump(run_data, f)
-            np.save('predictions/{}.npy'.format(metadata['codename']), predictions)
-            print()
+                # submit predictions to file
+                print("\n=== Predicting ===")
+                print("  Allotted compute time remaining: ~{}".format(show_time(runclock.check())))
+                predictions = trainer.predict(test_loader)
+                run_data = {'Runtime': float(np.round(time.time()-this_dataset_start_time, 2)), 'Params': model_params}
+                with open("predictions/{}_stats.pkl".format(metadata['codename']), "wb") as f:
+                    pkl.dump(run_data, f)
+                np.save('predictions/{}.npy'.format(metadata['codename']), predictions)
+                print()
     except Exception as e:
         print(e)

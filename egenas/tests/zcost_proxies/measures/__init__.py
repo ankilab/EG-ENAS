@@ -55,7 +55,10 @@ def load_all():
     from . import jacob_cov
     from . import plain
     from . import synflow
-
+    from . import epe_nas
+    from . import l2_norm
+    from . import zen
+    from . import nwot
 
 # TODO: should we do that by default?
 load_all()

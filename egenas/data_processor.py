@@ -2,6 +2,8 @@ import torch
 from torchvision.transforms import v2
 from torchvision import transforms
 import torchvision.models as models
+import torch.nn.functional as F
+from tests.zcost_proxies.predictive import find_measures
 import numpy as np
 from trainer import TrainerDistillation, Trainer
 from torch.utils.data import DataLoader, TensorDataset
@@ -102,6 +104,20 @@ class Dataset(torch.utils.data.Dataset):
             return im
         else:
             return im, self.y[idx]
+
+class RandAugmentMultiChannel(v2.RandAugment):
+    def forward(self, img):
+        #ic(img.shape)  # Debugging: Check shape before processing
+
+        # Apply RandAugment to each channel separately (ensuring H, W shape for each img[i])
+        transformed_channels = [
+            v2.RandAugment(self.num_ops, self.magnitude).forward(
+                img[i].unsqueeze(0) if img[i].ndim == 2 else img[i]
+            ).squeeze(0)  # Remove extra channel dim if added
+            for i in range(img.shape[0])
+        ]
+        #len(transformed_channels)
+        return torch.stack(transformed_channels)  # Stack back to (C, H, W)
 
 
 
@@ -311,7 +327,8 @@ class DataProcessor:
                 [RandomPixelChange(0.01), v2.ToTensor(),v2.RandomErasing(p=0.2, scale=(0.05, 0.2), ratio=(0.3, 3.3))],
                 [RandomPixelChange(0.01), v2.ToTensor(), v2.RandomCrop((H,W), padding=(PH,PW))],
                 [RandomPixelChange(0.01), v2.ToTensor(),v2.RandomHorizontalFlip(),v2.RandomVerticalFlip(), v2.RandomErasing(p=0.2, scale=(0.05, 0.2), ratio=(0.3, 3.3))],
-                [v2.AutoAugment()]
+                [v2.AutoAugment()],
+                [RandAugmentMultiChannel()]
             ]
             
 
@@ -399,7 +416,8 @@ class DataProcessor:
                     print(results_val_acc)
 
         # save the results to a file
-        with open(f"augmentations_test/{self.metadata['codename']}/augmentation_results.json", 'w') as f:
+        #with open(f"augmentations_test/{self.metadata['codename']}/augmentation_results.json", 'w') as f:
+        with open(f"/home/woody/iwb3/iwb3021h/THESIS_RESULTS/augmentation_results_{self.metadata['codename']}.json", 'w') as f:
             json.dump(results, f)
 
         
@@ -417,8 +435,7 @@ class DataProcessor:
         return augmentation_combinations[int(max_key)]
     
     def _find_train_transform_proxy(self):
-        import torch.nn.functional as F
-        from tests.zcost_proxies.predictive import find_measures
+
         regnet_space=RegNet(self.metadata,
                     W0=[16, 120, 8],
                     WA=[16, 64, 8],
@@ -448,7 +465,7 @@ class DataProcessor:
         poss_augs= [
 
                 [],
-                [v2.RandAugment(magnitude=9)],
+                [v2.RandAugment(magnitude=9) if C in [1, 3] else RandAugmentMultiChannel()],
                 [v2.RandAugment(magnitude=5)],
                 [v2.RandAugment(magnitude=1)],
                 [v2.TrivialAugmentWide(num_magnitude_bins=31)],
@@ -470,8 +487,8 @@ class DataProcessor:
                 [RandomPixelChange(0.01), v2.ToTensor(), v2.RandomHorizontalFlip(),v2.RandomVerticalFlip()],
                 [RandomPixelChange(0.01), v2.ToTensor(),v2.RandomErasing(p=0.2, scale=(0.05, 0.2), ratio=(0.3, 3.3))],
                 [RandomPixelChange(0.01), v2.ToTensor(), v2.RandomCrop((H,W), padding=(PH,PW))],
-                [RandomPixelChange(0.01), v2.ToTensor(),v2.RandomHorizontalFlip(),v2.RandomVerticalFlip(), v2.RandomErasing(p=0.2, scale=(0.05, 0.2), ratio=(0.3, 3.3))]#,
-                #[v2.AutoAugment()]
+                [RandomPixelChange(0.01), v2.ToTensor(),v2.RandomHorizontalFlip(),v2.RandomVerticalFlip(), v2.RandomErasing(p=0.2, scale=(0.05, 0.2), ratio=(0.3, 3.3))],#,
+                [v2.AutoAugment()]
             ]
 
                 
@@ -555,7 +572,7 @@ class DataProcessor:
             except:
                 ic("error in col")
                 tot_dfs[col]=0
-        tot_dfs.to_csv(f"ranks_{self.metadata['codename']}.csv")
+        tot_dfs.to_csv(f"/home/woody/iwb3/iwb3021h/THESIS_RESULTS/ranks_{self.metadata['codename']}_seed.csv")
         
 
         #orig_dfs=tot_dfs[tot_dfs.aug==0].rename(columns={"fisher":"fisher_0"})

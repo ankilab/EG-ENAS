@@ -103,14 +103,21 @@ def find_measures(net_orig,                  # neural network
             sum += torch.sum(arr[i])
         return sum.item()
 
+    def std_arr(arr):
+        # Concatenate the list of tensors into a single tensor along a new dimension
+        concatenated = torch.cat([tensor.flatten() for tensor in arr])
+        # Compute the standard deviation
+        return torch.std(concatenated, unbiased=True).item()
     if measures_arr is None:
         measures_arr = find_measures_arrays(net_orig, dataloader, dataload_info, device, loss_fn=loss_fn, measure_names=measure_names)
+ 
 
     measures = {}
     for k,v in measures_arr.items():
-        if k=='jacob_cov':
+        if k=='jacob_cov' or k == 'epe_nas' or k=='nwot' or k=='zen':
             measures[k] = v
         else:
             measures[k] = sum_arr(v)
+            #measures[k] = std_arr(v)
 
     return measures

@@ -13,18 +13,23 @@ endif
 ifndef pretrained_pool_path
   $(error "pretrained pool path is undefined")
 endif
+ifdef only_processor
+    ONLY_PROCESSOR_FLAG=--only_processor
+else
+    ONLY_PROCESSOR_FLAG=
+endif
 
 build:
 	rm -Rf $(save_folder)/package
 	mkdir $(save_folder)/package
 	mkdir $(save_folder)/package/predictions
 	mkdir $(save_folder)/package/datasets
-	rsync -ar --exclude='**/test_y.npy' datasets/* $(save_folder)/package/datasets/
+	rsync -ar --exclude='**/test_y.npy' /home/woody/iwb3/iwb3021h/datasets/* $(save_folder)/package/datasets/
 	cp -R evaluation/main.py $(save_folder)/package/main.py
 	cp -R $(submission)/* $(save_folder)/package
 
 run:
-	cd $(save_folder)/package; python3 main.py --mode $(mode) --select_augment $(augment) --seed $(seed) --pretrained_pool_path $(pretrained_pool_path) 
+	cd $(save_folder)/package; python3 main.py --mode $(mode) --select_augment $(augment) --seed $(seed) --pretrained_pool_path $(pretrained_pool_path) $(ONLY_PROCESSOR_FLAG)
 
 score:
 	rm -Rf $(save_folder)/scoring
