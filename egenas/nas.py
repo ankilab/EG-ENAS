@@ -63,7 +63,7 @@ class NAS:
             random_seed="random"
 
         epochs=10 if mode=="T7" else 5
-        SAVE_PATH=f"/home/woody/iwb3/iwb3021h/THESIS_RESULTS/{mode}_{select_augment}/seed_{random_seed}"
+        SAVE_PATH=f"{mode}_{select_augment}/seed_{random_seed}"
         #SAVE_PATH=f"results/THESIS_RESULTS/T1"
         if "+" in mode:
             ic("Extended + Regnet mode")
@@ -228,16 +228,7 @@ class NAS:
             best_models,best_croms=self.regnet_space.create_first_generation(save_folder=None,gen=None, size=1, config_updates=None, metadata=self.metadata, samples=self.initial_population_size)
             ic(best_models.keys())
             ic(self.initial_population_size)
-            #self.best_model={
-            #    "model_path": f"{self.test_folder}/Generation_{self.current_gen}/{new_name}/student_best",
-            #    "name": new_name,
-            #    "gen":self.current_gen
-            #}
-            #weights_file=self.best_model["model_path"]
-            #ind_path = weights_file.rfind('/')
-            #config_file = weights_file[:ind_path]
-            #best_model,info=self.regnet_space.load_model(config_file=f"{config_file}/config.yaml",
-            #                                weights_file=weights_file)
+
             self.metadata["train_config_path"]=f"{self.SUBMISSION_PATH}configs/train/finetuning_generation_adam.yaml"
             return best_models[list(best_models.keys())[0]]
         else:  

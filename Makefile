@@ -24,7 +24,7 @@ build:
 	mkdir $(save_folder)/package
 	mkdir $(save_folder)/package/predictions
 	mkdir $(save_folder)/package/datasets
-	rsync -ar --exclude='**/test_y.npy' /home/woody/iwb3/iwb3021h/datasets/* $(save_folder)/package/datasets/
+	rsync -ar --exclude='**/test_y.npy' datasets/* $(save_folder)/package/datasets/
 	cp -R evaluation/main.py $(save_folder)/package/main.py
 	cp -R $(submission)/* $(save_folder)/package
 

@@ -28,7 +28,6 @@ def load_dataset_metadata(dataset_path):
 
 # load dataset from file
 def load_datasets(data_path, truncate):
-    #data_path = 'data_path/home/woody/iwb3/iwb3021h/datasets' +data_path
     data_path = 'datasets/'+data_path
     train_x = np.load(os.path.join(data_path,'train_x.npy'))
     train_y = np.load(os.path.join(data_path,'train_y.npy'))
@@ -140,7 +139,8 @@ if __name__ == '__main__':
             print("\n=== Processing Data ===")
             print("  Allotted compute time remaining: ~{}".format(show_time(runclock.check())))
             #metadata["select_augment"]=True
-            data_processor = DataProcessor(train_x, train_y, valid_x, valid_y, test_x, metadata, args.select_augment)
+            
+            data_processor = DataProcessor(train_x, train_y, valid_x, valid_y, test_x, metadata, args.select_augment, args.seed)
             train_loader, valid_loader, test_loader = data_processor.process()
             
             if not args.only_processor:

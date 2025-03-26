@@ -141,8 +141,19 @@ class DataProcessor:
     You can modify or add anything into the metadata that you wish, if you want to pass messages between your classes
 
     """
-    
-    def __init__(self, train_x, train_y, valid_x, valid_y, test_x, metadata, select_augment, test_y=None):
+    def __init__(self, train_x, train_y, valid_x, valid_y, test_x, metadata, select_augment,seed, test_y=None):
+        if (seed is not None) and (seed!="None"):
+            random_seed = int(seed)
+            random.seed(random_seed)
+            # Set seed for NumPy
+            np.random.seed(random_seed)
+            # Set seed for PyTorch
+            torch.manual_seed(random_seed)
+            torch.cuda.manual_seed_all(random_seed)
+            # Additional steps if using CuDNN (optional, for GPU acceleration)
+            torch.backends.cudnn.deterministic = True
+            torch.backends.cudnn.benchmark = False
+            self.seed=seed
         self.train_x = train_x
         self.train_y = train_y
         self.valid_x = valid_x
@@ -153,7 +164,6 @@ class DataProcessor:
         self.results_path=""
         self.metadata['train_config_path']=f"{self.results_path}configs/train/augmentations_adam.yaml"
         self.select_augment=select_augment
-        #self.metadata['train_config_path']=f"configs/train/augmentations_adam.yaml"
         self.SAVE_PATH=f"{self.results_path}/tests/results/full_training_evonas"
         self.multiprocessing=False
         if self.multiprocessing:
@@ -196,19 +206,6 @@ class DataProcessor:
             unique_values=np.unique(self.train_x)
             train_transform = [v2.AutoAugment()] if C in [1,3] else [v2.RandomErasing(p=0.2, scale=(0.02, 0.2), ratio=(0.3, 3.3)),v2.RandomCrop((H,W), padding=(PH,PW)),v2.RandomHorizontalFlip()]
 
-        #dict_transforms={"Chester":[v2.RandomErasing(p=0.2, scale=(0.02, 0.2), ratio=(0.3, 3.3)),
-        #                                v2.RandomCrop((H,W), padding=(PH,PW)),v2.RandomHorizontalFlip()],
-        #                    "Gutenberg":[RandomPixelChange(0.05), v2.ToTensor()] ,
-        #                    "LaMelo": [RandomPixelChange(0.05), v2.ToTensor()],
-        #                    "Mateo": [ v2.RandomCrop((H,W), padding=(PH,PW)),v2.RandomHorizontalFlip()],
-        #                    "Adaline": [ v2.RandomCrop((H,W), padding=(PH,PW)),v2.RandomHorizontalFlip()],
-        #                    "Caitie": [ v2.RandomCrop((H,W), padding=(PH,PW)),v2.RandomHorizontalFlip()],
-        #                    "Sadie": [v2.RandomHorizontalFlip(), v2.RandomVerticalFlip()],
-        #                    "Sokoto": [v2.RandomHorizontalFlip(),v2.RandomVerticalFlip()],
-        #                    "CIFAR10": [],
-        #                     "CIFAR100":[],
-        #                     "in16":[]
-        #                    } # 5
         ic(f"selected transform {train_transform}")
         
         
@@ -266,21 +263,6 @@ class DataProcessor:
             train_acc, val_acc, epoch_time=trainer.train(return_acc=True)        
 
 
-            # submit predictions to file
-            #test_ds = Dataset(self.test_x, self.test_y, train=False, transform=train_ds.transform_normalization)
-            #test_loader = torch.utils.data.DataLoader(test_ds,
-            #                                      batch_size=batch_size,
-            #                                      shuffle=False,
-            #                                      drop_last=False)
-            #predictions = trainer.predict(test_loader)   
-            #dict_datasets={"Gutenberg":"Gutenberg","Adaline":"AddNIST","LaMelo":"Language","Chester":"Chesseract", "Sokoto":"Sudoku", "Sadie":"GeoClassing","Caitie":"CIFARTile","Mateo":"MultNIST"}
-            #data_path = f"/home/hpc/iwb3/iwb3021h/NAS_CHALLENGE/NAS_Challenge_AutoML_2024/datasets/{dict_datasets[self.metadata['codename']]}"
-            #labels = np.load(os.path.join(data_path, 'test_y.npy'))
-            #from sklearn.metrics import accuracy_score
-            #raw_score = 100*accuracy_score(labels, predictions)
-            #pd.DataFrame([raw_score], columns=["test_acc"]).to_csv(f"augmentations_test/{self.metadata['codename']}/aug_{idx}/test_acc.csv")
-
-
 
             print(train_acc.cpu().numpy())
             print(val_acc.cpu().numpy())
@@ -304,7 +286,7 @@ class DataProcessor:
         augmentation_combinations = [
 
                 [],
-                [v2.RandAugment(magnitude=9)],
+                [v2.RandAugment(magnitude=9) if C in [1, 3] else RandAugmentMultiChannel()],
                 [v2.RandAugment(magnitude=5)],
                 [v2.RandAugment(magnitude=1)],
                 [v2.TrivialAugmentWide(num_magnitude_bins=31)],
@@ -334,26 +316,6 @@ class DataProcessor:
 
         results = {}
         results_val_acc={}
-
-        regnet_space=RegNet(self.metadata,
-                    W0=[16, 120, 8],
-                    WA=[16, 64, 8],
-                    WM=[2.05,2.9,0.05],
-                    D=[8,22,1], 
-                    G=[8,8,8], 
-                    base_config=f"{self.results_path}configs/search_space/config.yaml") 
-        #models, chromosomes= regnet_space.create_random_generation(save_folder=None,gen=None, size=1, config_updates=None)
-        #individual=list(chromosomes.keys())[0]
-        #individual="xanthic_ara"
-        #ic(individual)
-        #params_dict={}
-        #params=[float(chromosomes[individual]["WA"]),int(chromosomes[individual]["W0"]),float(chromosomes[individual]["WM"]),int(chromosomes[individual]["DEPTH"]), int(chromosomes[individual]["GROUP_W"])]
-        #params=[16.0, int(88), 2.05, int(22), int(8)]
-        #params_dict[individual]=params
-        #del models
-        #del chromosomes
-        #gc.collect()
-
 
         if not self.multiprocessing:
             for idx, transform in enumerate(augmentation_combinations):
@@ -416,8 +378,7 @@ class DataProcessor:
                     print(results_val_acc)
 
         # save the results to a file
-        #with open(f"augmentations_test/{self.metadata['codename']}/augmentation_results.json", 'w') as f:
-        with open(f"/home/woody/iwb3/iwb3021h/THESIS_RESULTS/augmentation_results_{self.metadata['codename']}.json", 'w') as f:
+        with open(f"augmentations_test/{self.metadata['codename']}_results_seed{self.seed}.json", 'w') as f:
             json.dump(results, f)
 
         
@@ -521,123 +482,94 @@ class DataProcessor:
             #if "RandAugment"
             train_loader_iter = iter(train_loader)
             # Number of batches to extract
-            num_batches =5
-
-            # Initialize lists to hold the inputs and targets from the first 5 batches
-            #for batch in range(num_batches):
-            inputs_list = []
-            targets_list = []
-            try:
-                for _ in range(num_batches):
+            num_batches =1
+            tot_df_batches=[]
+            for batch in range(num_batches):
+                # Initialize lists to hold the inputs and targets from the first 5 batches
+                #for batch in range(num_batches):
+                inputs_list = []
+                targets_list = []
+                try:
+                    #for _ in range(num_batches):
                     inputs, targets = next(train_loader_iter)  # Get the next batch
                     inputs_list.append(inputs)
                     targets_list.append(targets)
-            except:
-                continue
-            # Concatenate the inputs and targets across the batches
-            inputs = torch.cat(inputs_list)
-            targets = torch.cat(targets_list)
+                except:
+                    continue
+                # Concatenate the inputs and targets across the batches
+                inputs = torch.cat(inputs_list)
+                targets = torch.cat(targets_list)
 
-            # Create a new TensorDataset from the selected data
-            new_dataset = TensorDataset(inputs, targets)
+                # Create a new TensorDataset from the selected data
+                new_dataset = TensorDataset(inputs, targets)
 
-            # Create a new DataLoader from this new dataset
-            new_valid_loader = DataLoader(new_dataset, batch_size=train_loader.batch_size, shuffle=False)
-            #train_loader.batch_size
+                # Create a new DataLoader from this new dataset
+                new_valid_loader = DataLoader(new_dataset, batch_size=train_loader.batch_size, shuffle=False)
+                #train_loader.batch_size
 
-            syn_scores={}
-            measures=["fisher", "jacob_cov"]
+                syn_scores={}
+                #measures=["epe_nas","l2_norm","nwot","plain","snip","synflow","fisher", "jacob_cov", "grad_norm"]#"zen"
+                measures=["fisher", "jacob_cov"]#"zen"
 
-            for individual in individuals:
-                            #ind_config=f"{folder}/{dataset}/{individual}/config.yaml"
-                            #model_aux, _=rg.load_model(config_file=ind_config)
-                            model_aux, _=regnet_space.create_model(params=params_dict[individual],save_folder=None, name=individual, gen=None, config_updates=None)
-                            syn_scores[individual]=find_measures(model_aux.to("cuda"), new_valid_loader, ("random",len(new_valid_loader),self.metadata["num_classes"]), "cuda", F.cross_entropy, measures )
+                syn_scores["model"]=find_measures(self.model.to("cuda"), new_valid_loader, ("random",len(new_valid_loader),self.metadata["num_classes"]), "cuda", F.cross_entropy, measures )
+                #print(syn_scores["model"])
 
-                            #syn_scores[individual]["params"]=str(params_dict[individuals])
-                            del model_aux
-                            gc.collect
+                #try:
+                #    syn_scores["model"]["grasp"]=find_measures(self.model.to("cuda"), new_valid_loader, ("grasp",len(new_valid_loader),self.metadata["num_classes"]), "cuda", F.cross_entropy, ["grasp"] )["grasp"]
+                #except:
+                #    print("error with grasp")
+                #print(syn_scores["model"])
 
-        #########################################
-            tot_df=pd.DataFrame(syn_scores).T.reset_index().rename(columns={"index":"name"})
-            tot_df["aug"]=aug
-            #tot_df["batch"]=batch
-            tot_df["batch"]=0
-            tot_dfs.append(tot_df)
-        tot_dfs=pd.concat(tot_dfs)
+
+            #########################################
+                tot_df=pd.DataFrame(syn_scores).T.reset_index().rename(columns={"index":"name"})
+                tot_df["aug"]=aug
+                tot_df["batch"]=batch
+                #print(tot_df.head())
+                tot_df_batches.append(tot_df)
+            if len(tot_df_batches)!=0:
+                tot_df_batches=pd.concat(tot_df_batches).groupby("aug")[measures].mean()
+
+            if len(tot_df_batches)!=0:
+                tot_dfs.append(tot_df_batches)
+        df_rank=pd.concat(tot_dfs)
+
 
         for col in ["fisher","jacob_cov"]:
             try:
-                tot_dfs[col]=tot_dfs[col].astype(float)
+                df_rank[col]=df_rank[col].astype(float)
             except:
                 ic("error in col")
-                tot_dfs[col]=0
-        tot_dfs.to_csv(f"/home/woody/iwb3/iwb3021h/THESIS_RESULTS/ranks_{self.metadata['codename']}_seed.csv")
-        
+                df_rank[col]=0
+        df_rank.to_csv(f"augmentations_test/ranks_{self.metadata['codename']}_seed{self.seed}.csv")
 
-        #orig_dfs=tot_dfs[tot_dfs.aug==0].rename(columns={"fisher":"fisher_0"})
-        #tot_dfs=pd.merge(tot_dfs, orig_dfs[["name","fisher_0"]], on="name")
-        #tot_dfs["score"]=tot_dfs["fisher"]-tot_dfs["fisher_0"]
-        #tot_dfs["score_coef"]=tot_dfs["fisher_0"]/tot_dfs["fisher"]
+        #############################################################################################
+        df_final_rank_jacob_fisher=pd.DataFrame(df_rank.aug.unique(), columns=["aug"])
+        sum_ranks=True
+        measures=["fisher", "jacob_cov"]
+        for name in df_rank.name.unique()[:]:
+            df_rank_name=df_rank[df_rank.name==name]
+            scaler = MinMaxScaler()
+            df_rank_name[measures] = scaler.fit_transform(df_rank_name[measures])
+            #########################################################
+            for measure in measures:
+                df_rank_name[f'rank_{measure}'] = df_rank_name[f'{measure}'].rank(ascending=True, method='dense')
+            df_rank_name["fisher_jacob"]=df_rank_name[f'fisher']+df_rank_name[f'jacob_cov']
+            df_rank_name[f'rank_fisher_jacob'] = df_rank_name["fisher_jacob"].rank(ascending=True, method='dense')
 
-        #quantile_95 = tot_dfs['score_coef'].quantile(0.95)
-        #tot_dfs.loc[tot_dfs['score_coef'] > quantile_95, 'score_coef'] = 1
-        #tot_dfs["score_coef_norm"]=(tot_dfs["score_coef"]-1).abs()
+            if sum_ranks:
+                df_final_rank_jacob_fisher=pd.merge(df_final_rank_jacob_fisher, df_rank_name[["aug", "rank_fisher_jacob"]].rename(columns={"rank_fisher_jacob":f"rank_fisher_jacob_{name}"}), on="aug", how="left")
+            else:
+                df_final_rank_jacob_fisher=pd.merge(df_final_rank_jacob_fisher, df_rank_name[["aug", "fisher_jacob"]].rename(columns={"fisher_jacob":f"rank_fisher_jacob_{name}"}), on="aug", how="left")
 
-        #tot_ranks_df=[]
-        #metric="score_coef_norm"
-        #for name in tot_dfs.name.unique()[:]:
-        #    tot_ranks_df.append(tot_dfs[["name",metric,"aug"]][tot_dfs.name==name].set_index("aug")[metric].rank().astype(int))
-        #tot_ranks_df=pd.concat(tot_ranks_df)
-        
-        #best_aug=tot_ranks_df.reset_index().groupby("aug").sum().sort_values(by="fisher", ascending=True).head(1).index[0]
+        #########################################################################
+        df_final_rank_jacob_fisher=pd.DataFrame(df_final_rank_jacob_fisher.set_index("aug").mean(axis=1).rank(ascending=True, method='dense')).rename(columns={0:"jacob_fisher_rank"})
+        best_aug=int(df_final_rank_jacob_fisher[df_final_rank_jacob_fisher.jacob_fisher_rank==1.0].index[0])
 
-        rank_batches_fisher=[]
-        for individual in individuals:
-            for batch in range(tot_dfs.batch.max()+1):
-                subset_df = tot_dfs[(tot_dfs.name == individual) & (tot_dfs.batch == batch)].sort_values(by="aug").set_index("aug")
-                Q1 = subset_df["fisher"].quantile(0.1)
-                Q3 = subset_df["fisher"].quantile(0.9)
-                IQR = Q3 - Q1
-                lower_bound = Q1 - 1.5 * IQR
-                upper_bound = Q3 + 1.5 * IQR
-                subset_df_no_outliers = subset_df[(subset_df["fisher"] >= lower_bound) & (subset_df["fisher"] <= upper_bound)]
-                scaler = MinMaxScaler()
-                subset_df_no_outliers["fisher"] = scaler.fit_transform(subset_df_no_outliers[["fisher"]])
-                #subset_df["fisher"] = scaler.fit_transform(subset_df[["fisher"]])
-                rank_batches_fisher.append(subset_df_no_outliers["fisher"])    
-
-        rank_batches_fisher=pd.concat(rank_batches_fisher)
-        rank_batches_fisher=rank_batches_fisher.reset_index().groupby("aug").mean().sort_values(by="fisher")
-
-        rank_batches_jac=[]
-        for individual in individuals:
-            for batch in range(tot_dfs.batch.max()+1):
-                subset_df = tot_dfs[(tot_dfs.name == individual) & (tot_dfs.batch == batch)].sort_values(by="aug").set_index("aug")
-                Q1 = subset_df["jacob_cov"].quantile(0.1)
-                Q3 = subset_df["jacob_cov"].quantile(0.9)
-                IQR = Q3 - Q1
-                lower_bound = Q1 - 1.5 * IQR
-                upper_bound = Q3 + 1.5 * IQR
-                subset_df_no_outliers = subset_df[(subset_df["jacob_cov"] >= lower_bound) & (subset_df["jacob_cov"] <= upper_bound)]
-                scaler = MinMaxScaler()
-                subset_df_no_outliers["jacob_cov"] = scaler.fit_transform(subset_df_no_outliers[["jacob_cov"]])
-                rank_batches_jac.append(subset_df_no_outliers["jacob_cov"])      
-
-        rank_batches_jac=pd.concat(rank_batches_jac)
-        rank_batches_jac=rank_batches_jac.reset_index().groupby("aug").mean().sort_values(by="jacob_cov")
-
-        rank_batches=pd.concat([rank_batches_fisher,rank_batches_jac], axis=1)
-        rank_batches["total_rank"]=rank_batches["fisher"]+rank_batches["jacob_cov"]
-
-        rank_batches.sort_values(by="total_rank").to_csv(f"total_rank_{self.metadata['codename']}")
-        #best_aug=tot_dfs[["aug",metric]].groupby("aug").sum().sort_values(metric, ascending=False).head(1).index[0]
-        best_aug=rank_batches.sort_values(by="total_rank").head(1).index[0]
 
         if best_aug==0:
             ic("best aug is 0. Taking next best")
-            #best_aug=tot_ranks_df.reset_index().groupby("aug").sum().sort_values(by="fisher", ascending=True).head(2).index[1]
-            #best_aug=tot_dfs[["aug",metric]].groupby("aug").sum().sort_values(metric, ascending=False).head(2).index[1]
-            best_aug=rank_batches.sort_values(by="total_rank").head(2).index[1]
+            best_aug=int(df_final_rank_jacob_fisher[df_final_rank_jacob_fisher.jacob_fisher_rank==2.0].index[0])
+
         ic(f"best_augmentation: {best_aug}")
         return poss_augs[best_aug]

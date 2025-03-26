@@ -1,7 +1,7 @@
 # choose correct CUDA version for your system. The example submission was evaluated on CUDA 11.3:
 -f https://download.pytorch.org/whl/cu113/torch_stable.html
-torch==2.4.1
-torchvision==0.19.0
+torch==2.6.0
+torchvision==0.21.0
 
 # for CUDA 10.2, uncomment the following:
 # torch
@@ -12,7 +12,7 @@ torchvision==0.19.0
 #torch==2.3.1+cpu
 #torchvision==0.18.1+cpu
 
-numpy==2.2.3
+numpy==2.0.0
 IPython==8.34.0
 icecream==2.1.4
 yacs==0.1.8
