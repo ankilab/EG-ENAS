@@ -513,7 +513,16 @@ class DataProcessor:
                             #ind_config=f"{folder}/{dataset}/{individual}/config.yaml"
                             #model_aux, _=rg.load_model(config_file=ind_config)
                             model_aux, _=regnet_space.create_model(params=params_dict[individual],save_folder=None, name=individual, gen=None, config_updates=None)
-                            syn_scores[individual]=find_measures(model_aux.to("cuda"), new_valid_loader, ("random",len(new_valid_loader),self.metadata["num_classes"]), "cuda", F.cross_entropy, measures )
+                            #syn_scores[individual]=find_measures(model_aux.to("cuda"), new_valid_loader, ("random",len(new_valid_loader),self.metadata["num_classes"]), "cuda", F.cross_entropy, measures )
+
+                            device = "cuda" if torch.cuda.is_available() else "cpu"
+                            model_aux.to(device)
+
+                            syn_scores[individual] = find_measures(
+                                model_aux, new_valid_loader, 
+                                ("random", len(new_valid_loader), self.metadata["num_classes"]), 
+                                device, F.cross_entropy, measures
+                            )
 
                             #syn_scores[individual]["params"]=str(params_dict[individuals])
                             del model_aux
