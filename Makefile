@@ -21,6 +21,7 @@ endif
 
 build:
 	rm -Rf $(save_folder)/package
+	mkdir -p $(save_folder)
 	mkdir $(save_folder)/package
 	mkdir $(save_folder)/package/predictions
 	mkdir $(save_folder)/package/datasets

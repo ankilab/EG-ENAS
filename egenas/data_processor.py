@@ -483,55 +483,49 @@ class DataProcessor:
             train_loader_iter = iter(train_loader)
             # Number of batches to extract
             num_batches =1
-            tot_df_batches=[]
-            for batch in range(num_batches):
-                # Initialize lists to hold the inputs and targets from the first 5 batches
-                #for batch in range(num_batches):
-                inputs_list = []
-                targets_list = []
-                try:
-                    #for _ in range(num_batches):
+
+            # Initialize lists to hold the inputs and targets from the first 5 batches
+            #for batch in range(num_batches):
+            inputs_list = []
+            targets_list = []
+            try:
+                for _ in range(num_batches):
                     inputs, targets = next(train_loader_iter)  # Get the next batch
                     inputs_list.append(inputs)
                     targets_list.append(targets)
-                except:
-                    continue
-                # Concatenate the inputs and targets across the batches
-                inputs = torch.cat(inputs_list)
-                targets = torch.cat(targets_list)
+            except:
+                continue
+            # Concatenate the inputs and targets across the batches
+            inputs = torch.cat(inputs_list)
+            targets = torch.cat(targets_list)
 
-                # Create a new TensorDataset from the selected data
-                new_dataset = TensorDataset(inputs, targets)
+            # Create a new TensorDataset from the selected data
+            new_dataset = TensorDataset(inputs, targets)
 
-                # Create a new DataLoader from this new dataset
-                new_valid_loader = DataLoader(new_dataset, batch_size=train_loader.batch_size, shuffle=False)
-                #train_loader.batch_size
+            # Create a new DataLoader from this new dataset
+            new_valid_loader = DataLoader(new_dataset, batch_size=train_loader.batch_size, shuffle=False)
+            #train_loader.batch_size
 
-                syn_scores={}
-                #measures=["epe_nas","l2_norm","nwot","plain","snip","synflow","fisher", "jacob_cov", "grad_norm"]#"zen"
-                measures=["fisher", "jacob_cov"]#"zen"
+            syn_scores={}
+            measures=["fisher", "jacob_cov"]
 
-                syn_scores["model"]=find_measures(self.model.to("cuda"), new_valid_loader, ("random",len(new_valid_loader),self.metadata["num_classes"]), "cuda", F.cross_entropy, measures )
-                #print(syn_scores["model"])
+            for individual in individuals:
+                            #ind_config=f"{folder}/{dataset}/{individual}/config.yaml"
+                            #model_aux, _=rg.load_model(config_file=ind_config)
+                            model_aux, _=regnet_space.create_model(params=params_dict[individual],save_folder=None, name=individual, gen=None, config_updates=None)
+                            syn_scores[individual]=find_measures(model_aux.to("cuda"), new_valid_loader, ("random",len(new_valid_loader),self.metadata["num_classes"]), "cuda", F.cross_entropy, measures )
 
-                #try:
-                #    syn_scores["model"]["grasp"]=find_measures(self.model.to("cuda"), new_valid_loader, ("grasp",len(new_valid_loader),self.metadata["num_classes"]), "cuda", F.cross_entropy, ["grasp"] )["grasp"]
-                #except:
-                #    print("error with grasp")
-                #print(syn_scores["model"])
+                            #syn_scores[individual]["params"]=str(params_dict[individuals])
+                            del model_aux
+                            gc.collect
 
-
-            #########################################
-                tot_df=pd.DataFrame(syn_scores).T.reset_index().rename(columns={"index":"name"})
-                tot_df["aug"]=aug
-                tot_df["batch"]=batch
-                #print(tot_df.head())
-                tot_df_batches.append(tot_df)
-            if len(tot_df_batches)!=0:
-                tot_df_batches=pd.concat(tot_df_batches).groupby("aug")[measures].mean()
-
-            if len(tot_df_batches)!=0:
-                tot_dfs.append(tot_df_batches)
+        #########################################
+            tot_df=pd.DataFrame(syn_scores).T.reset_index().rename(columns={"index":"name"})
+            tot_df["aug"]=aug
+            #tot_df["batch"]=batch
+            tot_df["batch"]=0
+            tot_dfs.append(tot_df)
+        #tot_dfs=pd.concat(tot_dfs)
         df_rank=pd.concat(tot_dfs)
 
 
