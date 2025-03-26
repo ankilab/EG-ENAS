@@ -1,18 +1,18 @@
 # EG-ENAS
 
-This is the repository of EG-ENAS, an efficient and generalizable NAS framework for image classification based on evolutionary computation, which uses a small version of the RegNet search space and reuses available prior knowledge across tasks and  proxies to reduce redundant computations. It aligns with the constraints set by the [NAS Unseen Data Challenge](https://github.com/Towers-D/NAS-Unseen-Datasets), then the main code structure and pipeline (Preprocessing-NAS-Trainer) are based on the code from this competition ([Link](https://github.com/Towers-D/NAS-Comp-Starter-Kit)), following a consistent framework that is easy for other researchers and users to adopt. our low-cost (T0) and full EG-ENAS (T6) configurations achieve robust performance across 11 different datasets, with competitive results in under 24 hours on the seven validation datasets used for the NAS Unseen Data Challenge 2023. In Figure 1 we show the aggregated relative score for datasets Language, Gutenberg, CIFARTile, AddNIST, MultNIST, GeoClassing and Chesseract [1].
+This is the repository of EG-ENAS, an efficient and generalizable Neural Architecture Search (NAS) framework for Image Classification based on evolutionary computation, which reuses available pretrained weights and uses proxies to reduce redundant computations, which uses a small version of the RegNet search space and reuses available prior knowledge across tasks and  proxies to reduce redundant computations. It aligns with the constraints set by the [NAS Unseen Data Challenge](https://github.com/Towers-D/NAS-Unseen-Datasets). The main code structure and pipeline (Preprocessing-NAS-Trainer) are based on the code from this competition ([Link](https://github.com/Towers-D/NAS-Comp-Starter-Kit)), following a consistent framework that is easy for other researchers and users to adopt. Experimental results show that our low-cost (T0) and full EG-ENAS (T6) configurations consistently achieve robust performance across eleven datasets, outperforming Random Search (T1) and simple Evolutionary NAS (T2) with competitive results in under 24 hours on seven validation datasets, reaching state-of-the-art accuracy on one and surpassing the 2023 Unseen NAS Challenge top score on four.
 
 ![Figure 1: Model Architecture](images/relative_scores_b.png)
 
-*Figure 1: Total Relative score versus time in hours for each study on \textbf{(left)} seven validation datasets and \textbf{(right)} four test datasets*
+*Figure 1: Total Relative score versus time in hours for each study on seven validation datasets and four test datasets*
 
 ## Installation
 Follow these steps to set up the project in a virtual environment:
 
 1. **Clone the repository**:
    ```bash
-   git clone https://github.com/ankilab/NAS_Challenge_AutoML_2024.git
-   cd NAS_Challenge_AutoML_2024
+   git clone https://github.com/ankilab/EG-ENAS.git
+   cd EG-ENAS
    ```
 
 2. **Create a virtual environment** (optional but recommended):
@@ -93,14 +93,14 @@ Methods tested to select which method to use to select the most suitable transfo
 
 
 ## Configuration
-The base script for running experiments is located in the `scripts` folder and named `egenas_job_full_main.sh`. `egenas_job_full_main_a100.sh` was used for running our tests on Erlangen National High Performance Computing Center ([NHR@FAU](https://hpc.fau.de/)). To execute this script, you need to specify the following arguments:
+The base script for running experiments is located in the `scripts` folder and named `egenas_job_full_main.sh`. To execute this script, you need to specify the following arguments:
 
 - **`save_folder`**: Path to the folder where trained models and results will be saved.
 - **`mode`**: Specifies the EG-ENAS mode, ranging from `T0` to `T7`.
 - **`augment`**: Augmentation selection method to use (e.g., AA, P, B, etc.).
 - **`seed`**: Seed value (an integer or `None` if not used).
 - **`pretrained_pool_path`**: Folder with pretrained RegNet models (str).
-
+- **`only_processor`**: If just using data processing module for selecting the best augmentation (bool).
 
 ```bash
 source <repo_folder>/.testvenv/bin/activate
@@ -115,13 +115,13 @@ make -f Makefile save_folder=<save_folder> \
 deactivate
 ```
 
-Replace `<repo_folder>`, `<save_folder>`, `<mode>`, `<augment>`, `<seed>` and `<pretrained_pool_path>` with your actual values.
+Replace `<repo_folder>`, `<save_folder>`, `<mode>`, `<augment>`, `<seed>` and `<pretrained_pool_path>` with your actual values. Add `only_processor=1` over "all" in case you just want to use the data processing module. 
 
-## Contact
+<!-- ## Contact
 
  If you have any questions or need access to the ranking regressor models for the initial generation's population, as well as the pre-trained pool for initializing model weights, please feel free to reach out.
 
-📧 [mateo.avila@fau.de](mailto:mateo.avila@fau.de)
+📧 [mateo.avila@fau.de](mailto:mateo.avila@fau.de) -->
 
 ## References
 
