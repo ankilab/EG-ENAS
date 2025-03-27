@@ -4,7 +4,6 @@ Neural Architecture Search (NAS) has become a powerful method for automating the
 It aligns with the constraints set by the [NAS Unseen Data Challenge](https://github.com/Towers-D/NAS-Unseen-Datasets). The main code structure and pipeline (Preprocessing-NAS-Trainer) are based on the code from this competition ([Link](https://github.com/Towers-D/NAS-Comp-Starter-Kit)), following a consistent framework that is easy for other researchers and users to adopt. Experimental results show that our low-cost (T0) and full EG-ENAS (T6) configurations consistently achieve robust performance across eleven datasets, outperforming Random Search (T1) and simple Evolutionary NAS (T2) with competitive results in under a 24-hour time budget on seven validation datasets. We achieve state-of-the-art accuracy on one and surpass the 2023 Unseen NAS Challenge top scores on four datasets.
 
 ![Figure 1: Model Architecture](images/2_evonas_pipeline_opt.png)
-
 *Figure 1: EG-ENAS Overview*
 
 ## Installation
@@ -48,9 +47,10 @@ Now, your environment is set up, and you are ready to run the project.
 ## Usage 
 
 ### 1. Datasets
-To use our NAS framework, add image classification datasets to be tested in the folder **datasets**. As a default example, we include the [Sokoto dataset](https://data.ncl.ac.uk/articles/dataset/Sudoku_Dataset/26976121/1) [3], which is small, novel, and was used in the NAS Unseen Data Challenge 2024.
+To use our NAS framework, add image classification datasets to be tested in the folder **datasets**. As a default example, we include the [Sokoto dataset](https://data.ncl.ac.uk/articles/dataset/Sudoku_Dataset/26976121/1) [3], which is small, novel, and was used in the NAS Unseen Data Challenge 2024. The image below shos the datasets we tested with our EG-ENAS. In **Configuration and Reproducibility** we provide the links for download them.
 
 ![Figure 2: Datasets](images/datasets_finish.png)
+*Figure 2: Datasets tested in our pipeline*
 
 #### Datasets Structure
 Each dataset should have its own subfolder within **datasets** containing the following files. For reference, see examples in the [NAS Unseen Data Challenge](https://github.com/Towers-D/NAS-Unseen-Datasets):
@@ -93,8 +93,8 @@ We did ablation tests to check the effect of each component in our EG-ENAS. The 
 
 The components of these modes are illustrated in the figure below:
 
-![Figure 2: EG-ENAS modes and Augmentation selection strategies](images/8_train_modes.png)
-*Figure 2: EG-ENAS test modes and augmentation selection strategies*
+![Figure 3: EG-ENAS modes and Augmentation selection strategies](images/8_train_modes.png)
+*Figure 3: EG-ENAS test modes and augmentation selection strategies*
 
 ### 4. Pretrained stages pool
 For modes T4, T6, and T7, we use a weight transfer strategy for our RegNet search space from a pretrained pool of weights. This helps to boost the population training process. However, the pretrained pool weighs 54GB and can be downloaded here. The files and folders inside it must be placed in the *pretrained_pool* folder. The current file *pretrained_pool/df_blocks_pool.csv* contains only the information and metadata of the model weights and their locations but not the weights themselves.
@@ -125,7 +125,7 @@ chmod +x scripts/T0_P.sh
 ### 3. Understanding the Results  
 - The test will copy the necessary functions and run in the **EGENAS_RESULTS** folder inside `EG-ENAS`.  
 - Results will be displayed inline and saved in **EGENAS_RESULTS/evaluation**.  
-- The best-selected augmentation method will be saved in .  
+- The best-selected augmentation method will be saved in **EGENAS_RESULTS/augmentation_tests**.  
 
 Inside the script, you can modify the random seed (default: `1`).  
 
@@ -153,7 +153,7 @@ deactivate
 
 Replace `<repo_folder>`, `<save_folder>`, `<mode>`, `<augment>`, and `<seed>` with the appropriate values.  
 
----**EGENAS_RESULTS/augmentation_tests**
+
 
 ## Running Only Augmentation Selection  
 
@@ -166,8 +166,6 @@ If you only want to run the **data processing module** to evaluate the best augm
 This will return the estimated ranking of augmentation methods in the **EGENAS_RESULTS/augmentation_tests**.  
 
 ## Results
-**Table 1: Test Accuracy and Relative Scores for Validation Datasets**  
-The first section summarizes eight of our studies (mean of three seeds), the second lists various CNN models, and the third compares NAS methods with the top scores from the NAS Unseen Data Challenge 2023[1]. Note that computation times for these scores are unavailable, limiting fair efficiency comparisons.
 
 | Method            | Mean total time (↓) (seconds) | LaMelo | Gutenberg | Adaline | Chester | Sadie  | Mateo  | Caitie | Relative Score (↑) |
 |------------------|-----------------------------|--------|-----------|---------|---------|--------|--------|--------|------------------|
@@ -188,6 +186,9 @@ The first section summarizes eight of our studies (mean of three seeds), the sec
 | **PC-DARTS**    | -                           | 90.12  | 49.12     | 96.6    | 57.20   | 94.61  | 96.68  | **92.28** | 33.37         |
 | **DrNAS**       | -                           | 88.55  | 46.62     | 97.06   | 58.24   | 96.03  | **98.1** | 81.08  | 32.75            |
 | **Random DARTS**| -                           | 90.12  | 47.72     | 97.07   | 59.16   | 95.54  | 96.55  | 90.74  | 34.10            |
+
+*Table 1: Test Accuracy and Relative Scores for Validation Datasets*  
+The first section summarizes eight of our studies (mean of three seeds), the second lists various CNN models, and the third compares NAS methods with the top scores from the NAS Unseen Data Challenge 2023[1]. Note that computation times for these scores are unavailable, limiting fair efficiency comparisons.
 
 
 ## References
