@@ -23,7 +23,7 @@ build:
 	rm -Rf $(save_folder)/package
 	mkdir -p $(save_folder)
 	mkdir $(save_folder)/package
-	mkdir $(save_folder)/augmentations_test
+	mkdir -p $(save_folder)/augmentations_test
 	mkdir $(save_folder)/package/predictions
 	mkdir $(save_folder)/package/datasets
 	rsync -ar --exclude='**/test_y.npy' datasets/* $(save_folder)/package/datasets/
@@ -46,6 +46,7 @@ score:
 clean:
 	rm -Rf $(save_folder)/scoring
 	rm -Rf $(save_folder)/package
+
 
 zip:
 	cd $(submission);  zip -r ../submission.zip *

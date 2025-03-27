@@ -1,6 +1,12 @@
 #Low cost EG-ENAS
-source .venv/bin/activate
 # Basic: RandomErasing+ RandomCrop + HorizontalFlip
+
+if [ ! -d "datasets" ]; then
+    printf "❌ Datasets folder has not been created. Exiting...\n"
+    exit 1  # Stop the script
+fi
+
+source .venv/bin/activate
 make -f Makefile save_folder=EGENAS_RESULTS \
         submission=egenas \
         mode=T0+ \
