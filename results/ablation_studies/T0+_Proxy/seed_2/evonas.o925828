@@ -1,0 +1,1866 @@
+### Starting TaskPrologue of job 925828 on tg094 at Mon 04 Nov 2024 10:44:07 PM CET
+Running on cores 64-95 with governor ondemand
+Mon Nov  4 22:44:07 2024       
++-----------------------------------------------------------------------------------------+
+| NVIDIA-SMI 560.35.03              Driver Version: 560.35.03      CUDA Version: 12.6     |
+|-----------------------------------------+------------------------+----------------------+
+| GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |
+|                                         |                        |               MIG M. |
+|=========================================+========================+======================|
+|   0  NVIDIA A100-SXM4-40GB          On  |   00000000:81:00.0 Off |                    0 |
+| N/A   34C    P0             54W /  400W |       1MiB /  40960MiB |      0%      Default |
+|                                         |                        |             Disabled |
++-----------------------------------------+------------------------+----------------------+
+                                                                                         
++-----------------------------------------------------------------------------------------+
+| Processes:                                                                              |
+|  GPU   GI   CI        PID   Type   Process name                              GPU Memory |
+|        ID   ID                                                               Usage      |
+|=========================================================================================|
+|  No running processes found                                                             |
++-----------------------------------------------------------------------------------------+
+### Finished TaskPrologue
+
+Loading python/pytorch-1.13py3.10
+  Loading requirement: cuda/11.6.1
+rm -Rf /home/woody/iwb3/iwb3021h/THESIS_RESULTS/scoring1
+rm -Rf /home/woody/iwb3/iwb3021h/THESIS_RESULTS/package1
+rm -Rf /home/woody/iwb3/iwb3021h/THESIS_RESULTS/package1
+mkdir /home/woody/iwb3/iwb3021h/THESIS_RESULTS/package1
+mkdir /home/woody/iwb3/iwb3021h/THESIS_RESULTS/package1/predictions
+mkdir /home/woody/iwb3/iwb3021h/THESIS_RESULTS/package1/datasets
+rsync -ar --exclude='**/test_y.npy' datasets/* /home/woody/iwb3/iwb3021h/THESIS_RESULTS/package1/datasets/
+cp -R evaluation/main.py /home/woody/iwb3/iwb3021h/THESIS_RESULTS/package1/main.py
+cp -R anki_lab_submission/* /home/woody/iwb3/iwb3021h/THESIS_RESULTS/package1
+cd /home/woody/iwb3/iwb3021h/THESIS_RESULTS/package1; python3 main.py --mode T0+ --select_augment Proxy
+ic| self.select_augment: 'Proxy'
+ic| self.x.shape: torch.Size([148700, 3, 16, 16])
+ic| unique_values: array([0.02745098, 0.05098039, 0.05490196, 0.05882353, 0.0627451 ,
+                          0.07058824, 0.07450981, 0.07843138, 0.08627451, 0.09019608,
+                          0.09411765, 0.09803922, 0.10196079, 0.10980392, 0.11372549,
+                          0.11764706, 0.12156863, 0.1254902 , 0.12941177, 0.13333334,
+                          0.13725491, 0.14117648, 0.14509805, 0.14901961, 0.15294118,
+                          0.15686275, 0.16078432, 0.16470589, 0.16862746, 0.17254902,
+                          0.1764706 , 0.18039216, 0.18431373, 0.1882353 , 0.19215687,
+                          0.19607843, 0.2       , 0.20392157, 0.21176471, 0.21568628,
+                          0.21960784, 0.22352941, 0.22745098, 0.23137255, 0.23529412,
+                          0.23921569, 0.24313726, 0.24705882, 0.2509804 , 0.25490198,
+                          0.25882354, 0.2627451 , 0.26666668, 0.27058825, 0.27450982,
+                          0.2784314 , 0.2901961 , 0.29411766, 0.29803923, 0.3019608 ,
+                          0.3137255 , 0.31764707, 0.3254902 , 0.32941177, 0.33333334,
+                          0.3372549 , 0.34117648, 0.34509805, 0.34901962, 0.3529412 ,
+                          0.35686275, 0.36078432, 0.3647059 , 0.36862746, 0.37254903,
+                          0.3764706 , 0.38039216, 0.38431373, 0.3882353 , 0.39215687,
+                          0.39607844, 0.40392157, 0.40784314, 0.4117647 , 0.41568628,
+                          0.41960785, 0.42352942, 0.43137255, 0.43529412, 0.4392157 ,
+                          0.44313726, 0.44705883, 0.4509804 , 0.45490196, 0.45882353,
+                          0.4627451 , 0.46666667, 0.47058824, 0.4745098 , 0.48235294,
+                          0.4862745 , 0.49019608, 0.49411765, 0.49803922, 0.5019608 ,
+                          0.5058824 , 0.50980395, 0.5137255 , 0.5176471 , 0.52156866,
+                          0.5254902 , 0.5294118 , 0.53333336, 0.5372549 , 0.5411765 ,
+                          0.54509807, 0.54901963, 0.5529412 , 0.5568628 , 0.56078434,
+                          0.5647059 , 0.5686275 , 0.57254905, 0.5764706 , 0.5803922 ,
+                          0.58431375, 0.5882353 , 0.5921569 , 0.59607846, 0.6       ,
+                          0.6039216 , 0.60784316, 0.6117647 , 0.6156863 , 0.61960787,
+                          0.62352943, 0.627451  , 0.6313726 , 0.63529414, 0.6392157 ,
+                          0.6431373 , 0.64705884, 0.6509804 , 0.654902  , 0.65882355,
+                          0.6627451 , 0.6666667 , 0.67058825, 0.6745098 , 0.6784314 ,
+                          0.68235296, 0.6862745 , 0.6901961 , 0.69411767, 0.69803923,
+                          0.7019608 , 0.7058824 , 0.70980394, 0.7137255 , 0.7176471 ,
+                          0.72156864, 0.7254902 , 0.7294118 , 0.73333335, 0.7372549 ,
+                          0.7411765 , 0.74509805, 0.7490196 , 0.7529412 , 0.75686276,
+                          0.7607843 , 0.7647059 , 0.76862746, 0.77254903, 0.7764706 ,
+                          0.78039217, 0.78431374, 0.7882353 , 0.7921569 , 0.79607844,
+                          0.8       , 0.8039216 , 0.80784315, 0.8117647 , 0.8156863 ,
+                          0.8235294 , 0.83137256, 0.8352941 , 0.8392157 , 0.84313726,
+                          0.85882354, 0.8666667 , 0.87058824, 0.8745098 , 0.8784314 ,
+                          0.88235295, 0.8980392 , 0.90588236, 0.9098039 , 0.9137255 ,
+                          0.91764706, 0.92156863, 0.9254902 , 0.92941177, 0.93333334,
+                          0.9372549 , 0.9411765 , 0.94509804, 0.95686275, 0.9607843 ],
+                         dtype=float32)
+ic| C: 3
+ic| H: 16
+ic| PH: 2
+/home/hpc/iwb3/iwb3021h/NAS_CHALLENGE/NAS_Challenge_AutoML_2024/.testvenv/lib/python3.10/site-packages/torchvision/transforms/v2/_deprecated.py:42: UserWarning: The transform `ToTensor()` is deprecated and will be removed in a future release. Instead, please use `v2.Compose([v2.ToImage(), v2.ToDtype(torch.float32, scale=True)])`.Output is equivalent up to float precision.
+  warnings.warn(
+ic| poss_augs: [[],
+                [RandAugment(interpolation=InterpolationMode.NEAREST, num_ops=2, magnitude=9, num_magnitude_bins=31)],
+                [RandAugment(interpolation=InterpolationMode.NEAREST, num_ops=2, magnitude=5, num_magnitude_bins=31)],
+                [RandAugment(interpolation=InterpolationMode.NEAREST, num_ops=2, magnitude=1, num_magnitude_bins=31)],
+                [TrivialAugmentWide(interpolation=InterpolationMode.NEAREST, num_magnitude_bins=31)],
+                [TrivialAugmentWide(interpolation=InterpolationMode.NEAREST, num_magnitude_bins=15)],
+                [AugMix(interpolation=InterpolationMode.BILINEAR, severity=3, mixture_width=3, chain_depth=-1, alpha=1.0, all_ops=True)],
+                [AugMix(interpolation=InterpolationMode.BILINEAR, severity=1, mixture_width=3, chain_depth=-1, alpha=1.0, all_ops=True)],
+                [RandomHorizontalFlip(p=0.5), RandomVerticalFlip(p=0.5)],
+                [RandomErasing(p=0.2, scale=(0.05, 0.2), ratio=(0.3, 3.3), value=[0.0], inplace=False),
+                 RandomHorizontalFlip(p=0.5),
+                 RandomVerticalFlip(p=0.5)],
+                [RandomErasing(p=0.2, scale=(0.05, 0.2), ratio=(0.3, 3.3), value=[0.0], inplace=False)],
+                [RandomErasing(p=0.2, scale=(0.02, 0.2), ratio=(0.3, 3.3), value=[0.0], inplace=False),
+                 RandomCrop(size=(16, 16), padding=[2, 2, 2, 2], pad_if_needed=False, fill=0, padding_mode=constant)],
+                [RandomCrop(size=(16, 16), padding=[2, 2, 2, 2], pad_if_needed=False, fill=0, padding_mode=constant)],
+                [RandomCrop(size=(16, 16), padding=[2, 2, 2, 2], pad_if_needed=False, fill=0, padding_mode=constant),
+                 RandomHorizontalFlip(p=0.5),
+                 RandomVerticalFlip(p=0.5)],
+                [RandomErasing(p=0.2, scale=(0.02, 0.2), ratio=(0.3, 3.3), value=[0.0], inplace=False),
+                 RandomCrop(size=(16, 16), padding=[2, 2, 2, 2], pad_if_needed=False, fill=0, padding_mode=constant),
+                 RandomHorizontalFlip(p=0.5)],
+                [<data_processor.RandomPixelChange object at 0x7fe06fe774c0>, ToTensor()],
+                [<data_processor.RandomPixelChange object at 0x7fe06fe76500>, ToTensor()],
+                [<data_processor.RandomPixelChange object at 0x7fe06fe77580>, ToTensor()],
+                [<data_processor.RandomPixelChange object at 0x7fe06fe76530>,
+                 ToTensor(),
+                 RandomHorizontalFlip(p=0.5),
+                 RandomVerticalFlip(p=0.5)],
+                [<data_processor.RandomPixelChange object at 0x7fe06fe76b60>,
+                 ToTensor(),
+                 RandomErasing(p=0.2, scale=(0.05, 0.2), ratio=(0.3, 3.3), value=[0.0], inplace=False)],
+                [<data_processor.RandomPixelChange object at 0x7fe06fe76a70>,
+                 ToTensor(),
+                 RandomCrop(size=(16, 16), padding=[2, 2, 2, 2], pad_if_needed=False, fill=0, padding_mode=constant)],
+                [<data_processor.RandomPixelChange object at 0x7fe06fe76110>,
+                 ToTensor(),
+                 RandomHorizontalFlip(p=0.5),
+                 RandomVerticalFlip(p=0.5),
+                 RandomErasing(p=0.2, scale=(0.05, 0.2), ratio=(0.3, 3.3), value=[0.0], inplace=False)]]
+ic| individuals: ['spiked_bulldog',
+                  'solid_bat',
+                  'xanthic_squid',
+                  'outstanding_junglefowl',
+                  'icy_salamander',
+                  'pastoral_rooster',
+                  'hairy_goose',
+                  'papaya_worm',
+                  'manipulative_marmot',
+                  'pompous_kingfisher',
+                  'mottled_mantis',
+                  'eggplant_owl',
+                  'light_panther',
+                  'cerulean_python',
+                  'blond_lori',
+                  'sturdy_ladybug',
+                  'exuberant_gaur',
+                  'ruby_tarsier',
+                  'rose_swine',
+                  'tangible_pelican']
+ic| params: [16.0, 24, 2.599999999999998, 21, 8]
+ic| params: [32.0, 88, 2.3499999999999988, 17, 8]
+ic| params: [56.0, 120, 2.6999999999999975, 18, 8]
+ic| params: [48.0, 72, 2.849999999999997, 12, 8]
+ic| params: [32.0, 72, 2.549999999999998, 22, 8]
+ic| params: [48.0, 72, 2.899999999999997, 10, 8]
+ic| params: [24.0, 56, 2.299999999999999, 10, 8]
+ic| params: [56.0, 80, 2.299999999999999, 22, 8]
+ic| params: [56.0, 80, 2.599999999999998, 20, 8]
+ic| params: [64.0, 72, 2.299999999999999, 20, 8]
+ic| params: [56.0, 80, 2.3999999999999986, 15, 8]
+ic| params: [48.0, 80, 2.599999999999998, 18, 8]
+ic| params: [32.0, 88, 2.899999999999997, 19, 8]
+ic| params: [56.0, 88, 2.549999999999998, 21, 8]
+ic| params: [32.0, 48, 2.849999999999997, 16, 8]
+ic| params: [56.0, 64, 2.799999999999997, 16, 8]
+ic| params: [56.0, 56, 2.3499999999999988, 19, 8]
+ic| params: [56.0, 64, 2.4499999999999984, 17, 8]
+ic| params: [24.0, 120, 2.4499999999999984, 11, 8]
+ic| params: [40.0, 104, 2.0999999999999996, 8, 8]
+ic| individuals: ['spiked_bulldog',
+                  'solid_bat',
+                  'xanthic_squid',
+                  'outstanding_junglefowl',
+                  'icy_salamander',
+                  'pastoral_rooster',
+                  'hairy_goose',
+                  'papaya_worm',
+                  'manipulative_marmot',
+                  'pompous_kingfisher',
+                  'mottled_mantis',
+                  'eggplant_owl',
+                  'light_panther',
+                  'cerulean_python',
+                  'blond_lori',
+                  'sturdy_ladybug',
+                  'exuberant_gaur',
+                  'ruby_tarsier',
+                  'rose_swine',
+                  'tangible_pelican']
+ic| params_dict: {'blond_lori': [32.0, 48, 2.849999999999997, 16, 8],
+                  'cerulean_python': [56.0, 88, 2.549999999999998, 21, 8],
+                  'eggplant_owl': [48.0, 80, 2.599999999999998, 18, 8],
+                  'exuberant_gaur': [56.0, 56, 2.3499999999999988, 19, 8],
+                  'hairy_goose': [24.0, 56, 2.299999999999999, 10, 8],
+                  'icy_salamander': [32.0, 72, 2.549999999999998, 22, 8],
+                  'light_panther': [32.0, 88, 2.899999999999997, 19, 8],
+                  'manipulative_marmot': [56.0, 80, 2.599999999999998, 20, 8],
+                  'mottled_mantis': [56.0, 80, 2.3999999999999986, 15, 8],
+                  'outstanding_junglefowl': [48.0, 72, 2.849999999999997, 12, 8],
+                  'papaya_worm': [56.0, 80, 2.299999999999999, 22, 8],
+                  'pastoral_rooster': [48.0, 72, 2.899999999999997, 10, 8],
+                  'pompous_kingfisher': [64.0, 72, 2.299999999999999, 20, 8],
+                  'rose_swine': [24.0, 120, 2.4499999999999984, 11, 8],
+                  'ruby_tarsier': [56.0, 64, 2.4499999999999984, 17, 8],
+                  'solid_bat': [32.0, 88, 2.3499999999999988, 17, 8],
+                  'spiked_bulldog': [16.0, 24, 2.599999999999998, 21, 8],
+                  'sturdy_ladybug': [56.0, 64, 2.799999999999997, 16, 8],
+                  'tangible_pelican': [40.0, 104, 2.0999999999999996, 8, 8],
+                  'xanthic_squid': [56.0, 120, 2.6999999999999975, 18, 8]}
+ic| '#############'
+ic| aug: 0
+ic| train_loader.dataset.transform.transforms: [Normalize(mean=tensor([0.4712, 0.4543, 0.3944]), std=tensor([0.2319, 0.2252, 0.2321]))]
+/home/hpc/iwb3/iwb3021h/NAS_CHALLENGE/NAS_Challenge_AutoML_2024/.testvenv/lib/python3.10/site-packages/torch/nn/modules/module.py:1640: FutureWarning: Using a non-full backward hook when the forward contains multiple autograd Nodes is deprecated and will be removed in future versions. This hook will be missing some grad_input. Please use register_full_backward_hook to get the documented behavior.
+  self._maybe_warn_non_full_backward_hook(args, result, grad_fn)
+ic| '#############'
+ic| aug: 1
+ic| train_loader.dataset.transform.transforms: [RandAugment(interpolation=InterpolationMode.NEAREST, num_ops=2, magnitude=9, num_magnitude_bins=31),
+                                                Normalize(mean=tensor([0.4712, 0.4543, 0.3944]), std=tensor([0.2319, 0.2252, 0.2321]))]
+/home/hpc/iwb3/iwb3021h/NAS_CHALLENGE/NAS_Challenge_AutoML_2024/.testvenv/lib/python3.10/site-packages/torch/nn/modules/module.py:1640: FutureWarning: Using a non-full backward hook when the forward contains multiple autograd Nodes is deprecated and will be removed in future versions. This hook will be missing some grad_input. Please use register_full_backward_hook to get the documented behavior.
+  self._maybe_warn_non_full_backward_hook(args, result, grad_fn)
+ic| '#############'
+ic| aug: 2
+ic| train_loader.dataset.transform.transforms: [RandAugment(interpolation=InterpolationMode.NEAREST, num_ops=2, magnitude=5, num_magnitude_bins=31),
+                                                Normalize(mean=tensor([0.4712, 0.4543, 0.3944]), std=tensor([0.2319, 0.2252, 0.2321]))]
+/home/hpc/iwb3/iwb3021h/NAS_CHALLENGE/NAS_Challenge_AutoML_2024/.testvenv/lib/python3.10/site-packages/torch/nn/modules/module.py:1640: FutureWarning: Using a non-full backward hook when the forward contains multiple autograd Nodes is deprecated and will be removed in future versions. This hook will be missing some grad_input. Please use register_full_backward_hook to get the documented behavior.
+  self._maybe_warn_non_full_backward_hook(args, result, grad_fn)
+ic| '#############'
+ic| aug: 3
+ic| train_loader.dataset.transform.transforms: [RandAugment(interpolation=InterpolationMode.NEAREST, num_ops=2, magnitude=1, num_magnitude_bins=31),
+                                                Normalize(mean=tensor([0.4712, 0.4543, 0.3944]), std=tensor([0.2319, 0.2252, 0.2321]))]
+/home/hpc/iwb3/iwb3021h/NAS_CHALLENGE/NAS_Challenge_AutoML_2024/.testvenv/lib/python3.10/site-packages/torch/nn/modules/module.py:1640: FutureWarning: Using a non-full backward hook when the forward contains multiple autograd Nodes is deprecated and will be removed in future versions. This hook will be missing some grad_input. Please use register_full_backward_hook to get the documented behavior.
+  self._maybe_warn_non_full_backward_hook(args, result, grad_fn)
+ic| '#############'
+ic| aug: 4
+ic| train_loader.dataset.transform.transforms: [TrivialAugmentWide(interpolation=InterpolationMode.NEAREST, num_magnitude_bins=31),
+                                                Normalize(mean=tensor([0.4712, 0.4543, 0.3944]), std=tensor([0.2319, 0.2252, 0.2321]))]
+/home/hpc/iwb3/iwb3021h/NAS_CHALLENGE/NAS_Challenge_AutoML_2024/.testvenv/lib/python3.10/site-packages/torch/nn/modules/module.py:1640: FutureWarning: Using a non-full backward hook when the forward contains multiple autograd Nodes is deprecated and will be removed in future versions. This hook will be missing some grad_input. Please use register_full_backward_hook to get the documented behavior.
+  self._maybe_warn_non_full_backward_hook(args, result, grad_fn)
+ic| '#############'
+ic| aug: 5
+ic| train_loader.dataset.transform.transforms: [TrivialAugmentWide(interpolation=InterpolationMode.NEAREST, num_magnitude_bins=15),
+                                                Normalize(mean=tensor([0.4712, 0.4543, 0.3944]), std=tensor([0.2319, 0.2252, 0.2321]))]
+/home/hpc/iwb3/iwb3021h/NAS_CHALLENGE/NAS_Challenge_AutoML_2024/.testvenv/lib/python3.10/site-packages/torch/nn/modules/module.py:1640: FutureWarning: Using a non-full backward hook when the forward contains multiple autograd Nodes is deprecated and will be removed in future versions. This hook will be missing some grad_input. Please use register_full_backward_hook to get the documented behavior.
+  self._maybe_warn_non_full_backward_hook(args, result, grad_fn)
+ic| '#############'
+ic| aug: 6
+ic| train_loader.dataset.transform.transforms: [AugMix(interpolation=InterpolationMode.BILINEAR, severity=3, mixture_width=3, chain_depth=-1, alpha=1.0, all_ops=True),
+                                                Normalize(mean=tensor([0.4712, 0.4543, 0.3944]), std=tensor([0.2319, 0.2252, 0.2321]))]
+/home/hpc/iwb3/iwb3021h/NAS_CHALLENGE/NAS_Challenge_AutoML_2024/.testvenv/lib/python3.10/site-packages/torch/nn/modules/module.py:1640: FutureWarning: Using a non-full backward hook when the forward contains multiple autograd Nodes is deprecated and will be removed in future versions. This hook will be missing some grad_input. Please use register_full_backward_hook to get the documented behavior.
+  self._maybe_warn_non_full_backward_hook(args, result, grad_fn)
+ic| '#############'
+ic| aug: 7
+ic| train_loader.dataset.transform.transforms: [AugMix(interpolation=InterpolationMode.BILINEAR, severity=1, mixture_width=3, chain_depth=-1, alpha=1.0, all_ops=True),
+                                                Normalize(mean=tensor([0.4712, 0.4543, 0.3944]), std=tensor([0.2319, 0.2252, 0.2321]))]
+/home/hpc/iwb3/iwb3021h/NAS_CHALLENGE/NAS_Challenge_AutoML_2024/.testvenv/lib/python3.10/site-packages/torch/nn/modules/module.py:1640: FutureWarning: Using a non-full backward hook when the forward contains multiple autograd Nodes is deprecated and will be removed in future versions. This hook will be missing some grad_input. Please use register_full_backward_hook to get the documented behavior.
+  self._maybe_warn_non_full_backward_hook(args, result, grad_fn)
+ic| '#############'
+ic| aug: 8
+ic| train_loader.dataset.transform.transforms: [RandomHorizontalFlip(p=0.5),
+                                                RandomVerticalFlip(p=0.5),
+                                                Normalize(mean=tensor([0.4712, 0.4543, 0.3944]), std=tensor([0.2319, 0.2252, 0.2321]))]
+/home/hpc/iwb3/iwb3021h/NAS_CHALLENGE/NAS_Challenge_AutoML_2024/.testvenv/lib/python3.10/site-packages/torch/nn/modules/module.py:1640: FutureWarning: Using a non-full backward hook when the forward contains multiple autograd Nodes is deprecated and will be removed in future versions. This hook will be missing some grad_input. Please use register_full_backward_hook to get the documented behavior.
+  self._maybe_warn_non_full_backward_hook(args, result, grad_fn)
+ic| '#############'
+ic| aug: 9
+ic| train_loader.dataset.transform.transforms: [RandomErasing(p=0.2, scale=(0.05, 0.2), ratio=(0.3, 3.3), value=[0.0], inplace=False),
+                                                RandomHorizontalFlip(p=0.5),
+                                                RandomVerticalFlip(p=0.5),
+                                                Normalize(mean=tensor([0.4712, 0.4543, 0.3944]), std=tensor([0.2319, 0.2252, 0.2321]))]
+/home/hpc/iwb3/iwb3021h/NAS_CHALLENGE/NAS_Challenge_AutoML_2024/.testvenv/lib/python3.10/site-packages/torch/nn/modules/module.py:1640: FutureWarning: Using a non-full backward hook when the forward contains multiple autograd Nodes is deprecated and will be removed in future versions. This hook will be missing some grad_input. Please use register_full_backward_hook to get the documented behavior.
+  self._maybe_warn_non_full_backward_hook(args, result, grad_fn)
+ic| '#############'
+ic| aug: 10
+ic| train_loader.dataset.transform.transforms: [RandomErasing(p=0.2, scale=(0.05, 0.2), ratio=(0.3, 3.3), value=[0.0], inplace=False),
+                                                Normalize(mean=tensor([0.4712, 0.4543, 0.3944]), std=tensor([0.2319, 0.2252, 0.2321]))]
+/home/hpc/iwb3/iwb3021h/NAS_CHALLENGE/NAS_Challenge_AutoML_2024/.testvenv/lib/python3.10/site-packages/torch/nn/modules/module.py:1640: FutureWarning: Using a non-full backward hook when the forward contains multiple autograd Nodes is deprecated and will be removed in future versions. This hook will be missing some grad_input. Please use register_full_backward_hook to get the documented behavior.
+  self._maybe_warn_non_full_backward_hook(args, result, grad_fn)
+ic| '#############'
+ic| aug: 11
+ic| train_loader.dataset.transform.transforms: [RandomErasing(p=0.2, scale=(0.02, 0.2), ratio=(0.3, 3.3), value=[0.0], inplace=False),
+                                                RandomCrop(size=(16, 16), padding=[2, 2, 2, 2], pad_if_needed=False, fill=0, padding_mode=constant),
+                                                Normalize(mean=tensor([0.4712, 0.4543, 0.3944]), std=tensor([0.2319, 0.2252, 0.2321]))]
+/home/hpc/iwb3/iwb3021h/NAS_CHALLENGE/NAS_Challenge_AutoML_2024/.testvenv/lib/python3.10/site-packages/torch/nn/modules/module.py:1640: FutureWarning: Using a non-full backward hook when the forward contains multiple autograd Nodes is deprecated and will be removed in future versions. This hook will be missing some grad_input. Please use register_full_backward_hook to get the documented behavior.
+  self._maybe_warn_non_full_backward_hook(args, result, grad_fn)
+ic| '#############'
+ic| aug: 12
+ic| train_loader.dataset.transform.transforms: [RandomCrop(size=(16, 16), padding=[2, 2, 2, 2], pad_if_needed=False, fill=0, padding_mode=constant),
+                                                Normalize(mean=tensor([0.4712, 0.4543, 0.3944]), std=tensor([0.2319, 0.2252, 0.2321]))]
+/home/hpc/iwb3/iwb3021h/NAS_CHALLENGE/NAS_Challenge_AutoML_2024/.testvenv/lib/python3.10/site-packages/torch/nn/modules/module.py:1640: FutureWarning: Using a non-full backward hook when the forward contains multiple autograd Nodes is deprecated and will be removed in future versions. This hook will be missing some grad_input. Please use register_full_backward_hook to get the documented behavior.
+  self._maybe_warn_non_full_backward_hook(args, result, grad_fn)
+ic| '#############'
+ic| aug: 13
+ic| train_loader.dataset.transform.transforms: [RandomCrop(size=(16, 16), padding=[2, 2, 2, 2], pad_if_needed=False, fill=0, padding_mode=constant),
+                                                RandomHorizontalFlip(p=0.5),
+                                                RandomVerticalFlip(p=0.5),
+                                                Normalize(mean=tensor([0.4712, 0.4543, 0.3944]), std=tensor([0.2319, 0.2252, 0.2321]))]
+/home/hpc/iwb3/iwb3021h/NAS_CHALLENGE/NAS_Challenge_AutoML_2024/.testvenv/lib/python3.10/site-packages/torch/nn/modules/module.py:1640: FutureWarning: Using a non-full backward hook when the forward contains multiple autograd Nodes is deprecated and will be removed in future versions. This hook will be missing some grad_input. Please use register_full_backward_hook to get the documented behavior.
+  self._maybe_warn_non_full_backward_hook(args, result, grad_fn)
+ic| '#############'
+ic| aug: 14
+ic| train_loader.dataset.transform.transforms: [RandomErasing(p=0.2, scale=(0.02, 0.2), ratio=(0.3, 3.3), value=[0.0], inplace=False),
+                                                RandomCrop(size=(16, 16), padding=[2, 2, 2, 2], pad_if_needed=False, fill=0, padding_mode=constant),
+                                                RandomHorizontalFlip(p=0.5),
+                                                Normalize(mean=tensor([0.4712, 0.4543, 0.3944]), std=tensor([0.2319, 0.2252, 0.2321]))]
+/home/hpc/iwb3/iwb3021h/NAS_CHALLENGE/NAS_Challenge_AutoML_2024/.testvenv/lib/python3.10/site-packages/torch/nn/modules/module.py:1640: FutureWarning: Using a non-full backward hook when the forward contains multiple autograd Nodes is deprecated and will be removed in future versions. This hook will be missing some grad_input. Please use register_full_backward_hook to get the documented behavior.
+  self._maybe_warn_non_full_backward_hook(args, result, grad_fn)
+ic| '#############'
+ic| aug: 15
+ic| train_loader.dataset.transform.transforms: [<data_processor.RandomPixelChange object at 0x7fe06fe774c0>,
+                                                ToTensor(),
+                                                Normalize(mean=tensor([0.4712, 0.4543, 0.3944]), std=tensor([0.2319, 0.2252, 0.2321]))]
+/home/hpc/iwb3/iwb3021h/NAS_CHALLENGE/NAS_Challenge_AutoML_2024/.testvenv/lib/python3.10/site-packages/torch/nn/modules/module.py:1640: FutureWarning: Using a non-full backward hook when the forward contains multiple autograd Nodes is deprecated and will be removed in future versions. This hook will be missing some grad_input. Please use register_full_backward_hook to get the documented behavior.
+  self._maybe_warn_non_full_backward_hook(args, result, grad_fn)
+ic| '#############'
+ic| aug: 16
+ic| train_loader.dataset.transform.transforms: [<data_processor.RandomPixelChange object at 0x7fe06fe76500>,
+                                                ToTensor(),
+                                                Normalize(mean=tensor([0.4712, 0.4543, 0.3944]), std=tensor([0.2319, 0.2252, 0.2321]))]
+/home/hpc/iwb3/iwb3021h/NAS_CHALLENGE/NAS_Challenge_AutoML_2024/.testvenv/lib/python3.10/site-packages/torch/nn/modules/module.py:1640: FutureWarning: Using a non-full backward hook when the forward contains multiple autograd Nodes is deprecated and will be removed in future versions. This hook will be missing some grad_input. Please use register_full_backward_hook to get the documented behavior.
+  self._maybe_warn_non_full_backward_hook(args, result, grad_fn)
+ic| '#############'
+ic| aug: 17
+ic| train_loader.dataset.transform.transforms: [<data_processor.RandomPixelChange object at 0x7fe06fe77580>,
+                                                ToTensor(),
+                                                Normalize(mean=tensor([0.4712, 0.4543, 0.3944]), std=tensor([0.2319, 0.2252, 0.2321]))]
+/home/hpc/iwb3/iwb3021h/NAS_CHALLENGE/NAS_Challenge_AutoML_2024/.testvenv/lib/python3.10/site-packages/torch/nn/modules/module.py:1640: FutureWarning: Using a non-full backward hook when the forward contains multiple autograd Nodes is deprecated and will be removed in future versions. This hook will be missing some grad_input. Please use register_full_backward_hook to get the documented behavior.
+  self._maybe_warn_non_full_backward_hook(args, result, grad_fn)
+ic| '#############'
+ic| aug: 18
+ic| train_loader.dataset.transform.transforms: [<data_processor.RandomPixelChange object at 0x7fe06fe76530>,
+                                                ToTensor(),
+                                                RandomHorizontalFlip(p=0.5),
+                                                RandomVerticalFlip(p=0.5),
+                                                Normalize(mean=tensor([0.4712, 0.4543, 0.3944]), std=tensor([0.2319, 0.2252, 0.2321]))]
+/home/hpc/iwb3/iwb3021h/NAS_CHALLENGE/NAS_Challenge_AutoML_2024/.testvenv/lib/python3.10/site-packages/torch/nn/modules/module.py:1640: FutureWarning: Using a non-full backward hook when the forward contains multiple autograd Nodes is deprecated and will be removed in future versions. This hook will be missing some grad_input. Please use register_full_backward_hook to get the documented behavior.
+  self._maybe_warn_non_full_backward_hook(args, result, grad_fn)
+ic| '#############'
+ic| aug: 19
+ic| train_loader.dataset.transform.transforms: [<data_processor.RandomPixelChange object at 0x7fe06fe76b60>,
+                                                ToTensor(),
+                                                RandomErasing(p=0.2, scale=(0.05, 0.2), ratio=(0.3, 3.3), value=[0.0], inplace=False),
+                                                Normalize(mean=tensor([0.4712, 0.4543, 0.3944]), std=tensor([0.2319, 0.2252, 0.2321]))]
+/home/hpc/iwb3/iwb3021h/NAS_CHALLENGE/NAS_Challenge_AutoML_2024/.testvenv/lib/python3.10/site-packages/torch/nn/modules/module.py:1640: FutureWarning: Using a non-full backward hook when the forward contains multiple autograd Nodes is deprecated and will be removed in future versions. This hook will be missing some grad_input. Please use register_full_backward_hook to get the documented behavior.
+  self._maybe_warn_non_full_backward_hook(args, result, grad_fn)
+ic| '#############'
+ic| aug: 20
+ic| train_loader.dataset.transform.transforms: [<data_processor.RandomPixelChange object at 0x7fe06fe76a70>,
+                                                ToTensor(),
+                                                RandomCrop(size=(16, 16), padding=[2, 2, 2, 2], pad_if_needed=False, fill=0, padding_mode=constant),
+                                                Normalize(mean=tensor([0.4712, 0.4543, 0.3944]), std=tensor([0.2319, 0.2252, 0.2321]))]
+/home/hpc/iwb3/iwb3021h/NAS_CHALLENGE/NAS_Challenge_AutoML_2024/.testvenv/lib/python3.10/site-packages/torch/nn/modules/module.py:1640: FutureWarning: Using a non-full backward hook when the forward contains multiple autograd Nodes is deprecated and will be removed in future versions. This hook will be missing some grad_input. Please use register_full_backward_hook to get the documented behavior.
+  self._maybe_warn_non_full_backward_hook(args, result, grad_fn)
+ic| '#############'
+ic| aug: 21
+ic| train_loader.dataset.transform.transforms: [<data_processor.RandomPixelChange object at 0x7fe06fe76110>,
+                                                ToTensor(),
+                                                RandomHorizontalFlip(p=0.5),
+                                                RandomVerticalFlip(p=0.5),
+                                                RandomErasing(p=0.2, scale=(0.05, 0.2), ratio=(0.3, 3.3), value=[0.0], inplace=False),
+                                                Normalize(mean=tensor([0.4712, 0.4543, 0.3944]), std=tensor([0.2319, 0.2252, 0.2321]))]
+/home/hpc/iwb3/iwb3021h/NAS_CHALLENGE/NAS_Challenge_AutoML_2024/.testvenv/lib/python3.10/site-packages/torch/nn/modules/module.py:1640: FutureWarning: Using a non-full backward hook when the forward contains multiple autograd Nodes is deprecated and will be removed in future versions. This hook will be missing some grad_input. Please use register_full_backward_hook to get the documented behavior.
+  self._maybe_warn_non_full_backward_hook(args, result, grad_fn)
+/home/woody/iwb3/iwb3021h/THESIS_RESULTS/package1/data_processor.py:590: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  subset_df_no_outliers["fisher"] = scaler.fit_transform(subset_df_no_outliers[["fisher"]])
+/home/woody/iwb3/iwb3021h/THESIS_RESULTS/package1/data_processor.py:590: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  subset_df_no_outliers["fisher"] = scaler.fit_transform(subset_df_no_outliers[["fisher"]])
+/home/woody/iwb3/iwb3021h/THESIS_RESULTS/package1/data_processor.py:590: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  subset_df_no_outliers["fisher"] = scaler.fit_transform(subset_df_no_outliers[["fisher"]])
+/home/woody/iwb3/iwb3021h/THESIS_RESULTS/package1/data_processor.py:608: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  subset_df_no_outliers["jacob_cov"] = scaler.fit_transform(subset_df_no_outliers[["jacob_cov"]])
+/home/woody/iwb3/iwb3021h/THESIS_RESULTS/package1/data_processor.py:608: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  subset_df_no_outliers["jacob_cov"] = scaler.fit_transform(subset_df_no_outliers[["jacob_cov"]])
+/home/woody/iwb3/iwb3021h/THESIS_RESULTS/package1/data_processor.py:608: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  subset_df_no_outliers["jacob_cov"] = scaler.fit_transform(subset_df_no_outliers[["jacob_cov"]])
+/home/woody/iwb3/iwb3021h/THESIS_RESULTS/package1/data_processor.py:608: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  subset_df_no_outliers["jacob_cov"] = scaler.fit_transform(subset_df_no_outliers[["jacob_cov"]])
+/home/woody/iwb3/iwb3021h/THESIS_RESULTS/package1/data_processor.py:608: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  subset_df_no_outliers["jacob_cov"] = scaler.fit_transform(subset_df_no_outliers[["jacob_cov"]])
+/home/woody/iwb3/iwb3021h/THESIS_RESULTS/package1/data_processor.py:608: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  subset_df_no_outliers["jacob_cov"] = scaler.fit_transform(subset_df_no_outliers[["jacob_cov"]])
+/home/woody/iwb3/iwb3021h/THESIS_RESULTS/package1/data_processor.py:608: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  subset_df_no_outliers["jacob_cov"] = scaler.fit_transform(subset_df_no_outliers[["jacob_cov"]])
+/home/woody/iwb3/iwb3021h/THESIS_RESULTS/package1/data_processor.py:608: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  subset_df_no_outliers["jacob_cov"] = scaler.fit_transform(subset_df_no_outliers[["jacob_cov"]])
+/home/woody/iwb3/iwb3021h/THESIS_RESULTS/package1/data_processor.py:608: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  subset_df_no_outliers["jacob_cov"] = scaler.fit_transform(subset_df_no_outliers[["jacob_cov"]])
+/home/woody/iwb3/iwb3021h/THESIS_RESULTS/package1/data_processor.py:608: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  subset_df_no_outliers["jacob_cov"] = scaler.fit_transform(subset_df_no_outliers[["jacob_cov"]])
+/home/woody/iwb3/iwb3021h/THESIS_RESULTS/package1/data_processor.py:608: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  subset_df_no_outliers["jacob_cov"] = scaler.fit_transform(subset_df_no_outliers[["jacob_cov"]])
+/home/woody/iwb3/iwb3021h/THESIS_RESULTS/package1/data_processor.py:608: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  subset_df_no_outliers["jacob_cov"] = scaler.fit_transform(subset_df_no_outliers[["jacob_cov"]])
+/home/woody/iwb3/iwb3021h/THESIS_RESULTS/package1/data_processor.py:608: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  subset_df_no_outliers["jacob_cov"] = scaler.fit_transform(subset_df_no_outliers[["jacob_cov"]])
+/home/woody/iwb3/iwb3021h/THESIS_RESULTS/package1/data_processor.py:608: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  subset_df_no_outliers["jacob_cov"] = scaler.fit_transform(subset_df_no_outliers[["jacob_cov"]])
+/home/woody/iwb3/iwb3021h/THESIS_RESULTS/package1/data_processor.py:608: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  subset_df_no_outliers["jacob_cov"] = scaler.fit_transform(subset_df_no_outliers[["jacob_cov"]])
+ic| f"best_augmentation: {best_aug}": 'best_augmentation: 5'
+ic| f"selected transform {train_transform}": ('selected transform '
+                                              '[TrivialAugmentWide(interpolation=InterpolationMode.NEAREST, '
+                                              'num_magnitude_bins=15)]')
+ic| self.x.shape: torch.Size([148700, 3, 16, 16])
+ic| self.x.shape: torch.Size([3000, 3, 16, 16])
+ic| self.x.shape: torch.Size([3000, 3, 16, 16])
+ic| mode: 'T0+'
+ic| 'Extended + Regnet mode'
+ic| f"Mode {mode}": 'Mode T0+'
+ic| get_gpu_memory(0): 41781690368
+ic| self.total_generations: 3
+ic| 'Time remaining:'
+ic| metadata['time_remaining']: 107301.22492432594
+ic| self.zcost_nas: True
+ic| self.cfg: CfgNode({'MODEL': CfgNode({'TYPE': 'regnet', 'NUM_CLASSES': 120, 'ACTIVATION_FUN': 'relu', 'ACTIVATION_INPLACE': True, 'SCALING_TYPE': '', 'SCALING_FACTOR': 1.0}), 'REGNET': CfgNode({'STEM_TYPE': 'res_stem_cifar', 'INPUT_CHANNELS': 3, 'STEM_W': 16, 'BLOCK_TYPE': 'res_bottleneck_block', 'STRIDE': 2, 'SE_ON': True, 'SE_R': 0.25, 'DEPTH': 20, 'W0': 232, 'WA': 115.89, 'WM': 2.53, 'GROUP_W': 8, 'BOT_MUL': 1.0, 'HEAD_W': 0, 'DOWNSAMPLE': 'avg', 'DROP_RATE': 0.01, 'DROPOUT': 0.2}), 'BN': CfgNode({'EPS': 1e-05, 'MOM': 0.1, 'ZERO_INIT_FINAL_GAMMA': False}), 'LN': CfgNode({'EPS': 1e-05}), 'DESC': ''})
+ic| samples: 120
+/home/hpc/iwb3/iwb3021h/NAS_CHALLENGE/NAS_Challenge_AutoML_2024/.testvenv/lib/python3.10/site-packages/sklearn/base.py:376: InconsistentVersionWarning: Trying to unpickle estimator SGDRegressor from version 1.4.2 when using version 1.5.0. This might lead to breaking code or invalid results. Use at your own risk. For more info please refer to:
+https://scikit-learn.org/stable/model_persistence.html#security-maintainability-limitations
+  warnings.warn(
+/home/woody/iwb3/iwb3021h/THESIS_RESULTS/package1/search_space/RegNet.py:299: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  ranking_test_df[pred_column]=sgd_regressor.predict(X_test)
+ic| ranking_prediction_df:                           score
+                           monumental_silkworm  190.050847
+ic| best_models.keys(): dict_keys(['monumental_silkworm'])
+ic| self.initial_population_size: 120
+ic| metadata: {'benchmark': 46.38,
+               'codename': 'in16',
+               'input_shape': [148700, 3, 16, 16],
+               'mode': 'NAS',
+               'num_classes': 120,
+               'test_type': 'T0+_Proxy/seed_2',
+               'time_remaining': 107214.45137190819,
+               'train_config_path': 'configs/train/finetuning_generation_adam.yaml'}
+ic| cfg_path: 'configs/train/finetuning_generation_adam.yaml'
+ic| self.cfg.SOLVER.LR: 0.001
+ic| self.cfg.SOLVER.EPOCHS-self.cfg.SOLVER.SWA_START: 10
+ic| self.cfg.SOLVER.EPOCHS: 100
+/home/woody/iwb3/iwb3021h/THESIS_RESULTS/package1/trainer.py:41: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  checkpoint = torch.load(checkpoint_path, map_location=device)
+ic| self.select_augment: 'Proxy'
+ic| self.x.shape: torch.Size([50000, 20, 20, 20])
+ic| unique_values: array([0., 1.], dtype=float32)
+ic| C: 20
+ic| H: 20
+ic| PH: 2
+/home/hpc/iwb3/iwb3021h/NAS_CHALLENGE/NAS_Challenge_AutoML_2024/.testvenv/lib/python3.10/site-packages/torchvision/transforms/v2/_deprecated.py:42: UserWarning: The transform `ToTensor()` is deprecated and will be removed in a future release. Instead, please use `v2.Compose([v2.ToImage(), v2.ToDtype(torch.float32, scale=True)])`.Output is equivalent up to float precision.
+  warnings.warn(
+ic| poss_augs: [[],
+                [RandAugment(interpolation=InterpolationMode.NEAREST, num_ops=2, magnitude=9, num_magnitude_bins=31)],
+                [RandAugment(interpolation=InterpolationMode.NEAREST, num_ops=2, magnitude=5, num_magnitude_bins=31)],
+                [RandAugment(interpolation=InterpolationMode.NEAREST, num_ops=2, magnitude=1, num_magnitude_bins=31)],
+                [TrivialAugmentWide(interpolation=InterpolationMode.NEAREST, num_magnitude_bins=31)],
+                [TrivialAugmentWide(interpolation=InterpolationMode.NEAREST, num_magnitude_bins=15)],
+                [AugMix(interpolation=InterpolationMode.BILINEAR, severity=3, mixture_width=3, chain_depth=-1, alpha=1.0, all_ops=True)],
+                [AugMix(interpolation=InterpolationMode.BILINEAR, severity=1, mixture_width=3, chain_depth=-1, alpha=1.0, all_ops=True)],
+                [RandomHorizontalFlip(p=0.5), RandomVerticalFlip(p=0.5)],
+                [RandomErasing(p=0.2, scale=(0.05, 0.2), ratio=(0.3, 3.3), value=[0.0], inplace=False),
+                 RandomHorizontalFlip(p=0.5),
+                 RandomVerticalFlip(p=0.5)],
+                [RandomErasing(p=0.2, scale=(0.05, 0.2), ratio=(0.3, 3.3), value=[0.0], inplace=False)],
+                [RandomErasing(p=0.2, scale=(0.02, 0.2), ratio=(0.3, 3.3), value=[0.0], inplace=False),
+                 RandomCrop(size=(20, 20), padding=[2, 2, 2, 2], pad_if_needed=False, fill=0, padding_mode=constant)],
+                [RandomCrop(size=(20, 20), padding=[2, 2, 2, 2], pad_if_needed=False, fill=0, padding_mode=constant)],
+                [RandomCrop(size=(20, 20), padding=[2, 2, 2, 2], pad_if_needed=False, fill=0, padding_mode=constant),
+                 RandomHorizontalFlip(p=0.5),
+                 RandomVerticalFlip(p=0.5)],
+                [RandomErasing(p=0.2, scale=(0.02, 0.2), ratio=(0.3, 3.3), value=[0.0], inplace=False),
+                 RandomCrop(size=(20, 20), padding=[2, 2, 2, 2], pad_if_needed=False, fill=0, padding_mode=constant),
+                 RandomHorizontalFlip(p=0.5)],
+                [<data_processor.RandomPixelChange object at 0x7fdf1053bf70>, ToTensor()],
+                [<data_processor.RandomPixelChange object at 0x7fdf10538dc0>, ToTensor()],
+                [<data_processor.RandomPixelChange object at 0x7fdf10538820>, ToTensor()],
+                [<data_processor.RandomPixelChange object at 0x7fdf245e24d0>,
+                 ToTensor(),
+                 RandomHorizontalFlip(p=0.5),
+                 RandomVerticalFlip(p=0.5)],
+                [<data_processor.RandomPixelChange object at 0x7fdfa1130b50>,
+                 ToTensor(),
+                 RandomErasing(p=0.2, scale=(0.05, 0.2), ratio=(0.3, 3.3), value=[0.0], inplace=False)],
+                [<data_processor.RandomPixelChange object at 0x7fdf1053a680>,
+                 ToTensor(),
+                 RandomCrop(size=(20, 20), padding=[2, 2, 2, 2], pad_if_needed=False, fill=0, padding_mode=constant)],
+                [<data_processor.RandomPixelChange object at 0x7fdf1053a710>,
+                 ToTensor(),
+                 RandomHorizontalFlip(p=0.5),
+                 RandomVerticalFlip(p=0.5),
+                 RandomErasing(p=0.2, scale=(0.05, 0.2), ratio=(0.3, 3.3), value=[0.0], inplace=False)]]
+ic| individuals: ['fabulous_groundhog',
+                  'flat_panther',
+                  'grumpy_firefly',
+                  'humongous_impala',
+                  'devious_reindeer',
+                  'solemn_camel',
+                  'saffron_nyala',
+                  'proficient_boobook',
+                  'annoying_roadrunner',
+                  'visionary_centipede',
+                  'uber_sawfish',
+                  'real_aardwolf',
+                  'private_junglefowl',
+                  'xanthic_trogon',
+                  'talented_terrier',
+                  'discreet_lemur',
+                  'eccentric_kakapo',
+                  'strange_mink',
+                  'screeching_walrus',
+                  'ninja_pudu']
+ic| params: [64.0, 72, 2.1499999999999995, 14, 8]
+ic| params: [32.0, 88, 2.249999999999999, 11, 8]
+ic| params: [48.0, 112, 2.6499999999999977, 19, 8]
+ic| params: [40.0, 48, 2.1499999999999995, 15, 8]
+ic| params: [24.0, 88, 2.4999999999999982, 21, 8]
+ic| params: [48.0, 104, 2.549999999999998, 17, 8]
+ic| params: [40.0, 40, 2.3499999999999988, 16, 8]
+ic| params: [56.0, 104, 2.249999999999999, 17, 8]
+ic| params: [40.0, 64, 2.6499999999999977, 15, 8]
+ic| params: [24.0, 40, 2.3999999999999986, 8, 8]
+ic| params: [48.0, 96, 2.05, 8, 8]
+ic| params: [40.0, 40, 2.849999999999997, 12, 8]
+ic| params: [48.0, 56, 2.849999999999997, 20, 8]
+ic| params: [16.0, 104, 2.7499999999999973, 19, 8]
+ic| params: [16.0, 16, 2.799999999999997, 8, 8]
+ic| params: [24.0, 56, 2.3999999999999986, 16, 8]
+ic| params: [56.0, 72, 2.1999999999999993, 18, 8]
+ic| params: [56.0, 112, 2.0999999999999996, 12, 8]
+ic| params: [48.0, 56, 2.549999999999998, 18, 8]
+ic| params: [32.0, 88, 2.599999999999998, 13, 8]
+ic| individuals: ['fabulous_groundhog',
+                  'flat_panther',
+                  'grumpy_firefly',
+                  'humongous_impala',
+                  'devious_reindeer',
+                  'solemn_camel',
+                  'saffron_nyala',
+                  'proficient_boobook',
+                  'annoying_roadrunner',
+                  'visionary_centipede',
+                  'uber_sawfish',
+                  'real_aardwolf',
+                  'private_junglefowl',
+                  'xanthic_trogon',
+                  'talented_terrier',
+                  'discreet_lemur',
+                  'eccentric_kakapo',
+                  'strange_mink',
+                  'screeching_walrus',
+                  'ninja_pudu']
+ic| params_dict: {'annoying_roadrunner': [40.0, 64, 2.6499999999999977, 15, 8],
+                  'devious_reindeer': [24.0, 88, 2.4999999999999982, 21, 8],
+                  'discreet_lemur': [24.0, 56, 2.3999999999999986, 16, 8],
+                  'eccentric_kakapo': [56.0, 72, 2.1999999999999993, 18, 8],
+                  'fabulous_groundhog': [64.0, 72, 2.1499999999999995, 14, 8],
+                  'flat_panther': [32.0, 88, 2.249999999999999, 11, 8],
+                  'grumpy_firefly': [48.0, 112, 2.6499999999999977, 19, 8],
+                  'humongous_impala': [40.0, 48, 2.1499999999999995, 15, 8],
+                  'ninja_pudu': [32.0, 88, 2.599999999999998, 13, 8],
+                  'private_junglefowl': [48.0, 56, 2.849999999999997, 20, 8],
+                  'proficient_boobook': [56.0, 104, 2.249999999999999, 17, 8],
+                  'real_aardwolf': [40.0, 40, 2.849999999999997, 12, 8],
+                  'saffron_nyala': [40.0, 40, 2.3499999999999988, 16, 8],
+                  'screeching_walrus': [48.0, 56, 2.549999999999998, 18, 8],
+                  'solemn_camel': [48.0, 104, 2.549999999999998, 17, 8],
+                  'strange_mink': [56.0, 112, 2.0999999999999996, 12, 8],
+                  'talented_terrier': [16.0, 16, 2.799999999999997, 8, 8],
+                  'uber_sawfish': [48.0, 96, 2.05, 8, 8],
+                  'visionary_centipede': [24.0, 40, 2.3999999999999986, 8, 8],
+                  'xanthic_trogon': [16.0, 104, 2.7499999999999973, 19, 8]}
+ic| '#############'
+ic| aug: 0
+ic| train_loader.dataset.transform.transforms: [Normalize(mean=tensor([0.0724, 0.0832, 0.0932, 0.1020, 0.1097, 0.1162, 0.1213, 0.1250, 0.1275,
+                                                       0.1288, 0.1289, 0.1274, 0.1250, 0.1211, 0.1157, 0.1091, 0.1012, 0.0924,
+                                                       0.0824, 0.0716]), std=tensor([0.2592, 0.2762, 0.2907, 0.3026, 0.3125, 0.3204, 0.3264, 0.3307, 0.3336,
+                                                       0.3350, 0.3351, 0.3334, 0.3308, 0.3263, 0.3198, 0.3117, 0.3016, 0.2896,
+                                                       0.2750, 0.2578]))]
+/home/hpc/iwb3/iwb3021h/NAS_CHALLENGE/NAS_Challenge_AutoML_2024/.testvenv/lib/python3.10/site-packages/torch/nn/modules/module.py:1640: FutureWarning: Using a non-full backward hook when the forward contains multiple autograd Nodes is deprecated and will be removed in future versions. This hook will be missing some grad_input. Please use register_full_backward_hook to get the documented behavior.
+  self._maybe_warn_non_full_backward_hook(args, result, grad_fn)
+ic| '#############'
+ic| aug: 1
+ic| train_loader.dataset.transform.transforms: [RandAugment(interpolation=InterpolationMode.NEAREST, num_ops=2, magnitude=9, num_magnitude_bins=31),
+                                                Normalize(mean=tensor([0.0724, 0.0832, 0.0932, 0.1020, 0.1097, 0.1162, 0.1213, 0.1250, 0.1275,
+                                                       0.1288, 0.1289, 0.1274, 0.1250, 0.1211, 0.1157, 0.1091, 0.1012, 0.0924,
+                                                       0.0824, 0.0716]), std=tensor([0.2592, 0.2762, 0.2907, 0.3026, 0.3125, 0.3204, 0.3264, 0.3307, 0.3336,
+                                                       0.3350, 0.3351, 0.3334, 0.3308, 0.3263, 0.3198, 0.3117, 0.3016, 0.2896,
+                                                       0.2750, 0.2578]))]
+ic| '#############'
+ic| aug: 2
+ic| train_loader.dataset.transform.transforms: [RandAugment(interpolation=InterpolationMode.NEAREST, num_ops=2, magnitude=5, num_magnitude_bins=31),
+                                                Normalize(mean=tensor([0.0724, 0.0832, 0.0932, 0.1020, 0.1097, 0.1162, 0.1213, 0.1250, 0.1275,
+                                                       0.1288, 0.1289, 0.1274, 0.1250, 0.1211, 0.1157, 0.1091, 0.1012, 0.0924,
+                                                       0.0824, 0.0716]), std=tensor([0.2592, 0.2762, 0.2907, 0.3026, 0.3125, 0.3204, 0.3264, 0.3307, 0.3336,
+                                                       0.3350, 0.3351, 0.3334, 0.3308, 0.3263, 0.3198, 0.3117, 0.3016, 0.2896,
+                                                       0.2750, 0.2578]))]
+ic| '#############'
+ic| aug: 3
+ic| train_loader.dataset.transform.transforms: [RandAugment(interpolation=InterpolationMode.NEAREST, num_ops=2, magnitude=1, num_magnitude_bins=31),
+                                                Normalize(mean=tensor([0.0724, 0.0832, 0.0932, 0.1020, 0.1097, 0.1162, 0.1213, 0.1250, 0.1275,
+                                                       0.1288, 0.1289, 0.1274, 0.1250, 0.1211, 0.1157, 0.1091, 0.1012, 0.0924,
+                                                       0.0824, 0.0716]), std=tensor([0.2592, 0.2762, 0.2907, 0.3026, 0.3125, 0.3204, 0.3264, 0.3307, 0.3336,
+                                                       0.3350, 0.3351, 0.3334, 0.3308, 0.3263, 0.3198, 0.3117, 0.3016, 0.2896,
+                                                       0.2750, 0.2578]))]
+ic| '#############'
+ic| aug: 4
+ic| train_loader.dataset.transform.transforms: [TrivialAugmentWide(interpolation=InterpolationMode.NEAREST, num_magnitude_bins=31),
+                                                Normalize(mean=tensor([0.0724, 0.0832, 0.0932, 0.1020, 0.1097, 0.1162, 0.1213, 0.1250, 0.1275,
+                                                       0.1288, 0.1289, 0.1274, 0.1250, 0.1211, 0.1157, 0.1091, 0.1012, 0.0924,
+                                                       0.0824, 0.0716]), std=tensor([0.2592, 0.2762, 0.2907, 0.3026, 0.3125, 0.3204, 0.3264, 0.3307, 0.3336,
+                                                       0.3350, 0.3351, 0.3334, 0.3308, 0.3263, 0.3198, 0.3117, 0.3016, 0.2896,
+                                                       0.2750, 0.2578]))]
+ic| '#############'
+ic| aug: 5
+ic| train_loader.dataset.transform.transforms: [TrivialAugmentWide(interpolation=InterpolationMode.NEAREST, num_magnitude_bins=15),
+                                                Normalize(mean=tensor([0.0724, 0.0832, 0.0932, 0.1020, 0.1097, 0.1162, 0.1213, 0.1250, 0.1275,
+                                                       0.1288, 0.1289, 0.1274, 0.1250, 0.1211, 0.1157, 0.1091, 0.1012, 0.0924,
+                                                       0.0824, 0.0716]), std=tensor([0.2592, 0.2762, 0.2907, 0.3026, 0.3125, 0.3204, 0.3264, 0.3307, 0.3336,
+                                                       0.3350, 0.3351, 0.3334, 0.3308, 0.3263, 0.3198, 0.3117, 0.3016, 0.2896,
+                                                       0.2750, 0.2578]))]
+ic| '#############'
+ic| aug: 6
+ic| train_loader.dataset.transform.transforms: [AugMix(interpolation=InterpolationMode.BILINEAR, severity=3, mixture_width=3, chain_depth=-1, alpha=1.0, all_ops=True),
+                                                Normalize(mean=tensor([0.0724, 0.0832, 0.0932, 0.1020, 0.1097, 0.1162, 0.1213, 0.1250, 0.1275,
+                                                       0.1288, 0.1289, 0.1274, 0.1250, 0.1211, 0.1157, 0.1091, 0.1012, 0.0924,
+                                                       0.0824, 0.0716]), std=tensor([0.2592, 0.2762, 0.2907, 0.3026, 0.3125, 0.3204, 0.3264, 0.3307, 0.3336,
+                                                       0.3350, 0.3351, 0.3334, 0.3308, 0.3263, 0.3198, 0.3117, 0.3016, 0.2896,
+                                                       0.2750, 0.2578]))]
+ic| '#############'
+ic| aug: 7
+ic| train_loader.dataset.transform.transforms: [AugMix(interpolation=InterpolationMode.BILINEAR, severity=1, mixture_width=3, chain_depth=-1, alpha=1.0, all_ops=True),
+                                                Normalize(mean=tensor([0.0724, 0.0832, 0.0932, 0.1020, 0.1097, 0.1162, 0.1213, 0.1250, 0.1275,
+                                                       0.1288, 0.1289, 0.1274, 0.1250, 0.1211, 0.1157, 0.1091, 0.1012, 0.0924,
+                                                       0.0824, 0.0716]), std=tensor([0.2592, 0.2762, 0.2907, 0.3026, 0.3125, 0.3204, 0.3264, 0.3307, 0.3336,
+                                                       0.3350, 0.3351, 0.3334, 0.3308, 0.3263, 0.3198, 0.3117, 0.3016, 0.2896,
+                                                       0.2750, 0.2578]))]
+ic| '#############'
+ic| aug: 8
+ic| train_loader.dataset.transform.transforms: [RandomHorizontalFlip(p=0.5),
+                                                RandomVerticalFlip(p=0.5),
+                                                Normalize(mean=tensor([0.0724, 0.0832, 0.0932, 0.1020, 0.1097, 0.1162, 0.1213, 0.1250, 0.1275,
+                                                       0.1288, 0.1289, 0.1274, 0.1250, 0.1211, 0.1157, 0.1091, 0.1012, 0.0924,
+                                                       0.0824, 0.0716]), std=tensor([0.2592, 0.2762, 0.2907, 0.3026, 0.3125, 0.3204, 0.3264, 0.3307, 0.3336,
+                                                       0.3350, 0.3351, 0.3334, 0.3308, 0.3263, 0.3198, 0.3117, 0.3016, 0.2896,
+                                                       0.2750, 0.2578]))]
+/home/hpc/iwb3/iwb3021h/NAS_CHALLENGE/NAS_Challenge_AutoML_2024/.testvenv/lib/python3.10/site-packages/torch/nn/modules/module.py:1640: FutureWarning: Using a non-full backward hook when the forward contains multiple autograd Nodes is deprecated and will be removed in future versions. This hook will be missing some grad_input. Please use register_full_backward_hook to get the documented behavior.
+  self._maybe_warn_non_full_backward_hook(args, result, grad_fn)
+ic| '#############'
+ic| aug: 9
+ic| train_loader.dataset.transform.transforms: [RandomErasing(p=0.2, scale=(0.05, 0.2), ratio=(0.3, 3.3), value=[0.0], inplace=False),
+                                                RandomHorizontalFlip(p=0.5),
+                                                RandomVerticalFlip(p=0.5),
+                                                Normalize(mean=tensor([0.0724, 0.0832, 0.0932, 0.1020, 0.1097, 0.1162, 0.1213, 0.1250, 0.1275,
+                                                       0.1288, 0.1289, 0.1274, 0.1250, 0.1211, 0.1157, 0.1091, 0.1012, 0.0924,
+                                                       0.0824, 0.0716]), std=tensor([0.2592, 0.2762, 0.2907, 0.3026, 0.3125, 0.3204, 0.3264, 0.3307, 0.3336,
+                                                       0.3350, 0.3351, 0.3334, 0.3308, 0.3263, 0.3198, 0.3117, 0.3016, 0.2896,
+                                                       0.2750, 0.2578]))]
+/home/hpc/iwb3/iwb3021h/NAS_CHALLENGE/NAS_Challenge_AutoML_2024/.testvenv/lib/python3.10/site-packages/torch/nn/modules/module.py:1640: FutureWarning: Using a non-full backward hook when the forward contains multiple autograd Nodes is deprecated and will be removed in future versions. This hook will be missing some grad_input. Please use register_full_backward_hook to get the documented behavior.
+  self._maybe_warn_non_full_backward_hook(args, result, grad_fn)
+ic| '#############'
+ic| aug: 10
+ic| train_loader.dataset.transform.transforms: [RandomErasing(p=0.2, scale=(0.05, 0.2), ratio=(0.3, 3.3), value=[0.0], inplace=False),
+                                                Normalize(mean=tensor([0.0724, 0.0832, 0.0932, 0.1020, 0.1097, 0.1162, 0.1213, 0.1250, 0.1275,
+                                                       0.1288, 0.1289, 0.1274, 0.1250, 0.1211, 0.1157, 0.1091, 0.1012, 0.0924,
+                                                       0.0824, 0.0716]), std=tensor([0.2592, 0.2762, 0.2907, 0.3026, 0.3125, 0.3204, 0.3264, 0.3307, 0.3336,
+                                                       0.3350, 0.3351, 0.3334, 0.3308, 0.3263, 0.3198, 0.3117, 0.3016, 0.2896,
+                                                       0.2750, 0.2578]))]
+/home/hpc/iwb3/iwb3021h/NAS_CHALLENGE/NAS_Challenge_AutoML_2024/.testvenv/lib/python3.10/site-packages/torch/nn/modules/module.py:1640: FutureWarning: Using a non-full backward hook when the forward contains multiple autograd Nodes is deprecated and will be removed in future versions. This hook will be missing some grad_input. Please use register_full_backward_hook to get the documented behavior.
+  self._maybe_warn_non_full_backward_hook(args, result, grad_fn)
+ic| '#############'
+ic| aug: 11
+ic| train_loader.dataset.transform.transforms: [RandomErasing(p=0.2, scale=(0.02, 0.2), ratio=(0.3, 3.3), value=[0.0], inplace=False),
+                                                RandomCrop(size=(20, 20), padding=[2, 2, 2, 2], pad_if_needed=False, fill=0, padding_mode=constant),
+                                                Normalize(mean=tensor([0.0724, 0.0832, 0.0932, 0.1020, 0.1097, 0.1162, 0.1213, 0.1250, 0.1275,
+                                                       0.1288, 0.1289, 0.1274, 0.1250, 0.1211, 0.1157, 0.1091, 0.1012, 0.0924,
+                                                       0.0824, 0.0716]), std=tensor([0.2592, 0.2762, 0.2907, 0.3026, 0.3125, 0.3204, 0.3264, 0.3307, 0.3336,
+                                                       0.3350, 0.3351, 0.3334, 0.3308, 0.3263, 0.3198, 0.3117, 0.3016, 0.2896,
+                                                       0.2750, 0.2578]))]
+/home/hpc/iwb3/iwb3021h/NAS_CHALLENGE/NAS_Challenge_AutoML_2024/.testvenv/lib/python3.10/site-packages/torch/nn/modules/module.py:1640: FutureWarning: Using a non-full backward hook when the forward contains multiple autograd Nodes is deprecated and will be removed in future versions. This hook will be missing some grad_input. Please use register_full_backward_hook to get the documented behavior.
+  self._maybe_warn_non_full_backward_hook(args, result, grad_fn)
+ic| '#############'
+ic| aug: 12
+ic| train_loader.dataset.transform.transforms: [RandomCrop(size=(20, 20), padding=[2, 2, 2, 2], pad_if_needed=False, fill=0, padding_mode=constant),
+                                                Normalize(mean=tensor([0.0724, 0.0832, 0.0932, 0.1020, 0.1097, 0.1162, 0.1213, 0.1250, 0.1275,
+                                                       0.1288, 0.1289, 0.1274, 0.1250, 0.1211, 0.1157, 0.1091, 0.1012, 0.0924,
+                                                       0.0824, 0.0716]), std=tensor([0.2592, 0.2762, 0.2907, 0.3026, 0.3125, 0.3204, 0.3264, 0.3307, 0.3336,
+                                                       0.3350, 0.3351, 0.3334, 0.3308, 0.3263, 0.3198, 0.3117, 0.3016, 0.2896,
+                                                       0.2750, 0.2578]))]
+/home/hpc/iwb3/iwb3021h/NAS_CHALLENGE/NAS_Challenge_AutoML_2024/.testvenv/lib/python3.10/site-packages/torch/nn/modules/module.py:1640: FutureWarning: Using a non-full backward hook when the forward contains multiple autograd Nodes is deprecated and will be removed in future versions. This hook will be missing some grad_input. Please use register_full_backward_hook to get the documented behavior.
+  self._maybe_warn_non_full_backward_hook(args, result, grad_fn)
+ic| '#############'
+ic| aug: 13
+ic| train_loader.dataset.transform.transforms: [RandomCrop(size=(20, 20), padding=[2, 2, 2, 2], pad_if_needed=False, fill=0, padding_mode=constant),
+                                                RandomHorizontalFlip(p=0.5),
+                                                RandomVerticalFlip(p=0.5),
+                                                Normalize(mean=tensor([0.0724, 0.0832, 0.0932, 0.1020, 0.1097, 0.1162, 0.1213, 0.1250, 0.1275,
+                                                       0.1288, 0.1289, 0.1274, 0.1250, 0.1211, 0.1157, 0.1091, 0.1012, 0.0924,
+                                                       0.0824, 0.0716]), std=tensor([0.2592, 0.2762, 0.2907, 0.3026, 0.3125, 0.3204, 0.3264, 0.3307, 0.3336,
+                                                       0.3350, 0.3351, 0.3334, 0.3308, 0.3263, 0.3198, 0.3117, 0.3016, 0.2896,
+                                                       0.2750, 0.2578]))]
+/home/hpc/iwb3/iwb3021h/NAS_CHALLENGE/NAS_Challenge_AutoML_2024/.testvenv/lib/python3.10/site-packages/torch/nn/modules/module.py:1640: FutureWarning: Using a non-full backward hook when the forward contains multiple autograd Nodes is deprecated and will be removed in future versions. This hook will be missing some grad_input. Please use register_full_backward_hook to get the documented behavior.
+  self._maybe_warn_non_full_backward_hook(args, result, grad_fn)
+ic| '#############'
+ic| aug: 14
+ic| train_loader.dataset.transform.transforms: [RandomErasing(p=0.2, scale=(0.02, 0.2), ratio=(0.3, 3.3), value=[0.0], inplace=False),
+                                                RandomCrop(size=(20, 20), padding=[2, 2, 2, 2], pad_if_needed=False, fill=0, padding_mode=constant),
+                                                RandomHorizontalFlip(p=0.5),
+                                                Normalize(mean=tensor([0.0724, 0.0832, 0.0932, 0.1020, 0.1097, 0.1162, 0.1213, 0.1250, 0.1275,
+                                                       0.1288, 0.1289, 0.1274, 0.1250, 0.1211, 0.1157, 0.1091, 0.1012, 0.0924,
+                                                       0.0824, 0.0716]), std=tensor([0.2592, 0.2762, 0.2907, 0.3026, 0.3125, 0.3204, 0.3264, 0.3307, 0.3336,
+                                                       0.3350, 0.3351, 0.3334, 0.3308, 0.3263, 0.3198, 0.3117, 0.3016, 0.2896,
+                                                       0.2750, 0.2578]))]
+/home/hpc/iwb3/iwb3021h/NAS_CHALLENGE/NAS_Challenge_AutoML_2024/.testvenv/lib/python3.10/site-packages/torch/nn/modules/module.py:1640: FutureWarning: Using a non-full backward hook when the forward contains multiple autograd Nodes is deprecated and will be removed in future versions. This hook will be missing some grad_input. Please use register_full_backward_hook to get the documented behavior.
+  self._maybe_warn_non_full_backward_hook(args, result, grad_fn)
+ic| '#############'
+ic| aug: 15
+ic| train_loader.dataset.transform.transforms: [<data_processor.RandomPixelChange object at 0x7fdf1053bf70>,
+                                                ToTensor(),
+                                                Normalize(mean=tensor([0.0724, 0.0832, 0.0932, 0.1020, 0.1097, 0.1162, 0.1213, 0.1250, 0.1275,
+                                                       0.1288, 0.1289, 0.1274, 0.1250, 0.1211, 0.1157, 0.1091, 0.1012, 0.0924,
+                                                       0.0824, 0.0716]), std=tensor([0.2592, 0.2762, 0.2907, 0.3026, 0.3125, 0.3204, 0.3264, 0.3307, 0.3336,
+                                                       0.3350, 0.3351, 0.3334, 0.3308, 0.3263, 0.3198, 0.3117, 0.3016, 0.2896,
+                                                       0.2750, 0.2578]))]
+/home/hpc/iwb3/iwb3021h/NAS_CHALLENGE/NAS_Challenge_AutoML_2024/.testvenv/lib/python3.10/site-packages/torch/nn/modules/module.py:1640: FutureWarning: Using a non-full backward hook when the forward contains multiple autograd Nodes is deprecated and will be removed in future versions. This hook will be missing some grad_input. Please use register_full_backward_hook to get the documented behavior.
+  self._maybe_warn_non_full_backward_hook(args, result, grad_fn)
+ic| '#############'
+ic| aug: 16
+ic| train_loader.dataset.transform.transforms: [<data_processor.RandomPixelChange object at 0x7fdf10538dc0>,
+                                                ToTensor(),
+                                                Normalize(mean=tensor([0.0724, 0.0832, 0.0932, 0.1020, 0.1097, 0.1162, 0.1213, 0.1250, 0.1275,
+                                                       0.1288, 0.1289, 0.1274, 0.1250, 0.1211, 0.1157, 0.1091, 0.1012, 0.0924,
+                                                       0.0824, 0.0716]), std=tensor([0.2592, 0.2762, 0.2907, 0.3026, 0.3125, 0.3204, 0.3264, 0.3307, 0.3336,
+                                                       0.3350, 0.3351, 0.3334, 0.3308, 0.3263, 0.3198, 0.3117, 0.3016, 0.2896,
+                                                       0.2750, 0.2578]))]
+/home/hpc/iwb3/iwb3021h/NAS_CHALLENGE/NAS_Challenge_AutoML_2024/.testvenv/lib/python3.10/site-packages/torch/nn/modules/module.py:1640: FutureWarning: Using a non-full backward hook when the forward contains multiple autograd Nodes is deprecated and will be removed in future versions. This hook will be missing some grad_input. Please use register_full_backward_hook to get the documented behavior.
+  self._maybe_warn_non_full_backward_hook(args, result, grad_fn)
+ic| '#############'
+ic| aug: 17
+ic| train_loader.dataset.transform.transforms: [<data_processor.RandomPixelChange object at 0x7fdf10538820>,
+                                                ToTensor(),
+                                                Normalize(mean=tensor([0.0724, 0.0832, 0.0932, 0.1020, 0.1097, 0.1162, 0.1213, 0.1250, 0.1275,
+                                                       0.1288, 0.1289, 0.1274, 0.1250, 0.1211, 0.1157, 0.1091, 0.1012, 0.0924,
+                                                       0.0824, 0.0716]), std=tensor([0.2592, 0.2762, 0.2907, 0.3026, 0.3125, 0.3204, 0.3264, 0.3307, 0.3336,
+                                                       0.3350, 0.3351, 0.3334, 0.3308, 0.3263, 0.3198, 0.3117, 0.3016, 0.2896,
+                                                       0.2750, 0.2578]))]
+/home/hpc/iwb3/iwb3021h/NAS_CHALLENGE/NAS_Challenge_AutoML_2024/.testvenv/lib/python3.10/site-packages/torch/nn/modules/module.py:1640: FutureWarning: Using a non-full backward hook when the forward contains multiple autograd Nodes is deprecated and will be removed in future versions. This hook will be missing some grad_input. Please use register_full_backward_hook to get the documented behavior.
+  self._maybe_warn_non_full_backward_hook(args, result, grad_fn)
+ic| '#############'
+ic| aug: 18
+ic| train_loader.dataset.transform.transforms: [<data_processor.RandomPixelChange object at 0x7fdf245e24d0>,
+                                                ToTensor(),
+                                                RandomHorizontalFlip(p=0.5),
+                                                RandomVerticalFlip(p=0.5),
+                                                Normalize(mean=tensor([0.0724, 0.0832, 0.0932, 0.1020, 0.1097, 0.1162, 0.1213, 0.1250, 0.1275,
+                                                       0.1288, 0.1289, 0.1274, 0.1250, 0.1211, 0.1157, 0.1091, 0.1012, 0.0924,
+                                                       0.0824, 0.0716]), std=tensor([0.2592, 0.2762, 0.2907, 0.3026, 0.3125, 0.3204, 0.3264, 0.3307, 0.3336,
+                                                       0.3350, 0.3351, 0.3334, 0.3308, 0.3263, 0.3198, 0.3117, 0.3016, 0.2896,
+                                                       0.2750, 0.2578]))]
+/home/hpc/iwb3/iwb3021h/NAS_CHALLENGE/NAS_Challenge_AutoML_2024/.testvenv/lib/python3.10/site-packages/torch/nn/modules/module.py:1640: FutureWarning: Using a non-full backward hook when the forward contains multiple autograd Nodes is deprecated and will be removed in future versions. This hook will be missing some grad_input. Please use register_full_backward_hook to get the documented behavior.
+  self._maybe_warn_non_full_backward_hook(args, result, grad_fn)
+ic| '#############'
+ic| aug: 19
+ic| train_loader.dataset.transform.transforms: [<data_processor.RandomPixelChange object at 0x7fdfa1130b50>,
+                                                ToTensor(),
+                                                RandomErasing(p=0.2, scale=(0.05, 0.2), ratio=(0.3, 3.3), value=[0.0], inplace=False),
+                                                Normalize(mean=tensor([0.0724, 0.0832, 0.0932, 0.1020, 0.1097, 0.1162, 0.1213, 0.1250, 0.1275,
+                                                       0.1288, 0.1289, 0.1274, 0.1250, 0.1211, 0.1157, 0.1091, 0.1012, 0.0924,
+                                                       0.0824, 0.0716]), std=tensor([0.2592, 0.2762, 0.2907, 0.3026, 0.3125, 0.3204, 0.3264, 0.3307, 0.3336,
+                                                       0.3350, 0.3351, 0.3334, 0.3308, 0.3263, 0.3198, 0.3117, 0.3016, 0.2896,
+                                                       0.2750, 0.2578]))]
+/home/hpc/iwb3/iwb3021h/NAS_CHALLENGE/NAS_Challenge_AutoML_2024/.testvenv/lib/python3.10/site-packages/torch/nn/modules/module.py:1640: FutureWarning: Using a non-full backward hook when the forward contains multiple autograd Nodes is deprecated and will be removed in future versions. This hook will be missing some grad_input. Please use register_full_backward_hook to get the documented behavior.
+  self._maybe_warn_non_full_backward_hook(args, result, grad_fn)
+ic| '#############'
+ic| aug: 20
+ic| train_loader.dataset.transform.transforms: [<data_processor.RandomPixelChange object at 0x7fdf1053a680>,
+                                                ToTensor(),
+                                                RandomCrop(size=(20, 20), padding=[2, 2, 2, 2], pad_if_needed=False, fill=0, padding_mode=constant),
+                                                Normalize(mean=tensor([0.0724, 0.0832, 0.0932, 0.1020, 0.1097, 0.1162, 0.1213, 0.1250, 0.1275,
+                                                       0.1288, 0.1289, 0.1274, 0.1250, 0.1211, 0.1157, 0.1091, 0.1012, 0.0924,
+                                                       0.0824, 0.0716]), std=tensor([0.2592, 0.2762, 0.2907, 0.3026, 0.3125, 0.3204, 0.3264, 0.3307, 0.3336,
+                                                       0.3350, 0.3351, 0.3334, 0.3308, 0.3263, 0.3198, 0.3117, 0.3016, 0.2896,
+                                                       0.2750, 0.2578]))]
+/home/hpc/iwb3/iwb3021h/NAS_CHALLENGE/NAS_Challenge_AutoML_2024/.testvenv/lib/python3.10/site-packages/torch/nn/modules/module.py:1640: FutureWarning: Using a non-full backward hook when the forward contains multiple autograd Nodes is deprecated and will be removed in future versions. This hook will be missing some grad_input. Please use register_full_backward_hook to get the documented behavior.
+  self._maybe_warn_non_full_backward_hook(args, result, grad_fn)
+ic| '#############'
+ic| aug: 21
+ic| train_loader.dataset.transform.transforms: [<data_processor.RandomPixelChange object at 0x7fdf1053a710>,
+                                                ToTensor(),
+                                                RandomHorizontalFlip(p=0.5),
+                                                RandomVerticalFlip(p=0.5),
+                                                RandomErasing(p=0.2, scale=(0.05, 0.2), ratio=(0.3, 3.3), value=[0.0], inplace=False),
+                                                Normalize(mean=tensor([0.0724, 0.0832, 0.0932, 0.1020, 0.1097, 0.1162, 0.1213, 0.1250, 0.1275,
+                                                       0.1288, 0.1289, 0.1274, 0.1250, 0.1211, 0.1157, 0.1091, 0.1012, 0.0924,
+                                                       0.0824, 0.0716]), std=tensor([0.2592, 0.2762, 0.2907, 0.3026, 0.3125, 0.3204, 0.3264, 0.3307, 0.3336,
+                                                       0.3350, 0.3351, 0.3334, 0.3308, 0.3263, 0.3198, 0.3117, 0.3016, 0.2896,
+                                                       0.2750, 0.2578]))]
+/home/hpc/iwb3/iwb3021h/NAS_CHALLENGE/NAS_Challenge_AutoML_2024/.testvenv/lib/python3.10/site-packages/torch/nn/modules/module.py:1640: FutureWarning: Using a non-full backward hook when the forward contains multiple autograd Nodes is deprecated and will be removed in future versions. This hook will be missing some grad_input. Please use register_full_backward_hook to get the documented behavior.
+  self._maybe_warn_non_full_backward_hook(args, result, grad_fn)
+ic| f"best_augmentation: {best_aug}": 'best_augmentation: 14'
+ic| f"selected transform {train_transform}": ('selected transform [RandomErasing(p=0.2, scale=(0.02, 0.2), ratio=(0.3, '
+                                              '3.3), value=[0.0], inplace=False), RandomCrop(size=(20, 20), padding=[2, 2, '
+                                              '2, 2], pad_if_needed=False, fill=0, padding_mode=constant), '
+                                              'RandomHorizontalFlip(p=0.5)]')
+ic| self.x.shape: torch.Size([50000, 20, 20, 20])
+ic| self.x.shape: torch.Size([10000, 20, 20, 20])
+ic| self.x.shape: torch.Size([10000, 20, 20, 20])
+ic| mode: 'T0+'
+ic| 'Extended + Regnet mode'
+ic| f"Mode {mode}": 'Mode T0+'
+ic| get_gpu_memory(0): 41024618496
+ic| self.total_generations: 3
+ic| 'Time remaining:'
+ic| metadata['time_remaining']: 104819.62460446358
+ic| self.zcost_nas: True
+ic| self.cfg: CfgNode({'MODEL': CfgNode({'TYPE': 'regnet', 'NUM_CLASSES': 7, 'ACTIVATION_FUN': 'relu', 'ACTIVATION_INPLACE': True, 'SCALING_TYPE': '', 'SCALING_FACTOR': 1.0}), 'REGNET': CfgNode({'STEM_TYPE': 'res_stem_cifar', 'INPUT_CHANNELS': 20, 'STEM_W': 20, 'BLOCK_TYPE': 'res_bottleneck_block', 'STRIDE': 2, 'SE_ON': True, 'SE_R': 0.25, 'DEPTH': 20, 'W0': 232, 'WA': 115.89, 'WM': 2.53, 'GROUP_W': 8, 'BOT_MUL': 1.0, 'HEAD_W': 0, 'DOWNSAMPLE': 'avg', 'DROP_RATE': 0.01, 'DROPOUT': 0.2}), 'BN': CfgNode({'EPS': 1e-05, 'MOM': 0.1, 'ZERO_INIT_FINAL_GAMMA': False}), 'LN': CfgNode({'EPS': 1e-05}), 'DESC': ''})
+ic| samples: 120
+/home/hpc/iwb3/iwb3021h/NAS_CHALLENGE/NAS_Challenge_AutoML_2024/.testvenv/lib/python3.10/site-packages/sklearn/base.py:376: InconsistentVersionWarning: Trying to unpickle estimator SGDRegressor from version 1.4.2 when using version 1.5.0. This might lead to breaking code or invalid results. Use at your own risk. For more info please refer to:
+https://scikit-learn.org/stable/model_persistence.html#security-maintainability-limitations
+  warnings.warn(
+/home/woody/iwb3/iwb3021h/THESIS_RESULTS/package1/search_space/RegNet.py:299: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  ranking_test_df[pred_column]=sgd_regressor.predict(X_test)
+ic| ranking_prediction_df:                         score
+                           stimulating_pogona  154.77585
+ic| best_models.keys(): dict_keys(['stimulating_pogona'])
+ic| self.initial_population_size: 120
+ic| metadata: {'benchmark': 71.35,
+               'codename': 'Volga',
+               'input_shape': [50000, 20, 20, 20],
+               'mode': 'NAS',
+               'num_classes': 7,
+               'test_type': 'T0+_Proxy/seed_2',
+               'time_remaining': 104735.37122273445,
+               'train_config_path': 'configs/train/finetuning_generation_adam.yaml'}
+ic| cfg_path: 'configs/train/finetuning_generation_adam.yaml'
+ic| self.cfg.SOLVER.LR: 0.001
+ic| self.cfg.SOLVER.EPOCHS-self.cfg.SOLVER.SWA_START: 10
+ic| self.cfg.SOLVER.EPOCHS: 100
+/home/woody/iwb3/iwb3021h/THESIS_RESULTS/package1/trainer.py:41: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  checkpoint = torch.load(checkpoint_path, map_location=device)
+ic| self.select_augment: 'Proxy'
+ic| self.x.shape: torch.Size([50000, 1, 9, 9])
+ic| unique_values: array([0. , 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1. ],
+                         dtype=float32)
+ic| C: 1
+ic| H: 9
+ic| PH: 1
+/home/hpc/iwb3/iwb3021h/NAS_CHALLENGE/NAS_Challenge_AutoML_2024/.testvenv/lib/python3.10/site-packages/torchvision/transforms/v2/_deprecated.py:42: UserWarning: The transform `ToTensor()` is deprecated and will be removed in a future release. Instead, please use `v2.Compose([v2.ToImage(), v2.ToDtype(torch.float32, scale=True)])`.Output is equivalent up to float precision.
+  warnings.warn(
+ic| poss_augs: [[],
+                [RandAugment(interpolation=InterpolationMode.NEAREST, num_ops=2, magnitude=9, num_magnitude_bins=31)],
+                [RandAugment(interpolation=InterpolationMode.NEAREST, num_ops=2, magnitude=5, num_magnitude_bins=31)],
+                [RandAugment(interpolation=InterpolationMode.NEAREST, num_ops=2, magnitude=1, num_magnitude_bins=31)],
+                [TrivialAugmentWide(interpolation=InterpolationMode.NEAREST, num_magnitude_bins=31)],
+                [TrivialAugmentWide(interpolation=InterpolationMode.NEAREST, num_magnitude_bins=15)],
+                [AugMix(interpolation=InterpolationMode.BILINEAR, severity=3, mixture_width=3, chain_depth=-1, alpha=1.0, all_ops=True)],
+                [AugMix(interpolation=InterpolationMode.BILINEAR, severity=1, mixture_width=3, chain_depth=-1, alpha=1.0, all_ops=True)],
+                [RandomHorizontalFlip(p=0.5), RandomVerticalFlip(p=0.5)],
+                [RandomErasing(p=0.2, scale=(0.05, 0.2), ratio=(0.3, 3.3), value=[0.0], inplace=False),
+                 RandomHorizontalFlip(p=0.5),
+                 RandomVerticalFlip(p=0.5)],
+                [RandomErasing(p=0.2, scale=(0.05, 0.2), ratio=(0.3, 3.3), value=[0.0], inplace=False)],
+                [RandomErasing(p=0.2, scale=(0.02, 0.2), ratio=(0.3, 3.3), value=[0.0], inplace=False),
+                 RandomCrop(size=(9, 9), padding=[1, 1, 1, 1], pad_if_needed=False, fill=0, padding_mode=constant)],
+                [RandomCrop(size=(9, 9), padding=[1, 1, 1, 1], pad_if_needed=False, fill=0, padding_mode=constant)],
+                [RandomCrop(size=(9, 9), padding=[1, 1, 1, 1], pad_if_needed=False, fill=0, padding_mode=constant),
+                 RandomHorizontalFlip(p=0.5),
+                 RandomVerticalFlip(p=0.5)],
+                [RandomErasing(p=0.2, scale=(0.02, 0.2), ratio=(0.3, 3.3), value=[0.0], inplace=False),
+                 RandomCrop(size=(9, 9), padding=[1, 1, 1, 1], pad_if_needed=False, fill=0, padding_mode=constant),
+                 RandomHorizontalFlip(p=0.5)],
+                [<data_processor.RandomPixelChange object at 0x7fdf245e0880>, ToTensor()],
+                [<data_processor.RandomPixelChange object at 0x7fdf245e1090>, ToTensor()],
+                [<data_processor.RandomPixelChange object at 0x7fdf245e28c0>, ToTensor()],
+                [<data_processor.RandomPixelChange object at 0x7fdf245e1300>,
+                 ToTensor(),
+                 RandomHorizontalFlip(p=0.5),
+                 RandomVerticalFlip(p=0.5)],
+                [<data_processor.RandomPixelChange object at 0x7fdeff4f7e80>,
+                 ToTensor(),
+                 RandomErasing(p=0.2, scale=(0.05, 0.2), ratio=(0.3, 3.3), value=[0.0], inplace=False)],
+                [<data_processor.RandomPixelChange object at 0x7fdeff4f7eb0>,
+                 ToTensor(),
+                 RandomCrop(size=(9, 9), padding=[1, 1, 1, 1], pad_if_needed=False, fill=0, padding_mode=constant)],
+                [<data_processor.RandomPixelChange object at 0x7fdeff4f7250>,
+                 ToTensor(),
+                 RandomHorizontalFlip(p=0.5),
+                 RandomVerticalFlip(p=0.5),
+                 RandomErasing(p=0.2, scale=(0.05, 0.2), ratio=(0.3, 3.3), value=[0.0], inplace=False)]]
+ic| individuals: ['bizarre_platypus',
+                  'horned_dog',
+                  'curly_jackal',
+                  'outgoing_oarfish',
+                  'merry_dalmatian',
+                  'striped_myna',
+                  'aquatic_frog',
+                  'independent_copperhead',
+                  'dandelion_ammonite',
+                  'prehistoric_koala',
+                  'unnatural_husky',
+                  'tall_tortoise',
+                  'imported_crow',
+                  'sensible_firefly',
+                  'efficient_parrot',
+                  'amusing_wasp',
+                  'spectral_scorpion',
+                  'radiant_agama',
+                  'violet_cassowary',
+                  'glorious_sparrow']
+ic| params: [16.0, 64, 2.6999999999999975, 18, 8]
+ic| params: [24.0, 24, 2.3499999999999988, 21, 8]
+ic| params: [56.0, 64, 2.849999999999997, 22, 8]
+ic| params: [64.0, 88, 2.4999999999999982, 11, 8]
+ic| params: [56.0, 112, 2.05, 18, 8]
+ic| params: [16.0, 96, 2.05, 21, 8]
+ic| params: [56.0, 64, 2.3999999999999986, 22, 8]
+ic| params: [24.0, 24, 2.6999999999999975, 21, 8]
+ic| params: [16.0, 48, 2.249999999999999, 21, 8]
+ic| params: [24.0, 88, 2.3999999999999986, 11, 8]
+ic| params: [16.0, 72, 2.6499999999999977, 18, 8]
+ic| params: [40.0, 104, 2.6999999999999975, 15, 8]
+ic| params: [48.0, 96, 2.0999999999999996, 20, 8]
+ic| params: [16.0, 72, 2.4999999999999982, 12, 8]
+ic| params: [64.0, 96, 2.299999999999999, 22, 8]
+ic| params: [64.0, 112, 2.4499999999999984, 16, 8]
+ic| params: [48.0, 104, 2.0999999999999996, 18, 8]
+ic| params: [16.0, 40, 2.0999999999999996, 21, 8]
+ic| params: [64.0, 120, 2.299999999999999, 10, 8]
+ic| params: [56.0, 64, 2.6999999999999975, 16, 8]
+ic| individuals: ['bizarre_platypus',
+                  'horned_dog',
+                  'curly_jackal',
+                  'outgoing_oarfish',
+                  'merry_dalmatian',
+                  'striped_myna',
+                  'aquatic_frog',
+                  'independent_copperhead',
+                  'dandelion_ammonite',
+                  'prehistoric_koala',
+                  'unnatural_husky',
+                  'tall_tortoise',
+                  'imported_crow',
+                  'sensible_firefly',
+                  'efficient_parrot',
+                  'amusing_wasp',
+                  'spectral_scorpion',
+                  'radiant_agama',
+                  'violet_cassowary',
+                  'glorious_sparrow']
+ic| params_dict: {'amusing_wasp': [64.0, 112, 2.4499999999999984, 16, 8],
+                  'aquatic_frog': [56.0, 64, 2.3999999999999986, 22, 8],
+                  'bizarre_platypus': [16.0, 64, 2.6999999999999975, 18, 8],
+                  'curly_jackal': [56.0, 64, 2.849999999999997, 22, 8],
+                  'dandelion_ammonite': [16.0, 48, 2.249999999999999, 21, 8],
+                  'efficient_parrot': [64.0, 96, 2.299999999999999, 22, 8],
+                  'glorious_sparrow': [56.0, 64, 2.6999999999999975, 16, 8],
+                  'horned_dog': [24.0, 24, 2.3499999999999988, 21, 8],
+                  'imported_crow': [48.0, 96, 2.0999999999999996, 20, 8],
+                  'independent_copperhead': [24.0, 24, 2.6999999999999975, 21, 8],
+                  'merry_dalmatian': [56.0, 112, 2.05, 18, 8],
+                  'outgoing_oarfish': [64.0, 88, 2.4999999999999982, 11, 8],
+                  'prehistoric_koala': [24.0, 88, 2.3999999999999986, 11, 8],
+                  'radiant_agama': [16.0, 40, 2.0999999999999996, 21, 8],
+                  'sensible_firefly': [16.0, 72, 2.4999999999999982, 12, 8],
+                  'spectral_scorpion': [48.0, 104, 2.0999999999999996, 18, 8],
+                  'striped_myna': [16.0, 96, 2.05, 21, 8],
+                  'tall_tortoise': [40.0, 104, 2.6999999999999975, 15, 8],
+                  'unnatural_husky': [16.0, 72, 2.6499999999999977, 18, 8],
+                  'violet_cassowary': [64.0, 120, 2.299999999999999, 10, 8]}
+ic| '#############'
+ic| aug: 0
+ic| train_loader.dataset.transform.transforms: [Normalize(mean=tensor([0.4198]), std=tensor([0.3068]))]
+/home/hpc/iwb3/iwb3021h/NAS_CHALLENGE/NAS_Challenge_AutoML_2024/.testvenv/lib/python3.10/site-packages/torch/nn/modules/module.py:1640: FutureWarning: Using a non-full backward hook when the forward contains multiple autograd Nodes is deprecated and will be removed in future versions. This hook will be missing some grad_input. Please use register_full_backward_hook to get the documented behavior.
+  self._maybe_warn_non_full_backward_hook(args, result, grad_fn)
+ic| '#############'
+ic| aug: 1
+ic| train_loader.dataset.transform.transforms: [RandAugment(interpolation=InterpolationMode.NEAREST, num_ops=2, magnitude=9, num_magnitude_bins=31),
+                                                Normalize(mean=tensor([0.4198]), std=tensor([0.3068]))]
+/home/hpc/iwb3/iwb3021h/NAS_CHALLENGE/NAS_Challenge_AutoML_2024/.testvenv/lib/python3.10/site-packages/torch/nn/modules/module.py:1640: FutureWarning: Using a non-full backward hook when the forward contains multiple autograd Nodes is deprecated and will be removed in future versions. This hook will be missing some grad_input. Please use register_full_backward_hook to get the documented behavior.
+  self._maybe_warn_non_full_backward_hook(args, result, grad_fn)
+ic| '#############'
+ic| aug: 2
+ic| train_loader.dataset.transform.transforms: [RandAugment(interpolation=InterpolationMode.NEAREST, num_ops=2, magnitude=5, num_magnitude_bins=31),
+                                                Normalize(mean=tensor([0.4198]), std=tensor([0.3068]))]
+/home/hpc/iwb3/iwb3021h/NAS_CHALLENGE/NAS_Challenge_AutoML_2024/.testvenv/lib/python3.10/site-packages/torch/nn/modules/module.py:1640: FutureWarning: Using a non-full backward hook when the forward contains multiple autograd Nodes is deprecated and will be removed in future versions. This hook will be missing some grad_input. Please use register_full_backward_hook to get the documented behavior.
+  self._maybe_warn_non_full_backward_hook(args, result, grad_fn)
+ic| '#############'
+ic| aug: 3
+ic| train_loader.dataset.transform.transforms: [RandAugment(interpolation=InterpolationMode.NEAREST, num_ops=2, magnitude=1, num_magnitude_bins=31),
+                                                Normalize(mean=tensor([0.4198]), std=tensor([0.3068]))]
+/home/hpc/iwb3/iwb3021h/NAS_CHALLENGE/NAS_Challenge_AutoML_2024/.testvenv/lib/python3.10/site-packages/torch/nn/modules/module.py:1640: FutureWarning: Using a non-full backward hook when the forward contains multiple autograd Nodes is deprecated and will be removed in future versions. This hook will be missing some grad_input. Please use register_full_backward_hook to get the documented behavior.
+  self._maybe_warn_non_full_backward_hook(args, result, grad_fn)
+ic| '#############'
+ic| aug: 4
+ic| train_loader.dataset.transform.transforms: [TrivialAugmentWide(interpolation=InterpolationMode.NEAREST, num_magnitude_bins=31),
+                                                Normalize(mean=tensor([0.4198]), std=tensor([0.3068]))]
+/home/hpc/iwb3/iwb3021h/NAS_CHALLENGE/NAS_Challenge_AutoML_2024/.testvenv/lib/python3.10/site-packages/torch/nn/modules/module.py:1640: FutureWarning: Using a non-full backward hook when the forward contains multiple autograd Nodes is deprecated and will be removed in future versions. This hook will be missing some grad_input. Please use register_full_backward_hook to get the documented behavior.
+  self._maybe_warn_non_full_backward_hook(args, result, grad_fn)
+ic| '#############'
+ic| aug: 5
+ic| train_loader.dataset.transform.transforms: [TrivialAugmentWide(interpolation=InterpolationMode.NEAREST, num_magnitude_bins=15),
+                                                Normalize(mean=tensor([0.4198]), std=tensor([0.3068]))]
+/home/hpc/iwb3/iwb3021h/NAS_CHALLENGE/NAS_Challenge_AutoML_2024/.testvenv/lib/python3.10/site-packages/torch/nn/modules/module.py:1640: FutureWarning: Using a non-full backward hook when the forward contains multiple autograd Nodes is deprecated and will be removed in future versions. This hook will be missing some grad_input. Please use register_full_backward_hook to get the documented behavior.
+  self._maybe_warn_non_full_backward_hook(args, result, grad_fn)
+ic| '#############'
+ic| aug: 6
+ic| train_loader.dataset.transform.transforms: [AugMix(interpolation=InterpolationMode.BILINEAR, severity=3, mixture_width=3, chain_depth=-1, alpha=1.0, all_ops=True),
+                                                Normalize(mean=tensor([0.4198]), std=tensor([0.3068]))]
+/home/hpc/iwb3/iwb3021h/NAS_CHALLENGE/NAS_Challenge_AutoML_2024/.testvenv/lib/python3.10/site-packages/torch/nn/modules/module.py:1640: FutureWarning: Using a non-full backward hook when the forward contains multiple autograd Nodes is deprecated and will be removed in future versions. This hook will be missing some grad_input. Please use register_full_backward_hook to get the documented behavior.
+  self._maybe_warn_non_full_backward_hook(args, result, grad_fn)
+ic| '#############'
+ic| aug: 7
+ic| train_loader.dataset.transform.transforms: [AugMix(interpolation=InterpolationMode.BILINEAR, severity=1, mixture_width=3, chain_depth=-1, alpha=1.0, all_ops=True),
+                                                Normalize(mean=tensor([0.4198]), std=tensor([0.3068]))]
+/home/hpc/iwb3/iwb3021h/NAS_CHALLENGE/NAS_Challenge_AutoML_2024/.testvenv/lib/python3.10/site-packages/torch/nn/modules/module.py:1640: FutureWarning: Using a non-full backward hook when the forward contains multiple autograd Nodes is deprecated and will be removed in future versions. This hook will be missing some grad_input. Please use register_full_backward_hook to get the documented behavior.
+  self._maybe_warn_non_full_backward_hook(args, result, grad_fn)
+ic| '#############'
+ic| aug: 8
+ic| train_loader.dataset.transform.transforms: [RandomHorizontalFlip(p=0.5),
+                                                RandomVerticalFlip(p=0.5),
+                                                Normalize(mean=tensor([0.4198]), std=tensor([0.3068]))]
+/home/hpc/iwb3/iwb3021h/NAS_CHALLENGE/NAS_Challenge_AutoML_2024/.testvenv/lib/python3.10/site-packages/torch/nn/modules/module.py:1640: FutureWarning: Using a non-full backward hook when the forward contains multiple autograd Nodes is deprecated and will be removed in future versions. This hook will be missing some grad_input. Please use register_full_backward_hook to get the documented behavior.
+  self._maybe_warn_non_full_backward_hook(args, result, grad_fn)
+ic| '#############'
+ic| aug: 9
+ic| train_loader.dataset.transform.transforms: [RandomErasing(p=0.2, scale=(0.05, 0.2), ratio=(0.3, 3.3), value=[0.0], inplace=False),
+                                                RandomHorizontalFlip(p=0.5),
+                                                RandomVerticalFlip(p=0.5),
+                                                Normalize(mean=tensor([0.4198]), std=tensor([0.3068]))]
+/home/hpc/iwb3/iwb3021h/NAS_CHALLENGE/NAS_Challenge_AutoML_2024/.testvenv/lib/python3.10/site-packages/torch/nn/modules/module.py:1640: FutureWarning: Using a non-full backward hook when the forward contains multiple autograd Nodes is deprecated and will be removed in future versions. This hook will be missing some grad_input. Please use register_full_backward_hook to get the documented behavior.
+  self._maybe_warn_non_full_backward_hook(args, result, grad_fn)
+ic| '#############'
+ic| aug: 10
+ic| train_loader.dataset.transform.transforms: [RandomErasing(p=0.2, scale=(0.05, 0.2), ratio=(0.3, 3.3), value=[0.0], inplace=False),
+                                                Normalize(mean=tensor([0.4198]), std=tensor([0.3068]))]
+/home/hpc/iwb3/iwb3021h/NAS_CHALLENGE/NAS_Challenge_AutoML_2024/.testvenv/lib/python3.10/site-packages/torch/nn/modules/module.py:1640: FutureWarning: Using a non-full backward hook when the forward contains multiple autograd Nodes is deprecated and will be removed in future versions. This hook will be missing some grad_input. Please use register_full_backward_hook to get the documented behavior.
+  self._maybe_warn_non_full_backward_hook(args, result, grad_fn)
+ic| '#############'
+ic| aug: 11
+ic| train_loader.dataset.transform.transforms: [RandomErasing(p=0.2, scale=(0.02, 0.2), ratio=(0.3, 3.3), value=[0.0], inplace=False),
+                                                RandomCrop(size=(9, 9), padding=[1, 1, 1, 1], pad_if_needed=False, fill=0, padding_mode=constant),
+                                                Normalize(mean=tensor([0.4198]), std=tensor([0.3068]))]
+/home/hpc/iwb3/iwb3021h/NAS_CHALLENGE/NAS_Challenge_AutoML_2024/.testvenv/lib/python3.10/site-packages/torch/nn/modules/module.py:1640: FutureWarning: Using a non-full backward hook when the forward contains multiple autograd Nodes is deprecated and will be removed in future versions. This hook will be missing some grad_input. Please use register_full_backward_hook to get the documented behavior.
+  self._maybe_warn_non_full_backward_hook(args, result, grad_fn)
+ic| '#############'
+ic| aug: 12
+ic| train_loader.dataset.transform.transforms: [RandomCrop(size=(9, 9), padding=[1, 1, 1, 1], pad_if_needed=False, fill=0, padding_mode=constant),
+                                                Normalize(mean=tensor([0.4198]), std=tensor([0.3068]))]
+/home/hpc/iwb3/iwb3021h/NAS_CHALLENGE/NAS_Challenge_AutoML_2024/.testvenv/lib/python3.10/site-packages/torch/nn/modules/module.py:1640: FutureWarning: Using a non-full backward hook when the forward contains multiple autograd Nodes is deprecated and will be removed in future versions. This hook will be missing some grad_input. Please use register_full_backward_hook to get the documented behavior.
+  self._maybe_warn_non_full_backward_hook(args, result, grad_fn)
+ic| '#############'
+ic| aug: 13
+ic| train_loader.dataset.transform.transforms: [RandomCrop(size=(9, 9), padding=[1, 1, 1, 1], pad_if_needed=False, fill=0, padding_mode=constant),
+                                                RandomHorizontalFlip(p=0.5),
+                                                RandomVerticalFlip(p=0.5),
+                                                Normalize(mean=tensor([0.4198]), std=tensor([0.3068]))]
+/home/hpc/iwb3/iwb3021h/NAS_CHALLENGE/NAS_Challenge_AutoML_2024/.testvenv/lib/python3.10/site-packages/torch/nn/modules/module.py:1640: FutureWarning: Using a non-full backward hook when the forward contains multiple autograd Nodes is deprecated and will be removed in future versions. This hook will be missing some grad_input. Please use register_full_backward_hook to get the documented behavior.
+  self._maybe_warn_non_full_backward_hook(args, result, grad_fn)
+ic| '#############'
+ic| aug: 14
+ic| train_loader.dataset.transform.transforms: [RandomErasing(p=0.2, scale=(0.02, 0.2), ratio=(0.3, 3.3), value=[0.0], inplace=False),
+                                                RandomCrop(size=(9, 9), padding=[1, 1, 1, 1], pad_if_needed=False, fill=0, padding_mode=constant),
+                                                RandomHorizontalFlip(p=0.5),
+                                                Normalize(mean=tensor([0.4198]), std=tensor([0.3068]))]
+/home/hpc/iwb3/iwb3021h/NAS_CHALLENGE/NAS_Challenge_AutoML_2024/.testvenv/lib/python3.10/site-packages/torch/nn/modules/module.py:1640: FutureWarning: Using a non-full backward hook when the forward contains multiple autograd Nodes is deprecated and will be removed in future versions. This hook will be missing some grad_input. Please use register_full_backward_hook to get the documented behavior.
+  self._maybe_warn_non_full_backward_hook(args, result, grad_fn)
+ic| '#############'
+ic| aug: 15
+ic| train_loader.dataset.transform.transforms: [<data_processor.RandomPixelChange object at 0x7fdf245e0880>,
+                                                ToTensor(),
+                                                Normalize(mean=tensor([0.4198]), std=tensor([0.3068]))]
+/home/hpc/iwb3/iwb3021h/NAS_CHALLENGE/NAS_Challenge_AutoML_2024/.testvenv/lib/python3.10/site-packages/torch/nn/modules/module.py:1640: FutureWarning: Using a non-full backward hook when the forward contains multiple autograd Nodes is deprecated and will be removed in future versions. This hook will be missing some grad_input. Please use register_full_backward_hook to get the documented behavior.
+  self._maybe_warn_non_full_backward_hook(args, result, grad_fn)
+ic| '#############'
+ic| aug: 16
+ic| train_loader.dataset.transform.transforms: [<data_processor.RandomPixelChange object at 0x7fdf245e1090>,
+                                                ToTensor(),
+                                                Normalize(mean=tensor([0.4198]), std=tensor([0.3068]))]
+/home/hpc/iwb3/iwb3021h/NAS_CHALLENGE/NAS_Challenge_AutoML_2024/.testvenv/lib/python3.10/site-packages/torch/nn/modules/module.py:1640: FutureWarning: Using a non-full backward hook when the forward contains multiple autograd Nodes is deprecated and will be removed in future versions. This hook will be missing some grad_input. Please use register_full_backward_hook to get the documented behavior.
+  self._maybe_warn_non_full_backward_hook(args, result, grad_fn)
+ic| '#############'
+ic| aug: 17
+ic| train_loader.dataset.transform.transforms: [<data_processor.RandomPixelChange object at 0x7fdf245e28c0>,
+                                                ToTensor(),
+                                                Normalize(mean=tensor([0.4198]), std=tensor([0.3068]))]
+/home/hpc/iwb3/iwb3021h/NAS_CHALLENGE/NAS_Challenge_AutoML_2024/.testvenv/lib/python3.10/site-packages/torch/nn/modules/module.py:1640: FutureWarning: Using a non-full backward hook when the forward contains multiple autograd Nodes is deprecated and will be removed in future versions. This hook will be missing some grad_input. Please use register_full_backward_hook to get the documented behavior.
+  self._maybe_warn_non_full_backward_hook(args, result, grad_fn)
+ic| '#############'
+ic| aug: 18
+ic| train_loader.dataset.transform.transforms: [<data_processor.RandomPixelChange object at 0x7fdf245e1300>,
+                                                ToTensor(),
+                                                RandomHorizontalFlip(p=0.5),
+                                                RandomVerticalFlip(p=0.5),
+                                                Normalize(mean=tensor([0.4198]), std=tensor([0.3068]))]
+/home/hpc/iwb3/iwb3021h/NAS_CHALLENGE/NAS_Challenge_AutoML_2024/.testvenv/lib/python3.10/site-packages/torch/nn/modules/module.py:1640: FutureWarning: Using a non-full backward hook when the forward contains multiple autograd Nodes is deprecated and will be removed in future versions. This hook will be missing some grad_input. Please use register_full_backward_hook to get the documented behavior.
+  self._maybe_warn_non_full_backward_hook(args, result, grad_fn)
+ic| '#############'
+ic| aug: 19
+ic| train_loader.dataset.transform.transforms: [<data_processor.RandomPixelChange object at 0x7fdeff4f7e80>,
+                                                ToTensor(),
+                                                RandomErasing(p=0.2, scale=(0.05, 0.2), ratio=(0.3, 3.3), value=[0.0], inplace=False),
+                                                Normalize(mean=tensor([0.4198]), std=tensor([0.3068]))]
+/home/hpc/iwb3/iwb3021h/NAS_CHALLENGE/NAS_Challenge_AutoML_2024/.testvenv/lib/python3.10/site-packages/torch/nn/modules/module.py:1640: FutureWarning: Using a non-full backward hook when the forward contains multiple autograd Nodes is deprecated and will be removed in future versions. This hook will be missing some grad_input. Please use register_full_backward_hook to get the documented behavior.
+  self._maybe_warn_non_full_backward_hook(args, result, grad_fn)
+ic| '#############'
+ic| aug: 20
+ic| train_loader.dataset.transform.transforms: [<data_processor.RandomPixelChange object at 0x7fdeff4f7eb0>,
+                                                ToTensor(),
+                                                RandomCrop(size=(9, 9), padding=[1, 1, 1, 1], pad_if_needed=False, fill=0, padding_mode=constant),
+                                                Normalize(mean=tensor([0.4198]), std=tensor([0.3068]))]
+/home/hpc/iwb3/iwb3021h/NAS_CHALLENGE/NAS_Challenge_AutoML_2024/.testvenv/lib/python3.10/site-packages/torch/nn/modules/module.py:1640: FutureWarning: Using a non-full backward hook when the forward contains multiple autograd Nodes is deprecated and will be removed in future versions. This hook will be missing some grad_input. Please use register_full_backward_hook to get the documented behavior.
+  self._maybe_warn_non_full_backward_hook(args, result, grad_fn)
+ic| '#############'
+ic| aug: 21
+ic| train_loader.dataset.transform.transforms: [<data_processor.RandomPixelChange object at 0x7fdeff4f7250>,
+                                                ToTensor(),
+                                                RandomHorizontalFlip(p=0.5),
+                                                RandomVerticalFlip(p=0.5),
+                                                RandomErasing(p=0.2, scale=(0.05, 0.2), ratio=(0.3, 3.3), value=[0.0], inplace=False),
+                                                Normalize(mean=tensor([0.4198]), std=tensor([0.3068]))]
+/home/hpc/iwb3/iwb3021h/NAS_CHALLENGE/NAS_Challenge_AutoML_2024/.testvenv/lib/python3.10/site-packages/torch/nn/modules/module.py:1640: FutureWarning: Using a non-full backward hook when the forward contains multiple autograd Nodes is deprecated and will be removed in future versions. This hook will be missing some grad_input. Please use register_full_backward_hook to get the documented behavior.
+  self._maybe_warn_non_full_backward_hook(args, result, grad_fn)
+/home/hpc/iwb3/iwb3021h/NAS_CHALLENGE/NAS_Challenge_AutoML_2024/.testvenv/lib/python3.10/site-packages/pandas/core/dtypes/astype.py:133: ComplexWarning: Casting complex values to real discards the imaginary part
+  return arr.astype(dtype, copy=True)
+/home/hpc/iwb3/iwb3021h/NAS_CHALLENGE/NAS_Challenge_AutoML_2024/.testvenv/lib/python3.10/site-packages/pandas/core/dtypes/astype.py:133: ComplexWarning: Casting complex values to real discards the imaginary part
+  return arr.astype(dtype, copy=True)
+/home/woody/iwb3/iwb3021h/THESIS_RESULTS/package1/data_processor.py:590: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  subset_df_no_outliers["fisher"] = scaler.fit_transform(subset_df_no_outliers[["fisher"]])
+/home/woody/iwb3/iwb3021h/THESIS_RESULTS/package1/data_processor.py:590: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  subset_df_no_outliers["fisher"] = scaler.fit_transform(subset_df_no_outliers[["fisher"]])
+/home/woody/iwb3/iwb3021h/THESIS_RESULTS/package1/data_processor.py:590: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  subset_df_no_outliers["fisher"] = scaler.fit_transform(subset_df_no_outliers[["fisher"]])
+/home/woody/iwb3/iwb3021h/THESIS_RESULTS/package1/data_processor.py:590: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  subset_df_no_outliers["fisher"] = scaler.fit_transform(subset_df_no_outliers[["fisher"]])
+ic| f"best_augmentation: {best_aug}": 'best_augmentation: 1'
+ic| f"selected transform {train_transform}": ('selected transform [RandAugment(interpolation=InterpolationMode.NEAREST, '
+                                              'num_ops=2, magnitude=9, num_magnitude_bins=31)]')
+ic| self.x.shape: torch.Size([50000, 1, 9, 9])
+ic| self.x.shape: torch.Size([10000, 1, 9, 9])
+ic| self.x.shape: torch.Size([10000, 1, 9, 9])
+ic| mode: 'T0+'
+ic| 'Extended + Regnet mode'
+ic| f"Mode {mode}": 'Mode T0+'
+ic| get_gpu_memory(0): 40657616896
+ic| self.total_generations: 3
+ic| 'Time remaining:'
+ic| metadata['time_remaining']: 101234.770403862
+ic| self.zcost_nas: True
+ic| self.cfg: CfgNode({'MODEL': CfgNode({'TYPE': 'regnet', 'NUM_CLASSES': 9, 'ACTIVATION_FUN': 'relu', 'ACTIVATION_INPLACE': True, 'SCALING_TYPE': '', 'SCALING_FACTOR': 1.0}), 'REGNET': CfgNode({'STEM_TYPE': 'res_stem_cifar', 'INPUT_CHANNELS': 1, 'STEM_W': 9, 'BLOCK_TYPE': 'res_bottleneck_block', 'STRIDE': 2, 'SE_ON': True, 'SE_R': 0.25, 'DEPTH': 20, 'W0': 232, 'WA': 115.89, 'WM': 2.53, 'GROUP_W': 8, 'BOT_MUL': 1.0, 'HEAD_W': 0, 'DOWNSAMPLE': 'avg', 'DROP_RATE': 0.01, 'DROPOUT': 0.2}), 'BN': CfgNode({'EPS': 1e-05, 'MOM': 0.1, 'ZERO_INIT_FINAL_GAMMA': False}), 'LN': CfgNode({'EPS': 1e-05}), 'DESC': ''})
+ic| samples: 120
+/home/hpc/iwb3/iwb3021h/NAS_CHALLENGE/NAS_Challenge_AutoML_2024/.testvenv/lib/python3.10/site-packages/sklearn/base.py:376: InconsistentVersionWarning: Trying to unpickle estimator SGDRegressor from version 1.4.2 when using version 1.5.0. This might lead to breaking code or invalid results. Use at your own risk. For more info please refer to:
+https://scikit-learn.org/stable/model_persistence.html#security-maintainability-limitations
+  warnings.warn(
+/home/woody/iwb3/iwb3021h/THESIS_RESULTS/package1/search_space/RegNet.py:299: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  ranking_test_df[pred_column]=sgd_regressor.predict(X_test)
+ic| ranking_prediction_df:                        score
+                           tentacled_cuscus  195.180289
+ic| best_models.keys(): dict_keys(['tentacled_cuscus'])
+ic| self.initial_population_size: 120
+ic| metadata: {'benchmark': 0.0,
+               'codename': 'Sokoto',
+               'input_shape': [50000, 1, 9, 9],
+               'mode': 'NAS',
+               'num_classes': 9,
+               'test_type': 'T0+_Proxy/seed_2',
+               'time_remaining': 101158.58492088318,
+               'train_config_path': 'configs/train/finetuning_generation_adam.yaml'}
+ic| cfg_path: 'configs/train/finetuning_generation_adam.yaml'
+ic| self.cfg.SOLVER.LR: 0.001
+ic| self.cfg.SOLVER.EPOCHS-self.cfg.SOLVER.SWA_START: 10
+ic| self.cfg.SOLVER.EPOCHS: 100
+/home/woody/iwb3/iwb3021h/THESIS_RESULTS/package1/trainer.py:41: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  checkpoint = torch.load(checkpoint_path, map_location=device)
+ic| self.select_augment: 'Proxy'
+ic| self.x.shape: torch.Size([40000, 3, 32, 32])
+ic| unique_values: array([0.09411765, 0.09803922, 0.10196079, 0.10588235, 0.10980392,
+                          0.11372549, 0.11764706, 0.12156863, 0.1254902 , 0.12941177,
+                          0.13333334, 0.13725491, 0.14117648, 0.14509805, 0.14901961,
+                          0.15294118, 0.15686275, 0.16078432, 0.16470589, 0.16862746,
+                          0.17254902, 0.1764706 , 0.18039216, 0.18431373, 0.1882353 ,
+                          0.19215687, 0.19607843, 0.2       , 0.20392157, 0.20784314,
+                          0.21176471, 0.21568628, 0.21960784, 0.22352941, 0.22745098,
+                          0.23137255, 0.23529412, 0.23921569, 0.24313726, 0.24705882,
+                          0.2509804 , 0.25490198, 0.25882354, 0.2627451 , 0.26666668,
+                          0.27058825, 0.27450982, 0.2784314 , 0.28235295, 0.28627452,
+                          0.2901961 , 0.29411766, 0.29803923, 0.3019608 , 0.30588236,
+                          0.30980393, 0.3137255 , 0.31764707, 0.32156864, 0.3254902 ,
+                          0.32941177, 0.33333334, 0.3372549 , 0.34117648, 0.34509805,
+                          0.34901962, 0.3529412 , 0.35686275, 0.36078432, 0.3647059 ,
+                          0.36862746, 0.37254903, 0.3764706 , 0.38039216, 0.38431373,
+                          0.3882353 , 0.39215687, 0.39607844, 0.4       , 0.40392157,
+                          0.40784314, 0.4117647 , 0.41568628, 0.41960785, 0.42352942,
+                          0.42745098, 0.43137255, 0.43529412, 0.4392157 , 0.44313726,
+                          0.44705883, 0.4509804 , 0.45490196, 0.45882353, 0.4627451 ,
+                          0.46666667, 0.47058824, 0.4745098 , 0.47843137, 0.48235294,
+                          0.4862745 , 0.49019608, 0.49411765, 0.49803922, 0.5019608 ,
+                          0.5058824 , 0.50980395, 0.5137255 , 0.5176471 , 0.52156866,
+                          0.5254902 , 0.5294118 , 0.53333336, 0.5372549 , 0.5411765 ,
+                          0.54509807, 0.54901963, 0.5529412 , 0.5568628 , 0.56078434,
+                          0.5647059 , 0.5686275 , 0.57254905, 0.5764706 , 0.5803922 ,
+                          0.58431375, 0.5882353 , 0.5921569 , 0.59607846, 0.6       ,
+                          0.6039216 , 0.60784316, 0.6117647 , 0.6156863 , 0.61960787,
+                          0.62352943, 0.627451  , 0.6313726 , 0.63529414, 0.6392157 ,
+                          0.6431373 , 0.64705884, 0.6509804 , 0.654902  , 0.65882355,
+                          0.6627451 , 0.6666667 , 0.67058825, 0.6745098 , 0.6784314 ,
+                          0.68235296, 0.6862745 , 0.6901961 , 0.69411767, 0.69803923,
+                          0.7019608 , 0.7058824 , 0.70980394, 0.7137255 , 0.7176471 ,
+                          0.72156864, 0.7254902 , 0.7294118 , 0.73333335, 0.7411765 ,
+                          0.74509805, 0.7490196 , 0.7529412 , 0.75686276, 0.7647059 ,
+                          0.76862746, 0.77254903, 0.7764706 , 0.78431374, 0.7882353 ,
+                          0.7921569 , 0.79607844, 0.8       , 0.8039216 , 0.8156863 ,
+                          0.81960785, 0.8235294 , 0.827451  , 0.83137256, 0.8392157 ,
+                          0.8509804 , 0.85882354, 0.8627451 , 0.8666667 , 0.87058824,
+                          0.8784314 , 0.88235295, 0.8901961 , 0.89411765, 0.90588236,
+                          0.9098039 , 0.9137255 , 0.92156863, 0.92941177, 0.93333334,
+                          0.9411765 , 0.9490196 , 0.9529412 , 0.972549  ], dtype=float32)
+ic| C: 3
+ic| H: 32
+ic| PH: 4
+/home/hpc/iwb3/iwb3021h/NAS_CHALLENGE/NAS_Challenge_AutoML_2024/.testvenv/lib/python3.10/site-packages/torchvision/transforms/v2/_deprecated.py:42: UserWarning: The transform `ToTensor()` is deprecated and will be removed in a future release. Instead, please use `v2.Compose([v2.ToImage(), v2.ToDtype(torch.float32, scale=True)])`.Output is equivalent up to float precision.
+  warnings.warn(
+ic| poss_augs: [[],
+                [RandAugment(interpolation=InterpolationMode.NEAREST, num_ops=2, magnitude=9, num_magnitude_bins=31)],
+                [RandAugment(interpolation=InterpolationMode.NEAREST, num_ops=2, magnitude=5, num_magnitude_bins=31)],
+                [RandAugment(interpolation=InterpolationMode.NEAREST, num_ops=2, magnitude=1, num_magnitude_bins=31)],
+                [TrivialAugmentWide(interpolation=InterpolationMode.NEAREST, num_magnitude_bins=31)],
+                [TrivialAugmentWide(interpolation=InterpolationMode.NEAREST, num_magnitude_bins=15)],
+                [AugMix(interpolation=InterpolationMode.BILINEAR, severity=3, mixture_width=3, chain_depth=-1, alpha=1.0, all_ops=True)],
+                [AugMix(interpolation=InterpolationMode.BILINEAR, severity=1, mixture_width=3, chain_depth=-1, alpha=1.0, all_ops=True)],
+                [RandomHorizontalFlip(p=0.5), RandomVerticalFlip(p=0.5)],
+                [RandomErasing(p=0.2, scale=(0.05, 0.2), ratio=(0.3, 3.3), value=[0.0], inplace=False),
+                 RandomHorizontalFlip(p=0.5),
+                 RandomVerticalFlip(p=0.5)],
+                [RandomErasing(p=0.2, scale=(0.05, 0.2), ratio=(0.3, 3.3), value=[0.0], inplace=False)],
+                [RandomErasing(p=0.2, scale=(0.02, 0.2), ratio=(0.3, 3.3), value=[0.0], inplace=False),
+                 RandomCrop(size=(32, 32), padding=[4, 4, 4, 4], pad_if_needed=False, fill=0, padding_mode=constant)],
+                [RandomCrop(size=(32, 32), padding=[4, 4, 4, 4], pad_if_needed=False, fill=0, padding_mode=constant)],
+                [RandomCrop(size=(32, 32), padding=[4, 4, 4, 4], pad_if_needed=False, fill=0, padding_mode=constant),
+                 RandomHorizontalFlip(p=0.5),
+                 RandomVerticalFlip(p=0.5)],
+                [RandomErasing(p=0.2, scale=(0.02, 0.2), ratio=(0.3, 3.3), value=[0.0], inplace=False),
+                 RandomCrop(size=(32, 32), padding=[4, 4, 4, 4], pad_if_needed=False, fill=0, padding_mode=constant),
+                 RandomHorizontalFlip(p=0.5)],
+                [<data_processor.RandomPixelChange object at 0x7fe0484cd270>, ToTensor()],
+                [<data_processor.RandomPixelChange object at 0x7fe0484cd960>, ToTensor()],
+                [<data_processor.RandomPixelChange object at 0x7fe0484cdcc0>, ToTensor()],
+                [<data_processor.RandomPixelChange object at 0x7fe0484cda50>,
+                 ToTensor(),
+                 RandomHorizontalFlip(p=0.5),
+                 RandomVerticalFlip(p=0.5)],
+                [<data_processor.RandomPixelChange object at 0x7fe0484cf520>,
+                 ToTensor(),
+                 RandomErasing(p=0.2, scale=(0.05, 0.2), ratio=(0.3, 3.3), value=[0.0], inplace=False)],
+                [<data_processor.RandomPixelChange object at 0x7fe0484cee90>,
+                 ToTensor(),
+                 RandomCrop(size=(32, 32), padding=[4, 4, 4, 4], pad_if_needed=False, fill=0, padding_mode=constant)],
+                [<data_processor.RandomPixelChange object at 0x7fe0484cf670>,
+                 ToTensor(),
+                 RandomHorizontalFlip(p=0.5),
+                 RandomVerticalFlip(p=0.5),
+                 RandomErasing(p=0.2, scale=(0.05, 0.2), ratio=(0.3, 3.3), value=[0.0], inplace=False)]]
+ic| individuals: ['clay_millipede',
+                  'nickel_wapiti',
+                  'proficient_clam',
+                  'violet_tarsier',
+                  'mutant_agama',
+                  'ruddy_numbat',
+                  'sincere_alpaca',
+                  'aboriginal_binturong',
+                  'gifted_lyrebird',
+                  'space_ant',
+                  'tuscan_sunfish',
+                  'flying_honeybee',
+                  'nippy_caiman',
+                  'energetic_dachshund',
+                  'outstanding_kakapo',
+                  'enthusiastic_numbat',
+                  'myrtle_seagull',
+                  'vivid_malamute',
+                  'amiable_wren',
+                  'turquoise_ostrich']
+ic| params: [64.0, 96, 2.299999999999999, 9, 8]
+ic| params: [40.0, 56, 2.899999999999997, 15, 8]
+ic| params: [56.0, 120, 2.7499999999999973, 12, 8]
+ic| params: [64.0, 88, 2.4499999999999984, 12, 8]
+ic| params: [48.0, 120, 2.1999999999999993, 22, 8]
+ic| params: [64.0, 104, 2.6999999999999975, 18, 8]
+ic| params: [40.0, 120, 2.899999999999997, 12, 8]
+ic| params: [32.0, 64, 2.549999999999998, 8, 8]
+ic| params: [40.0, 104, 2.3499999999999988, 18, 8]
+ic| params: [56.0, 88, 2.3499999999999988, 9, 8]
+ic| params: [24.0, 64, 2.6499999999999977, 10, 8]
+ic| params: [64.0, 64, 2.6499999999999977, 14, 8]
+ic| params: [16.0, 40, 2.899999999999997, 21, 8]
+ic| params: [64.0, 64, 2.0999999999999996, 22, 8]
+ic| params: [64.0, 88, 2.6499999999999977, 19, 8]
+ic| params: [64.0, 88, 2.0999999999999996, 18, 8]
+ic| params: [40.0, 120, 2.299999999999999, 11, 8]
+ic| params: [48.0, 80, 2.0999999999999996, 22, 8]
+ic| params: [40.0, 48, 2.6999999999999975, 13, 8]
+ic| params: [24.0, 96, 2.899999999999997, 19, 8]
+ic| individuals: ['clay_millipede',
+                  'nickel_wapiti',
+                  'proficient_clam',
+                  'violet_tarsier',
+                  'mutant_agama',
+                  'ruddy_numbat',
+                  'sincere_alpaca',
+                  'aboriginal_binturong',
+                  'gifted_lyrebird',
+                  'space_ant',
+                  'tuscan_sunfish',
+                  'flying_honeybee',
+                  'nippy_caiman',
+                  'energetic_dachshund',
+                  'outstanding_kakapo',
+                  'enthusiastic_numbat',
+                  'myrtle_seagull',
+                  'vivid_malamute',
+                  'amiable_wren',
+                  'turquoise_ostrich']
+ic| params_dict: {'aboriginal_binturong': [32.0, 64, 2.549999999999998, 8, 8],
+                  'amiable_wren': [40.0, 48, 2.6999999999999975, 13, 8],
+                  'clay_millipede': [64.0, 96, 2.299999999999999, 9, 8],
+                  'energetic_dachshund': [64.0, 64, 2.0999999999999996, 22, 8],
+                  'enthusiastic_numbat': [64.0, 88, 2.0999999999999996, 18, 8],
+                  'flying_honeybee': [64.0, 64, 2.6499999999999977, 14, 8],
+                  'gifted_lyrebird': [40.0, 104, 2.3499999999999988, 18, 8],
+                  'mutant_agama': [48.0, 120, 2.1999999999999993, 22, 8],
+                  'myrtle_seagull': [40.0, 120, 2.299999999999999, 11, 8],
+                  'nickel_wapiti': [40.0, 56, 2.899999999999997, 15, 8],
+                  'nippy_caiman': [16.0, 40, 2.899999999999997, 21, 8],
+                  'outstanding_kakapo': [64.0, 88, 2.6499999999999977, 19, 8],
+                  'proficient_clam': [56.0, 120, 2.7499999999999973, 12, 8],
+                  'ruddy_numbat': [64.0, 104, 2.6999999999999975, 18, 8],
+                  'sincere_alpaca': [40.0, 120, 2.899999999999997, 12, 8],
+                  'space_ant': [56.0, 88, 2.3499999999999988, 9, 8],
+                  'turquoise_ostrich': [24.0, 96, 2.899999999999997, 19, 8],
+                  'tuscan_sunfish': [24.0, 64, 2.6499999999999977, 10, 8],
+                  'violet_tarsier': [64.0, 88, 2.4499999999999984, 12, 8],
+                  'vivid_malamute': [48.0, 80, 2.0999999999999996, 22, 8]}
+ic| '#############'
+ic| aug: 0
+ic| train_loader.dataset.transform.transforms: [Normalize(mean=tensor([0.4914, 0.4823, 0.4466]), std=tensor([0.2468, 0.2431, 0.2613]))]
+/home/hpc/iwb3/iwb3021h/NAS_CHALLENGE/NAS_Challenge_AutoML_2024/.testvenv/lib/python3.10/site-packages/torch/nn/modules/module.py:1640: FutureWarning: Using a non-full backward hook when the forward contains multiple autograd Nodes is deprecated and will be removed in future versions. This hook will be missing some grad_input. Please use register_full_backward_hook to get the documented behavior.
+  self._maybe_warn_non_full_backward_hook(args, result, grad_fn)
+ic| '#############'
+ic| aug: 1
+ic| train_loader.dataset.transform.transforms: [RandAugment(interpolation=InterpolationMode.NEAREST, num_ops=2, magnitude=9, num_magnitude_bins=31),
+                                                Normalize(mean=tensor([0.4914, 0.4823, 0.4466]), std=tensor([0.2468, 0.2431, 0.2613]))]
+/home/hpc/iwb3/iwb3021h/NAS_CHALLENGE/NAS_Challenge_AutoML_2024/.testvenv/lib/python3.10/site-packages/torch/nn/modules/module.py:1640: FutureWarning: Using a non-full backward hook when the forward contains multiple autograd Nodes is deprecated and will be removed in future versions. This hook will be missing some grad_input. Please use register_full_backward_hook to get the documented behavior.
+  self._maybe_warn_non_full_backward_hook(args, result, grad_fn)
+ic| '#############'
+ic| aug: 2
+ic| train_loader.dataset.transform.transforms: [RandAugment(interpolation=InterpolationMode.NEAREST, num_ops=2, magnitude=5, num_magnitude_bins=31),
+                                                Normalize(mean=tensor([0.4914, 0.4823, 0.4466]), std=tensor([0.2468, 0.2431, 0.2613]))]
+/home/hpc/iwb3/iwb3021h/NAS_CHALLENGE/NAS_Challenge_AutoML_2024/.testvenv/lib/python3.10/site-packages/torch/nn/modules/module.py:1640: FutureWarning: Using a non-full backward hook when the forward contains multiple autograd Nodes is deprecated and will be removed in future versions. This hook will be missing some grad_input. Please use register_full_backward_hook to get the documented behavior.
+  self._maybe_warn_non_full_backward_hook(args, result, grad_fn)
+ic| '#############'
+ic| aug: 3
+ic| train_loader.dataset.transform.transforms: [RandAugment(interpolation=InterpolationMode.NEAREST, num_ops=2, magnitude=1, num_magnitude_bins=31),
+                                                Normalize(mean=tensor([0.4914, 0.4823, 0.4466]), std=tensor([0.2468, 0.2431, 0.2613]))]
+/home/hpc/iwb3/iwb3021h/NAS_CHALLENGE/NAS_Challenge_AutoML_2024/.testvenv/lib/python3.10/site-packages/torch/nn/modules/module.py:1640: FutureWarning: Using a non-full backward hook when the forward contains multiple autograd Nodes is deprecated and will be removed in future versions. This hook will be missing some grad_input. Please use register_full_backward_hook to get the documented behavior.
+  self._maybe_warn_non_full_backward_hook(args, result, grad_fn)
+ic| '#############'
+ic| aug: 4
+ic| train_loader.dataset.transform.transforms: [TrivialAugmentWide(interpolation=InterpolationMode.NEAREST, num_magnitude_bins=31),
+                                                Normalize(mean=tensor([0.4914, 0.4823, 0.4466]), std=tensor([0.2468, 0.2431, 0.2613]))]
+/home/hpc/iwb3/iwb3021h/NAS_CHALLENGE/NAS_Challenge_AutoML_2024/.testvenv/lib/python3.10/site-packages/torch/nn/modules/module.py:1640: FutureWarning: Using a non-full backward hook when the forward contains multiple autograd Nodes is deprecated and will be removed in future versions. This hook will be missing some grad_input. Please use register_full_backward_hook to get the documented behavior.
+  self._maybe_warn_non_full_backward_hook(args, result, grad_fn)
+ic| '#############'
+ic| aug: 5
+ic| train_loader.dataset.transform.transforms: [TrivialAugmentWide(interpolation=InterpolationMode.NEAREST, num_magnitude_bins=15),
+                                                Normalize(mean=tensor([0.4914, 0.4823, 0.4466]), std=tensor([0.2468, 0.2431, 0.2613]))]
+/home/hpc/iwb3/iwb3021h/NAS_CHALLENGE/NAS_Challenge_AutoML_2024/.testvenv/lib/python3.10/site-packages/torch/nn/modules/module.py:1640: FutureWarning: Using a non-full backward hook when the forward contains multiple autograd Nodes is deprecated and will be removed in future versions. This hook will be missing some grad_input. Please use register_full_backward_hook to get the documented behavior.
+  self._maybe_warn_non_full_backward_hook(args, result, grad_fn)
+ic| '#############'
+ic| aug: 6
+ic| train_loader.dataset.transform.transforms: [AugMix(interpolation=InterpolationMode.BILINEAR, severity=3, mixture_width=3, chain_depth=-1, alpha=1.0, all_ops=True),
+                                                Normalize(mean=tensor([0.4914, 0.4823, 0.4466]), std=tensor([0.2468, 0.2431, 0.2613]))]
+/home/hpc/iwb3/iwb3021h/NAS_CHALLENGE/NAS_Challenge_AutoML_2024/.testvenv/lib/python3.10/site-packages/torch/nn/modules/module.py:1640: FutureWarning: Using a non-full backward hook when the forward contains multiple autograd Nodes is deprecated and will be removed in future versions. This hook will be missing some grad_input. Please use register_full_backward_hook to get the documented behavior.
+  self._maybe_warn_non_full_backward_hook(args, result, grad_fn)
+ic| '#############'
+ic| aug: 7
+ic| train_loader.dataset.transform.transforms: [AugMix(interpolation=InterpolationMode.BILINEAR, severity=1, mixture_width=3, chain_depth=-1, alpha=1.0, all_ops=True),
+                                                Normalize(mean=tensor([0.4914, 0.4823, 0.4466]), std=tensor([0.2468, 0.2431, 0.2613]))]
+/home/hpc/iwb3/iwb3021h/NAS_CHALLENGE/NAS_Challenge_AutoML_2024/.testvenv/lib/python3.10/site-packages/torch/nn/modules/module.py:1640: FutureWarning: Using a non-full backward hook when the forward contains multiple autograd Nodes is deprecated and will be removed in future versions. This hook will be missing some grad_input. Please use register_full_backward_hook to get the documented behavior.
+  self._maybe_warn_non_full_backward_hook(args, result, grad_fn)
+ic| '#############'
+ic| aug: 8
+ic| train_loader.dataset.transform.transforms: [RandomHorizontalFlip(p=0.5),
+                                                RandomVerticalFlip(p=0.5),
+                                                Normalize(mean=tensor([0.4914, 0.4823, 0.4466]), std=tensor([0.2468, 0.2431, 0.2613]))]
+/home/hpc/iwb3/iwb3021h/NAS_CHALLENGE/NAS_Challenge_AutoML_2024/.testvenv/lib/python3.10/site-packages/torch/nn/modules/module.py:1640: FutureWarning: Using a non-full backward hook when the forward contains multiple autograd Nodes is deprecated and will be removed in future versions. This hook will be missing some grad_input. Please use register_full_backward_hook to get the documented behavior.
+  self._maybe_warn_non_full_backward_hook(args, result, grad_fn)
+ic| '#############'
+ic| aug: 9
+ic| train_loader.dataset.transform.transforms: [RandomErasing(p=0.2, scale=(0.05, 0.2), ratio=(0.3, 3.3), value=[0.0], inplace=False),
+                                                RandomHorizontalFlip(p=0.5),
+                                                RandomVerticalFlip(p=0.5),
+                                                Normalize(mean=tensor([0.4914, 0.4823, 0.4466]), std=tensor([0.2468, 0.2431, 0.2613]))]
+/home/hpc/iwb3/iwb3021h/NAS_CHALLENGE/NAS_Challenge_AutoML_2024/.testvenv/lib/python3.10/site-packages/torch/nn/modules/module.py:1640: FutureWarning: Using a non-full backward hook when the forward contains multiple autograd Nodes is deprecated and will be removed in future versions. This hook will be missing some grad_input. Please use register_full_backward_hook to get the documented behavior.
+  self._maybe_warn_non_full_backward_hook(args, result, grad_fn)
+ic| '#############'
+ic| aug: 10
+ic| train_loader.dataset.transform.transforms: [RandomErasing(p=0.2, scale=(0.05, 0.2), ratio=(0.3, 3.3), value=[0.0], inplace=False),
+                                                Normalize(mean=tensor([0.4914, 0.4823, 0.4466]), std=tensor([0.2468, 0.2431, 0.2613]))]
+/home/hpc/iwb3/iwb3021h/NAS_CHALLENGE/NAS_Challenge_AutoML_2024/.testvenv/lib/python3.10/site-packages/torch/nn/modules/module.py:1640: FutureWarning: Using a non-full backward hook when the forward contains multiple autograd Nodes is deprecated and will be removed in future versions. This hook will be missing some grad_input. Please use register_full_backward_hook to get the documented behavior.
+  self._maybe_warn_non_full_backward_hook(args, result, grad_fn)
+ic| '#############'
+ic| aug: 11
+ic| train_loader.dataset.transform.transforms: [RandomErasing(p=0.2, scale=(0.02, 0.2), ratio=(0.3, 3.3), value=[0.0], inplace=False),
+                                                RandomCrop(size=(32, 32), padding=[4, 4, 4, 4], pad_if_needed=False, fill=0, padding_mode=constant),
+                                                Normalize(mean=tensor([0.4914, 0.4823, 0.4466]), std=tensor([0.2468, 0.2431, 0.2613]))]
+/home/hpc/iwb3/iwb3021h/NAS_CHALLENGE/NAS_Challenge_AutoML_2024/.testvenv/lib/python3.10/site-packages/torch/nn/modules/module.py:1640: FutureWarning: Using a non-full backward hook when the forward contains multiple autograd Nodes is deprecated and will be removed in future versions. This hook will be missing some grad_input. Please use register_full_backward_hook to get the documented behavior.
+  self._maybe_warn_non_full_backward_hook(args, result, grad_fn)
+ic| '#############'
+ic| aug: 12
+ic| train_loader.dataset.transform.transforms: [RandomCrop(size=(32, 32), padding=[4, 4, 4, 4], pad_if_needed=False, fill=0, padding_mode=constant),
+                                                Normalize(mean=tensor([0.4914, 0.4823, 0.4466]), std=tensor([0.2468, 0.2431, 0.2613]))]
+/home/hpc/iwb3/iwb3021h/NAS_CHALLENGE/NAS_Challenge_AutoML_2024/.testvenv/lib/python3.10/site-packages/torch/nn/modules/module.py:1640: FutureWarning: Using a non-full backward hook when the forward contains multiple autograd Nodes is deprecated and will be removed in future versions. This hook will be missing some grad_input. Please use register_full_backward_hook to get the documented behavior.
+  self._maybe_warn_non_full_backward_hook(args, result, grad_fn)
+ic| '#############'
+ic| aug: 13
+ic| train_loader.dataset.transform.transforms: [RandomCrop(size=(32, 32), padding=[4, 4, 4, 4], pad_if_needed=False, fill=0, padding_mode=constant),
+                                                RandomHorizontalFlip(p=0.5),
+                                                RandomVerticalFlip(p=0.5),
+                                                Normalize(mean=tensor([0.4914, 0.4823, 0.4466]), std=tensor([0.2468, 0.2431, 0.2613]))]
+/home/hpc/iwb3/iwb3021h/NAS_CHALLENGE/NAS_Challenge_AutoML_2024/.testvenv/lib/python3.10/site-packages/torch/nn/modules/module.py:1640: FutureWarning: Using a non-full backward hook when the forward contains multiple autograd Nodes is deprecated and will be removed in future versions. This hook will be missing some grad_input. Please use register_full_backward_hook to get the documented behavior.
+  self._maybe_warn_non_full_backward_hook(args, result, grad_fn)
+ic| '#############'
+ic| aug: 14
+ic| train_loader.dataset.transform.transforms: [RandomErasing(p=0.2, scale=(0.02, 0.2), ratio=(0.3, 3.3), value=[0.0], inplace=False),
+                                                RandomCrop(size=(32, 32), padding=[4, 4, 4, 4], pad_if_needed=False, fill=0, padding_mode=constant),
+                                                RandomHorizontalFlip(p=0.5),
+                                                Normalize(mean=tensor([0.4914, 0.4823, 0.4466]), std=tensor([0.2468, 0.2431, 0.2613]))]
+/home/hpc/iwb3/iwb3021h/NAS_CHALLENGE/NAS_Challenge_AutoML_2024/.testvenv/lib/python3.10/site-packages/torch/nn/modules/module.py:1640: FutureWarning: Using a non-full backward hook when the forward contains multiple autograd Nodes is deprecated and will be removed in future versions. This hook will be missing some grad_input. Please use register_full_backward_hook to get the documented behavior.
+  self._maybe_warn_non_full_backward_hook(args, result, grad_fn)
+ic| '#############'
+ic| aug: 15
+ic| train_loader.dataset.transform.transforms: [<data_processor.RandomPixelChange object at 0x7fe0484cd270>,
+                                                ToTensor(),
+                                                Normalize(mean=tensor([0.4914, 0.4823, 0.4466]), std=tensor([0.2468, 0.2431, 0.2613]))]
+/home/hpc/iwb3/iwb3021h/NAS_CHALLENGE/NAS_Challenge_AutoML_2024/.testvenv/lib/python3.10/site-packages/torch/nn/modules/module.py:1640: FutureWarning: Using a non-full backward hook when the forward contains multiple autograd Nodes is deprecated and will be removed in future versions. This hook will be missing some grad_input. Please use register_full_backward_hook to get the documented behavior.
+  self._maybe_warn_non_full_backward_hook(args, result, grad_fn)
+ic| '#############'
+ic| aug: 16
+ic| train_loader.dataset.transform.transforms: [<data_processor.RandomPixelChange object at 0x7fe0484cd960>,
+                                                ToTensor(),
+                                                Normalize(mean=tensor([0.4914, 0.4823, 0.4466]), std=tensor([0.2468, 0.2431, 0.2613]))]
+/home/hpc/iwb3/iwb3021h/NAS_CHALLENGE/NAS_Challenge_AutoML_2024/.testvenv/lib/python3.10/site-packages/torch/nn/modules/module.py:1640: FutureWarning: Using a non-full backward hook when the forward contains multiple autograd Nodes is deprecated and will be removed in future versions. This hook will be missing some grad_input. Please use register_full_backward_hook to get the documented behavior.
+  self._maybe_warn_non_full_backward_hook(args, result, grad_fn)
+ic| '#############'
+ic| aug: 17
+ic| train_loader.dataset.transform.transforms: [<data_processor.RandomPixelChange object at 0x7fe0484cdcc0>,
+                                                ToTensor(),
+                                                Normalize(mean=tensor([0.4914, 0.4823, 0.4466]), std=tensor([0.2468, 0.2431, 0.2613]))]
+/home/hpc/iwb3/iwb3021h/NAS_CHALLENGE/NAS_Challenge_AutoML_2024/.testvenv/lib/python3.10/site-packages/torch/nn/modules/module.py:1640: FutureWarning: Using a non-full backward hook when the forward contains multiple autograd Nodes is deprecated and will be removed in future versions. This hook will be missing some grad_input. Please use register_full_backward_hook to get the documented behavior.
+  self._maybe_warn_non_full_backward_hook(args, result, grad_fn)
+ic| '#############'
+ic| aug: 18
+ic| train_loader.dataset.transform.transforms: [<data_processor.RandomPixelChange object at 0x7fe0484cda50>,
+                                                ToTensor(),
+                                                RandomHorizontalFlip(p=0.5),
+                                                RandomVerticalFlip(p=0.5),
+                                                Normalize(mean=tensor([0.4914, 0.4823, 0.4466]), std=tensor([0.2468, 0.2431, 0.2613]))]
+/home/hpc/iwb3/iwb3021h/NAS_CHALLENGE/NAS_Challenge_AutoML_2024/.testvenv/lib/python3.10/site-packages/torch/nn/modules/module.py:1640: FutureWarning: Using a non-full backward hook when the forward contains multiple autograd Nodes is deprecated and will be removed in future versions. This hook will be missing some grad_input. Please use register_full_backward_hook to get the documented behavior.
+  self._maybe_warn_non_full_backward_hook(args, result, grad_fn)
+ic| '#############'
+ic| aug: 19
+ic| train_loader.dataset.transform.transforms: [<data_processor.RandomPixelChange object at 0x7fe0484cf520>,
+                                                ToTensor(),
+                                                RandomErasing(p=0.2, scale=(0.05, 0.2), ratio=(0.3, 3.3), value=[0.0], inplace=False),
+                                                Normalize(mean=tensor([0.4914, 0.4823, 0.4466]), std=tensor([0.2468, 0.2431, 0.2613]))]
+/home/hpc/iwb3/iwb3021h/NAS_CHALLENGE/NAS_Challenge_AutoML_2024/.testvenv/lib/python3.10/site-packages/torch/nn/modules/module.py:1640: FutureWarning: Using a non-full backward hook when the forward contains multiple autograd Nodes is deprecated and will be removed in future versions. This hook will be missing some grad_input. Please use register_full_backward_hook to get the documented behavior.
+  self._maybe_warn_non_full_backward_hook(args, result, grad_fn)
+ic| '#############'
+ic| aug: 20
+ic| train_loader.dataset.transform.transforms: [<data_processor.RandomPixelChange object at 0x7fe0484cee90>,
+                                                ToTensor(),
+                                                RandomCrop(size=(32, 32), padding=[4, 4, 4, 4], pad_if_needed=False, fill=0, padding_mode=constant),
+                                                Normalize(mean=tensor([0.4914, 0.4823, 0.4466]), std=tensor([0.2468, 0.2431, 0.2613]))]
+/home/hpc/iwb3/iwb3021h/NAS_CHALLENGE/NAS_Challenge_AutoML_2024/.testvenv/lib/python3.10/site-packages/torch/nn/modules/module.py:1640: FutureWarning: Using a non-full backward hook when the forward contains multiple autograd Nodes is deprecated and will be removed in future versions. This hook will be missing some grad_input. Please use register_full_backward_hook to get the documented behavior.
+  self._maybe_warn_non_full_backward_hook(args, result, grad_fn)
+ic| '#############'
+ic| aug: 21
+ic| train_loader.dataset.transform.transforms: [<data_processor.RandomPixelChange object at 0x7fe0484cf670>,
+                                                ToTensor(),
+                                                RandomHorizontalFlip(p=0.5),
+                                                RandomVerticalFlip(p=0.5),
+                                                RandomErasing(p=0.2, scale=(0.05, 0.2), ratio=(0.3, 3.3), value=[0.0], inplace=False),
+                                                Normalize(mean=tensor([0.4914, 0.4823, 0.4466]), std=tensor([0.2468, 0.2431, 0.2613]))]
+/home/hpc/iwb3/iwb3021h/NAS_CHALLENGE/NAS_Challenge_AutoML_2024/.testvenv/lib/python3.10/site-packages/torch/nn/modules/module.py:1640: FutureWarning: Using a non-full backward hook when the forward contains multiple autograd Nodes is deprecated and will be removed in future versions. This hook will be missing some grad_input. Please use register_full_backward_hook to get the documented behavior.
+  self._maybe_warn_non_full_backward_hook(args, result, grad_fn)
+/home/woody/iwb3/iwb3021h/THESIS_RESULTS/package1/data_processor.py:590: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  subset_df_no_outliers["fisher"] = scaler.fit_transform(subset_df_no_outliers[["fisher"]])
+/home/woody/iwb3/iwb3021h/THESIS_RESULTS/package1/data_processor.py:608: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  subset_df_no_outliers["jacob_cov"] = scaler.fit_transform(subset_df_no_outliers[["jacob_cov"]])
+/home/woody/iwb3/iwb3021h/THESIS_RESULTS/package1/data_processor.py:608: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  subset_df_no_outliers["jacob_cov"] = scaler.fit_transform(subset_df_no_outliers[["jacob_cov"]])
+ic| f"best_augmentation: {best_aug}": 'best_augmentation: 5'
+ic| f"selected transform {train_transform}": ('selected transform '
+                                              '[TrivialAugmentWide(interpolation=InterpolationMode.NEAREST, '
+                                              'num_magnitude_bins=15)]')
+ic| self.x.shape: torch.Size([40000, 3, 32, 32])
+ic| self.x.shape: torch.Size([10000, 3, 32, 32])
+ic| self.x.shape: torch.Size([10000, 3, 32, 32])
+ic| mode: 'T0+'
+ic| 'Extended + Regnet mode'
+ic| f"Mode {mode}": 'Mode T0+'
+ic| get_gpu_memory(0): 40970092544
+ic| self.total_generations: 3
+ic| 'Time remaining:'
+ic| metadata['time_remaining']: 98108.51187038422
+ic| self.zcost_nas: True
+ic| self.cfg: CfgNode({'MODEL': CfgNode({'TYPE': 'regnet', 'NUM_CLASSES': 10, 'ACTIVATION_FUN': 'relu', 'ACTIVATION_INPLACE': True, 'SCALING_TYPE': '', 'SCALING_FACTOR': 1.0}), 'REGNET': CfgNode({'STEM_TYPE': 'res_stem_cifar', 'INPUT_CHANNELS': 3, 'STEM_W': 32, 'BLOCK_TYPE': 'res_bottleneck_block', 'STRIDE': 2, 'SE_ON': True, 'SE_R': 0.25, 'DEPTH': 20, 'W0': 232, 'WA': 115.89, 'WM': 2.53, 'GROUP_W': 8, 'BOT_MUL': 1.0, 'HEAD_W': 0, 'DOWNSAMPLE': 'avg', 'DROP_RATE': 0.01, 'DROPOUT': 0.2}), 'BN': CfgNode({'EPS': 1e-05, 'MOM': 0.1, 'ZERO_INIT_FINAL_GAMMA': False}), 'LN': CfgNode({'EPS': 1e-05}), 'DESC': ''})
+ic| samples: 120
+/home/hpc/iwb3/iwb3021h/NAS_CHALLENGE/NAS_Challenge_AutoML_2024/.testvenv/lib/python3.10/site-packages/sklearn/base.py:376: InconsistentVersionWarning: Trying to unpickle estimator SGDRegressor from version 1.4.2 when using version 1.5.0. This might lead to breaking code or invalid results. Use at your own risk. For more info please refer to:
+https://scikit-learn.org/stable/model_persistence.html#security-maintainability-limitations
+  warnings.warn(
+/home/woody/iwb3/iwb3021h/THESIS_RESULTS/package1/search_space/RegNet.py:299: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  ranking_test_df[pred_column]=sgd_regressor.predict(X_test)
+ic| ranking_prediction_df:                       score
+                           lyrical_peacock  189.935624
+ic| best_models.keys(): dict_keys(['lyrical_peacock'])
+ic| self.initial_population_size: 120
+ic| metadata: {'benchmark': 90.65,
+               'codename': 'CIFAR10',
+               'input_shape': [50000, 3, 32, 32],
+               'mode': 'NAS',
+               'num_classes': 10,
+               'test_type': 'T0+_Proxy/seed_2',
+               'time_remaining': 98031.34982419014,
+               'train_config_path': 'configs/train/finetuning_generation_adam.yaml'}
+ic| cfg_path: 'configs/train/finetuning_generation_adam.yaml'
+ic| self.cfg.SOLVER.LR: 0.001
+ic| self.cfg.SOLVER.EPOCHS-self.cfg.SOLVER.SWA_START: 10
+ic| self.cfg.SOLVER.EPOCHS: 100
+/home/woody/iwb3/iwb3021h/THESIS_RESULTS/package1/trainer.py:41: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  checkpoint = torch.load(checkpoint_path, map_location=device)
+Mode: T0+
+===========================================================================
+=============    Your Unseen Data 2024 Submission is running     =============
+===========================================================================
+========== Dataset    in16    =============================================
+  Metadata:
+   - input_shape         : [148700, 3, 16, 16]
+   - codename            : in16
+   - benchmark           : 46.38
+   - num_classes         : 120
+   - time_remaining      : 107999.07007431984
+
+=== Processing Data ===
+  Allotted compute time remaining: ~29h,59m,59s
+
+=== Performing NAS ===
+  Allotted compute time remaining: ~29h,48m,21s
+None
+
+=== Training ===
+  Allotted compute time remaining: ~29h,46m,54s
+Early stopping at epoch 30
+[31m[EVAL] Best accuracy:37.766666412353516[0m
+
+=== Predicting ===
+  Allotted compute time remaining: ~29h,14m,2s
+
+========== Dataset   Volga    =============================================
+  Metadata:
+   - input_shape         : [50000, 20, 20, 20]
+   - codename            : Volga
+   - benchmark           : 71.35
+   - num_classes         : 7
+   - time_remaining      : 105238.48828554153
+
+=== Processing Data ===
+  Allotted compute time remaining: ~29h,13m,58s
+
+=== Performing NAS ===
+  Allotted compute time remaining: ~29h,6m,59s
+spawn
+
+=== Training ===
+  Allotted compute time remaining: ~29h,5m,35s
+Early stopping at epoch 98
+[31m[EVAL] Best accuracy:83.62999725341797[0m
+
+=== Predicting ===
+  Allotted compute time remaining: ~28h,19m,0s
+
+========== Dataset   Sokoto   =============================================
+  Metadata:
+   - input_shape         : [50000, 1, 9, 9]
+   - codename            : Sokoto
+   - benchmark           : 0.0
+   - num_classes         : 9
+   - time_remaining      : 101938.55409932137
+
+=== Processing Data ===
+  Allotted compute time remaining: ~28h,18m,58s
+
+=== Performing NAS ===
+  Allotted compute time remaining: ~28h,7m,14s
+spawn
+
+=== Training ===
+  Allotted compute time remaining: ~28h,5m,58s
+Early stopping at epoch 77
+[31m[EVAL] Best accuracy:63.0[0m
+
+=== Predicting ===
+  Allotted compute time remaining: ~27h,27m,1s
+
+========== Dataset  CIFAR10   =============================================
+  Metadata:
+   - input_shape         : [50000, 3, 32, 32]
+   - codename            : CIFAR10
+   - benchmark           : 90.65
+   - num_classes         : 10
+   - time_remaining      : 98818.42199778557
+
+=== Processing Data ===
+  Allotted compute time remaining: ~27h,26m,58s
+
+=== Performing NAS ===
+  Allotted compute time remaining: ~27h,15m,8s
+spawn
+
+=== Training ===
+  Allotted compute time remaining: ~27h,13m,51s
+[31m[EVAL] Best accuracy:93.73999786376953[0m
+
+=== Predicting ===
+  Allotted compute time remaining: ~26h,25m,59s
+
+rm -Rf /home/woody/iwb3/iwb3021h/THESIS_RESULTS/scoring1
+mkdir /home/woody/iwb3/iwb3021h/THESIS_RESULTS/scoring1
+mkdir /home/woody/iwb3/iwb3021h/THESIS_RESULTS/scoring1/labels
+mkdir /home/woody/iwb3/iwb3021h/THESIS_RESULTS/scoring1/predictions
+rsync -avr --exclude='**/*x.npy' --exclude='**/train*.npy' --exclude='**/valid*.npy'   --include='**/test_y.npy' datasets/* /home/woody/iwb3/iwb3021h/THESIS_RESULTS/scoring1/labels/
+sending incremental file list
+CIFAR10/
+CIFAR10/cifar-10-python.tar.gz
+CIFAR10/metadata
+CIFAR10/test_y.npy
+ImageNet16-120/
+ImageNet16-120/metadata
+ImageNet16-120/test_y.npy
+Sudoku/
+Sudoku/Example Image with Corresponding Sudoku Grid.png
+Sudoku/README
+Sudoku/metadata
+Sudoku/test_y.npy
+Sudoku/Sokoto/
+Sudoku/Sokoto/augmentation_results.json
+Sudoku/Sokoto/aug_0/
+Sudoku/Sokoto/aug_0/student_best
+Sudoku/Sokoto/aug_0/worklog.txt
+Sudoku/Sokoto/aug_0/.ipynb_checkpoints/
+Sudoku/Sokoto/aug_0/.ipynb_checkpoints/worklog-checkpoint.txt
+Sudoku/Sokoto/aug_1/
+Sudoku/Sokoto/aug_1/student_best
+Sudoku/Sokoto/aug_1/worklog.txt
+Sudoku/Sokoto/aug_1/.ipynb_checkpoints/
+Sudoku/Sokoto/aug_1/.ipynb_checkpoints/worklog-checkpoint.txt
+Sudoku/Sokoto/aug_2/
+Sudoku/Sokoto/aug_2/student_best
+Sudoku/Sokoto/aug_2/worklog.txt
+Sudoku/Sokoto/aug_2/.ipynb_checkpoints/
+Sudoku/Sokoto/aug_2/.ipynb_checkpoints/worklog-checkpoint.txt
+Sudoku/Sokoto/aug_3/
+Sudoku/Sokoto/aug_3/student_best
+Sudoku/Sokoto/aug_3/worklog.txt
+Sudoku/Sokoto/aug_3/.ipynb_checkpoints/
+Sudoku/Sokoto/aug_3/.ipynb_checkpoints/worklog-checkpoint.txt
+Sudoku/Sokoto/aug_4/
+Sudoku/Sokoto/aug_4/student_best
+Sudoku/Sokoto/aug_4/worklog.txt
+Sudoku/Sokoto/aug_5/
+Sudoku/Sokoto/aug_5/student_best
+Sudoku/Sokoto/aug_5/worklog.txt
+Sudoku/Sokoto/aug_5/.ipynb_checkpoints/
+Sudoku/Sokoto/aug_5/.ipynb_checkpoints/worklog-checkpoint.txt
+Sudoku/Sokoto/aug_6/
+Sudoku/Sokoto/aug_6/student_best
+Sudoku/Sokoto/aug_6/worklog.txt
+Sudoku/Sokoto/aug_6/.ipynb_checkpoints/
+Sudoku/Sokoto/aug_6/.ipynb_checkpoints/worklog-checkpoint.txt
+Sudoku/Sokoto/aug_7/
+Sudoku/Sokoto/aug_7/student_best
+Sudoku/Sokoto/aug_7/worklog.txt
+Sudoku/Sokoto/aug_8/
+Sudoku/Sokoto/aug_8/student_best
+Sudoku/Sokoto/aug_8/worklog.txt
+Sudoku/Sokoto/aug_8/.ipynb_checkpoints/
+Sudoku/Sokoto/aug_8/.ipynb_checkpoints/worklog-checkpoint.txt
+Sudoku/Sokoto/aug_9/
+Sudoku/Sokoto/aug_9/student_best
+Sudoku/Sokoto/aug_9/worklog.txt
+Sudoku/Sokoto/aug_9/.ipynb_checkpoints/
+Sudoku/Sokoto/aug_9/.ipynb_checkpoints/worklog-checkpoint.txt
+Voxel/
+Voxel/Rendered Examples.png
+Voxel/metadata
+Voxel/test_y.npy
+
+sent 620,487,017 bytes  received 951 bytes  177,282,276.57 bytes/sec
+total size is 620,331,646  speedup is 1.00
+cp -R /home/woody/iwb3/iwb3021h/THESIS_RESULTS/package1/predictions /home/woody/iwb3/iwb3021h/THESIS_RESULTS/scoring1
+cp evaluation/score.py /home/woody/iwb3/iwb3021h/THESIS_RESULTS/scoring1/score.py
+cd /home/woody/iwb3/iwb3021h/THESIS_RESULTS/scoring1; python3 score.py
+===========================================================================
+=============    Your Unseen Data 2024 Submission is scoring     =============
+===========================================================================
+== Scoring Voxel ==
+Raw Score:    83.900
+Adj Score:    4.380
+Model Params: 30,984,488
+Runtime:      3,299.8s
+== Scoring ImageNet16-120 ==
+Raw Score:    38.233
+Adj Score:    -1.519
+Model Params: 8,146,260
+Runtime:      2,757.7s
+== Scoring Sudoku ==
+Raw Score:    62.570
+Adj Score:    6.257
+Model Params: 14,757,104
+Runtime:      3,119.1s
+== Scoring CIFAR10 ==
+Raw Score:    93.700
+Adj Score:    3.262
+Model Params: 16,746,034
+Runtime:      3,661.2s
+===========================
+Final Score: 12.380
+=== JOB_STATISTICS ===
+=== current date     : Tue 05 Nov 2024 02:20:35 AM CET
+= Job-ID             : 925828 on tinygpu
+= Job-Name           : /home/woody/iwb3/iwb3021h/THESIS_RESULTS/hpcruns/evonas
+= Job-Command        : /home/hpc/iwb3/iwb3021h/NAS_CHALLENGE/NAS_Challenge_AutoML_2024/evonas_job_full_main_1.sh
+= Initial workdir    : /home/hpc/iwb3/iwb3021h/NAS_CHALLENGE/NAS_Challenge_AutoML_2024
+= Queue/Partition    : a100
+= Slurm account      : iwb3 with QOS=normal
+= Requested resources:  for 23:59:00
+= Elapsed runtime    : 03:36:37
+= Total RAM usage    : 6.6 GiB of requested  GiB (%)   
+= Node list          : tg094
+= Subm/Elig/Start/End: 2024-11-04T21:57:02 / 2024-11-04T21:57:02 / 2024-11-04T22:43:58 / 2024-11-05T02:20:35
+======================
+=== Quota infos ======
+    Path              Used     SoftQ    HardQ    Gracetime  Filec    FileQ    FiHaQ    FileGrace    
+    /home/hpc          103.8G   104.9G   209.7G        N/A     200K     500K   1,000K        N/A    
+    /home/vault        984.8G  1048.6G  2097.2G        N/A     180K     200K     400K        N/A    
+    /home/woody        920.4G  1000.0G  1500.0G        N/A     242K   5,000K   7,500K        N/A    
+======================
+=== GPU utilization ==
+gpu_name, gpu_bus_id, pid, gpu_utilization [%], mem_utilization [%], max_memory_usage [MiB], time [ms]
+NVIDIA A100-SXM4-40GB, 00000000:81:00.0, 3971023, 41 %, 17 %, 30378 MiB, 12848236 ms

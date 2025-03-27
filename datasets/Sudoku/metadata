@@ -1,1 +1,1 @@
-{"input_shape":[50000,1,9,9], "codename": "Sokoto", "benchmark":0.0, "num_classes":9}
+{"input_shape":[50000,1,9,9], "codename": "Sokoto", "benchmark":28.94, "num_classes":9}

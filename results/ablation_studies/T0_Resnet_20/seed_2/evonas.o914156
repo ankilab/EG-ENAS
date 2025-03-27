@@ -1,0 +1,128 @@
+### Starting TaskPrologue of job 914156 on tg093 at Wed 16 Oct 2024 06:13:35 PM CEST
+Running on cores 64-95 with governor ondemand
+Wed Oct 16 18:13:35 2024       
++-----------------------------------------------------------------------------------------+
+| NVIDIA-SMI 560.28.03              Driver Version: 560.28.03      CUDA Version: 12.6     |
+|-----------------------------------------+------------------------+----------------------+
+| GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |
+|                                         |                        |               MIG M. |
+|=========================================+========================+======================|
+|   0  NVIDIA A100-SXM4-40GB          On  |   00000000:81:00.0 Off |                    0 |
+| N/A   33C    P0             57W /  400W |       1MiB /  40960MiB |      0%      Default |
+|                                         |                        |             Disabled |
++-----------------------------------------+------------------------+----------------------+
+                                                                                         
++-----------------------------------------------------------------------------------------+
+| Processes:                                                                              |
+|  GPU   GI   CI        PID   Type   Process name                              GPU Memory |
+|        ID   ID                                                               Usage      |
+|=========================================================================================|
+|  No running processes found                                                             |
++-----------------------------------------------------------------------------------------+
+### Finished TaskPrologue
+
+[07;1;31;43m WARNING: You are over quota on at least one filesystem![0m
+    Path              Used     SoftQ    HardQ    Gracetime  Filecount  FileQuota  FileHardQ  FileGrace    
+[07;1;31;43m!!! /home/hpc          105.9G   104.9G   209.7G  -29692days     196K     500K   1,000K        N/A !!![0m
+Loading python/pytorch-1.13py3.10
+  Loading requirement: cuda/11.6.1
+rm -Rf /home/woody/iwb3/iwb3021h/THESIS_RESULTS/scoring0
+mkdir /home/woody/iwb3/iwb3021h/THESIS_RESULTS/scoring0
+mkdir /home/woody/iwb3/iwb3021h/THESIS_RESULTS/scoring0/labels
+mkdir /home/woody/iwb3/iwb3021h/THESIS_RESULTS/scoring0/predictions
+rsync -avr --exclude='**/*x.npy' --exclude='**/train*.npy' --exclude='**/valid*.npy'   --include='**/test_y.npy' datasets/* /home/woody/iwb3/iwb3021h/THESIS_RESULTS/scoring0/labels/
+sending incremental file list
+AddNIST/
+AddNIST/README
+AddNIST/metadata
+AddNIST/test_y.npy
+CIFARTile/
+CIFARTile/README.txt
+CIFARTile/metadata
+CIFARTile/test_y.npy
+Chesseract/
+Chesseract/README
+Chesseract/metadata
+Chesseract/test_y.npy
+GeoClassing/
+GeoClassing/metadata
+GeoClassing/test_y.npy
+Gutenberg/
+Gutenberg/metadata
+Gutenberg/test_y.npy
+Language/
+Language/README
+Language/metadata
+Language/test_y.npy
+MultNIST/
+MultNIST/README
+MultNIST/metadata
+MultNIST/test_y.npy
+
+sent 528,449 bytes  received 429 bytes  1,057,756.00 bytes/sec
+total size is 526,780  speedup is 1.00
+cp -R /home/woody/iwb3/iwb3021h/THESIS_RESULTS/package0/predictions /home/woody/iwb3/iwb3021h/THESIS_RESULTS/scoring0
+cp evaluation/score.py /home/woody/iwb3/iwb3021h/THESIS_RESULTS/scoring0/score.py
+cd /home/woody/iwb3/iwb3021h/THESIS_RESULTS/scoring0; python3 score.py
+===========================================================================
+=============    Your Unseen Data 2024 Submission is scoring     =============
+===========================================================================
+== Scoring Language ==
+Raw Score:    87.580
+Adj Score:    1.608
+Model Params: 20,976,270
+Runtime:      11,727.8s
+== Scoring Gutenberg ==
+Raw Score:    46.233
+Adj Score:    0.890
+Model Params: 3,030,124
+Runtime:      10,357.2s
+== Scoring AddNIST ==
+Raw Score:    94.040
+Adj Score:    4.128
+Model Params: 1,711,727
+Runtime:      20,274.0s
+== Scoring Chesseract ==
+Raw Score:    60.226
+Adj Score:    0.569
+Model Params: 9,016,945
+Runtime:      6,869.1s
+== Scoring GeoClassing ==
+Raw Score:    96.046
+Adj Score:    7.990
+Model Params: 9,288,916
+Runtime:      17,674.0s
+== Scoring MultNIST ==
+Raw Score:    92.250
+Adj Score:    1.512
+Model Params: 1,022,959
+Runtime:      19,071.5s
+== Scoring CIFARTile ==
+Raw Score:    73.360
+Adj Score:    4.973
+Model Params: 1,549,926
+Runtime:      15,693.0s
+===========================
+Final Score: 21.670
+=== JOB_STATISTICS ===
+=== current date     : Wed 16 Oct 2024 06:13:46 PM CEST
+= Job-ID             : 914156 on tinygpu
+= Job-Name           : /home/woody/iwb3/iwb3021h/THESIS_RESULTS/hpcruns/evonas
+= Job-Command        : /home/hpc/iwb3/iwb3021h/NAS_CHALLENGE/NAS_Challenge_AutoML_2024/evonas_job_full_main_0.sh
+= Initial workdir    : /home/hpc/iwb3/iwb3021h/NAS_CHALLENGE/NAS_Challenge_AutoML_2024
+= Queue/Partition    : a100
+= Slurm account      : iwb3 with QOS=normal
+= Requested resources:  for 23:59:00
+= Elapsed runtime    : 00:00:13
+= Total RAM usage    : 0.0 GiB of requested  GiB (%)   
+= Node list          : tg093
+= Subm/Elig/Start/End: 2024-10-16T18:13:32 / 2024-10-16T18:13:32 / 2024-10-16T18:13:33 / 2024-10-16T18:13:46
+======================
+=== Quota infos ======
+    Path              Used     SoftQ    HardQ    Gracetime  Filec    FileQ    FiHaQ    FileGrace    
+!!! /home/hpc          105.9G   104.9G   209.7G  -29692days     196K     500K   1,000K        N/A !!!
+    /home/woody        813.8G  1000.0G  1500.0G        N/A     246K   5,000K   7,500K        N/A    
+======================
+=== GPU utilization ==
+gpu_name, gpu_bus_id, pid, gpu_utilization [%], mem_utilization [%], max_memory_usage [MiB], time [ms]

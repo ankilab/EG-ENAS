@@ -63,7 +63,7 @@ class NAS:
             random_seed="random"
 
         epochs=10 if mode=="T7" else 5
-        SAVE_PATH=f"{mode}_{select_augment}/seed_{random_seed}"
+        SAVE_PATH=f"../{mode}_{select_augment}/seed_{random_seed}"
         #SAVE_PATH=f"results/THESIS_RESULTS/T1"
         if "+" in mode:
             ic("Extended + Regnet mode")

@@ -1,0 +1,1138 @@
+### Starting TaskPrologue of job 912956 on tg094 at Tue 15 Oct 2024 09:00:33 AM CEST
+Running on cores 32-63 with governor ondemand
+Tue Oct 15 09:00:33 2024       
++-----------------------------------------------------------------------------------------+
+| NVIDIA-SMI 560.28.03              Driver Version: 560.28.03      CUDA Version: 12.6     |
+|-----------------------------------------+------------------------+----------------------+
+| GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |
+|                                         |                        |               MIG M. |
+|=========================================+========================+======================|
+|   0  NVIDIA A100-SXM4-40GB          On  |   00000000:41:00.0 Off |                    0 |
+| N/A   36C    P0             55W /  400W |       1MiB /  40960MiB |      0%      Default |
+|                                         |                        |             Disabled |
++-----------------------------------------+------------------------+----------------------+
+                                                                                         
++-----------------------------------------------------------------------------------------+
+| Processes:                                                                              |
+|  GPU   GI   CI        PID   Type   Process name                              GPU Memory |
+|        ID   ID                                                               Usage      |
+|=========================================================================================|
+|  No running processes found                                                             |
++-----------------------------------------------------------------------------------------+
+### Finished TaskPrologue
+
+Loading python/pytorch-1.13py3.10
+  Loading requirement: cuda/11.6.1
+rm -Rf /home/woody/iwb3/iwb3021h/THESIS_RESULTS/scoring0
+rm -Rf /home/woody/iwb3/iwb3021h/THESIS_RESULTS/package0
+rm -Rf /home/woody/iwb3/iwb3021h/THESIS_RESULTS/package0
+mkdir /home/woody/iwb3/iwb3021h/THESIS_RESULTS/package0
+mkdir /home/woody/iwb3/iwb3021h/THESIS_RESULTS/package0/predictions
+mkdir /home/woody/iwb3/iwb3021h/THESIS_RESULTS/package0/datasets
+rsync -ar --exclude='**/test_y.npy' datasets/* /home/woody/iwb3/iwb3021h/THESIS_RESULTS/package0/datasets/
+cp -R evaluation/main.py /home/woody/iwb3/iwb3021h/THESIS_RESULTS/package0/main.py
+cp -R anki_lab_submission/* /home/woody/iwb3/iwb3021h/THESIS_RESULTS/package0
+cd /home/woody/iwb3/iwb3021h/THESIS_RESULTS/package0; python3 main.py --mode T0 --select_augment Resnet
+ic| self.select_augment: 'Resnet'
+/home/hpc/iwb3/iwb3021h/NAS_CHALLENGE/NAS_Challenge_AutoML_2024/.testvenv/lib/python3.10/site-packages/torchvision/transforms/v2/_deprecated.py:42: UserWarning: The transform `ToTensor()` is deprecated and will be removed in a future release. Instead, please use `v2.Compose([v2.ToImage(), v2.ToDtype(torch.float32, scale=True)])`.Output is equivalent up to float precision.
+  warnings.warn(
+ic| f"Transform {idx}": 'Transform 0'
+ic| transform: []
+ic| self.x.shape: torch.Size([50000, 1, 24, 24])
+ic| self.x.shape: torch.Size([10000, 1, 24, 24])
+ic| 'data loaded'
+ic| f"Transform {idx}": 'Transform 1'
+ic| transform: [RandAugment(interpolation=InterpolationMode.NEAREST, num_ops=2, magnitude=9, num_magnitude_bins=31)]
+ic| self.x.shape: torch.Size([50000, 1, 24, 24])
+ic| self.x.shape: torch.Size([10000, 1, 24, 24])
+ic| 'data loaded'
+ic| f"Transform {idx}": 'Transform 2'
+ic| transform: [RandAugment(interpolation=InterpolationMode.NEAREST, num_ops=2, magnitude=5, num_magnitude_bins=31)]
+ic| self.x.shape: torch.Size([50000, 1, 24, 24])
+ic| self.x.shape: torch.Size([10000, 1, 24, 24])
+ic| 'data loaded'
+ic| f"Transform {idx}": 'Transform 3'
+ic| transform: [RandAugment(interpolation=InterpolationMode.NEAREST, num_ops=2, magnitude=1, num_magnitude_bins=31)]
+ic| self.x.shape: torch.Size([50000, 1, 24, 24])
+ic| self.x.shape: torch.Size([10000, 1, 24, 24])
+ic| 'data loaded'
+ic| f"Transform {idx}": 'Transform 4'
+ic| transform: [TrivialAugmentWide(interpolation=InterpolationMode.NEAREST, num_magnitude_bins=31)]
+ic| self.x.shape: torch.Size([50000, 1, 24, 24])
+ic| self.x.shape: torch.Size([10000, 1, 24, 24])
+ic| 'data loaded'
+ic| f"Transform {idx}": 'Transform 5'
+ic| transform: [TrivialAugmentWide(interpolation=InterpolationMode.NEAREST, num_magnitude_bins=15)]
+ic| self.x.shape: torch.Size([50000, 1, 24, 24])
+ic| self.x.shape: torch.Size([10000, 1, 24, 24])
+ic| 'data loaded'
+ic| f"Transform {idx}": 'Transform 6'
+ic| transform: [AugMix(interpolation=InterpolationMode.BILINEAR, severity=3, mixture_width=3, chain_depth=-1, alpha=1.0, all_ops=True)]
+ic| self.x.shape: torch.Size([50000, 1, 24, 24])
+ic| self.x.shape: torch.Size([10000, 1, 24, 24])
+ic| 'data loaded'
+ic| f"Transform {idx}": 'Transform 7'
+ic| transform: [AugMix(interpolation=InterpolationMode.BILINEAR, severity=1, mixture_width=3, chain_depth=-1, alpha=1.0, all_ops=True)]
+ic| self.x.shape: torch.Size([50000, 1, 24, 24])
+ic| self.x.shape: torch.Size([10000, 1, 24, 24])
+ic| 'data loaded'
+ic| f"Transform {idx}": 'Transform 8'
+ic| transform: [RandomHorizontalFlip(p=0.5), RandomVerticalFlip(p=0.5)]
+ic| self.x.shape: torch.Size([50000, 1, 24, 24])
+ic| self.x.shape: torch.Size([10000, 1, 24, 24])
+ic| 'data loaded'
+ic| f"Transform {idx}": 'Transform 9'
+ic| transform: [RandomErasing(p=0.2, scale=(0.05, 0.2), ratio=(0.3, 3.3), value=[0.0], inplace=False),
+                RandomHorizontalFlip(p=0.5),
+                RandomVerticalFlip(p=0.5)]
+ic| self.x.shape: torch.Size([50000, 1, 24, 24])
+ic| self.x.shape: torch.Size([10000, 1, 24, 24])
+ic| 'data loaded'
+ic| f"Transform {idx}": 'Transform 10'
+ic| transform: [RandomErasing(p=0.2, scale=(0.05, 0.2), ratio=(0.3, 3.3), value=[0.0], inplace=False)]
+ic| self.x.shape: torch.Size([50000, 1, 24, 24])
+ic| self.x.shape: torch.Size([10000, 1, 24, 24])
+ic| 'data loaded'
+ic| f"Transform {idx}": 'Transform 11'
+ic| transform: [RandomErasing(p=0.2, scale=(0.02, 0.2), ratio=(0.3, 3.3), value=[0.0], inplace=False),
+                RandomCrop(size=(24, 24), padding=[3, 3, 3, 3], pad_if_needed=False, fill=0, padding_mode=constant)]
+ic| self.x.shape: torch.Size([50000, 1, 24, 24])
+ic| self.x.shape: torch.Size([10000, 1, 24, 24])
+ic| 'data loaded'
+ic| f"Transform {idx}": 'Transform 12'
+ic| transform: [RandomCrop(size=(24, 24), padding=[3, 3, 3, 3], pad_if_needed=False, fill=0, padding_mode=constant)]
+ic| self.x.shape: torch.Size([50000, 1, 24, 24])
+ic| self.x.shape: torch.Size([10000, 1, 24, 24])
+ic| 'data loaded'
+ic| f"Transform {idx}": 'Transform 13'
+ic| transform: [RandomCrop(size=(24, 24), padding=[3, 3, 3, 3], pad_if_needed=False, fill=0, padding_mode=constant),
+                RandomHorizontalFlip(p=0.5),
+                RandomVerticalFlip(p=0.5)]
+ic| self.x.shape: torch.Size([50000, 1, 24, 24])
+ic| self.x.shape: torch.Size([10000, 1, 24, 24])
+ic| 'data loaded'
+ic| f"Transform {idx}": 'Transform 14'
+ic| transform: [RandomErasing(p=0.2, scale=(0.02, 0.2), ratio=(0.3, 3.3), value=[0.0], inplace=False),
+                RandomCrop(size=(24, 24), padding=[3, 3, 3, 3], pad_if_needed=False, fill=0, padding_mode=constant),
+                RandomHorizontalFlip(p=0.5)]
+ic| self.x.shape: torch.Size([50000, 1, 24, 24])
+ic| self.x.shape: torch.Size([10000, 1, 24, 24])
+ic| 'data loaded'
+ic| f"Transform {idx}": 'Transform 15'
+ic| transform: [<data_processor.RandomPixelChange object at 0x7fdbc46872e0>, ToTensor()]
+ic| self.x.shape: torch.Size([50000, 1, 24, 24])
+ic| self.x.shape: torch.Size([10000, 1, 24, 24])
+ic| 'data loaded'
+ic| f"Transform {idx}": 'Transform 16'
+ic| transform: [<data_processor.RandomPixelChange object at 0x7fdbc4687a90>, ToTensor()]
+ic| self.x.shape: torch.Size([50000, 1, 24, 24])
+ic| self.x.shape: torch.Size([10000, 1, 24, 24])
+ic| 'data loaded'
+ic| f"Transform {idx}": 'Transform 17'
+ic| transform: [<data_processor.RandomPixelChange object at 0x7fdbc4687f40>, ToTensor()]
+ic| self.x.shape: torch.Size([50000, 1, 24, 24])
+ic| self.x.shape: torch.Size([10000, 1, 24, 24])
+ic| 'data loaded'
+ic| f"Transform {idx}": 'Transform 18'
+ic| transform: [<data_processor.RandomPixelChange object at 0x7fdbc4687730>,
+                ToTensor(),
+                RandomHorizontalFlip(p=0.5),
+                RandomVerticalFlip(p=0.5)]
+ic| self.x.shape: torch.Size([50000, 1, 24, 24])
+ic| self.x.shape: torch.Size([10000, 1, 24, 24])
+ic| 'data loaded'
+ic| f"Transform {idx}": 'Transform 19'
+ic| transform: [<data_processor.RandomPixelChange object at 0x7fdbc5035810>,
+                ToTensor(),
+                RandomErasing(p=0.2, scale=(0.05, 0.2), ratio=(0.3, 3.3), value=[0.0], inplace=False)]
+ic| self.x.shape: torch.Size([50000, 1, 24, 24])
+ic| self.x.shape: torch.Size([10000, 1, 24, 24])
+ic| 'data loaded'
+ic| f"Transform {idx}": 'Transform 20'
+ic| transform: [<data_processor.RandomPixelChange object at 0x7fdbc5034fa0>,
+                ToTensor(),
+                RandomCrop(size=(24, 24), padding=[3, 3, 3, 3], pad_if_needed=False, fill=0, padding_mode=constant)]
+ic| self.x.shape: torch.Size([50000, 1, 24, 24])
+ic| self.x.shape: torch.Size([10000, 1, 24, 24])
+ic| 'data loaded'
+ic| f"Transform {idx}": 'Transform 21'
+ic| transform: [<data_processor.RandomPixelChange object at 0x7fdbc4686710>,
+                ToTensor(),
+                RandomHorizontalFlip(p=0.5),
+                RandomVerticalFlip(p=0.5),
+                RandomErasing(p=0.2, scale=(0.05, 0.2), ratio=(0.3, 3.3), value=[0.0], inplace=False)]
+ic| self.x.shape: torch.Size([50000, 1, 24, 24])
+ic| self.x.shape: torch.Size([10000, 1, 24, 24])
+ic| 'data loaded'
+ic| f"selected transform {train_transform}": ('selected transform [<data_processor.RandomPixelChange object at '
+                                              '0x7fdbc4687f40>, ToTensor()]')
+ic| self.x.shape: torch.Size([50000, 1, 24, 24])
+ic| self.x.shape: torch.Size([10000, 1, 24, 24])
+ic| self.x.shape: torch.Size([10000, 1, 24, 24])
+ic| mode: 'T0'
+ic| f"Mode {mode}": 'Mode T0'
+ic| get_gpu_memory(0): 41796370432
+ic| self.total_generations: 3
+ic| 'Time remaining:'
+ic| metadata['time_remaining']: 97412.98428726196
+ic| self.zcost_nas: True
+ic| self.cfg: CfgNode({'MODEL': CfgNode({'TYPE': 'regnet', 'NUM_CLASSES': 10, 'ACTIVATION_FUN': 'relu', 'ACTIVATION_INPLACE': True, 'SCALING_TYPE': '', 'SCALING_FACTOR': 1.0}), 'REGNET': CfgNode({'STEM_TYPE': 'res_stem_cifar', 'INPUT_CHANNELS': 1, 'STEM_W': 24, 'BLOCK_TYPE': 'res_bottleneck_block', 'STRIDE': 2, 'SE_ON': True, 'SE_R': 0.25, 'DEPTH': 20, 'W0': 232, 'WA': 115.89, 'WM': 2.53, 'GROUP_W': 8, 'BOT_MUL': 1.0, 'HEAD_W': 0, 'DOWNSAMPLE': 'avg', 'DROP_RATE': 0.01, 'DROPOUT': 0.2}), 'BN': CfgNode({'EPS': 1e-05, 'MOM': 0.1, 'ZERO_INIT_FINAL_GAMMA': False}), 'LN': CfgNode({'EPS': 1e-05}), 'DESC': ''})
+ic| samples: 120
+/home/hpc/iwb3/iwb3021h/NAS_CHALLENGE/NAS_Challenge_AutoML_2024/.testvenv/lib/python3.10/site-packages/sklearn/base.py:376: InconsistentVersionWarning: Trying to unpickle estimator DecisionTreeRegressor from version 1.4.2 when using version 1.5.0. This might lead to breaking code or invalid results. Use at your own risk. For more info please refer to:
+https://scikit-learn.org/stable/model_persistence.html#security-maintainability-limitations
+  warnings.warn(
+/home/hpc/iwb3/iwb3021h/NAS_CHALLENGE/NAS_Challenge_AutoML_2024/.testvenv/lib/python3.10/site-packages/sklearn/base.py:376: InconsistentVersionWarning: Trying to unpickle estimator RandomForestRegressor from version 1.4.2 when using version 1.5.0. This might lead to breaking code or invalid results. Use at your own risk. For more info please refer to:
+https://scikit-learn.org/stable/model_persistence.html#security-maintainability-limitations
+  warnings.warn(
+/home/woody/iwb3/iwb3021h/THESIS_RESULTS/package0/search_space/RegNet.py:299: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  ranking_test_df[pred_column]=sgd_regressor.predict(X_test)
+ic| ranking_prediction_df:                    score
+                           xanthic_squid  83.840401
+ic| best_models.keys(): dict_keys(['xanthic_squid'])
+ic| self.initial_population_size: 120
+ic| metadata: {'benchmark': 85.2,
+               'codename': 'LaMelo',
+               'experiment_name': 'augmentations_test/LaMelo/aug_21',
+               'input_shape': [50000, 1, 24, 24],
+               'mode': 'NAS',
+               'num_classes': 10,
+               'test_type': 'T0_Resnet/seed_2',
+               'time_remaining': 97391.01482462883,
+               'train_config_path': 'configs/train/finetuning_generation_adam.yaml'}
+ic| cfg_path: 'configs/train/finetuning_generation_adam.yaml'
+ic| self.cfg.SOLVER.LR: 0.001
+ic| self.cfg.SOLVER.EPOCHS-self.cfg.SOLVER.SWA_START: 10
+ic| self.cfg.SOLVER.EPOCHS: 100
+/home/woody/iwb3/iwb3021h/THESIS_RESULTS/package0/trainer.py:41: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  checkpoint = torch.load(checkpoint_path, map_location=device)
+ic| self.select_augment: 'Resnet'
+/home/hpc/iwb3/iwb3021h/NAS_CHALLENGE/NAS_Challenge_AutoML_2024/.testvenv/lib/python3.10/site-packages/torchvision/transforms/v2/_deprecated.py:42: UserWarning: The transform `ToTensor()` is deprecated and will be removed in a future release. Instead, please use `v2.Compose([v2.ToImage(), v2.ToDtype(torch.float32, scale=True)])`.Output is equivalent up to float precision.
+  warnings.warn(
+ic| f"Transform {idx}": 'Transform 0'
+ic| transform: []
+ic| self.x.shape: torch.Size([45000, 1, 27, 18])
+ic| self.x.shape: torch.Size([15000, 1, 27, 18])
+ic| 'data loaded'
+ic| f"Transform {idx}": 'Transform 1'
+ic| transform: [RandAugment(interpolation=InterpolationMode.NEAREST, num_ops=2, magnitude=9, num_magnitude_bins=31)]
+ic| self.x.shape: torch.Size([45000, 1, 27, 18])
+ic| self.x.shape: torch.Size([15000, 1, 27, 18])
+ic| 'data loaded'
+ic| f"Transform {idx}": 'Transform 2'
+ic| transform: [RandAugment(interpolation=InterpolationMode.NEAREST, num_ops=2, magnitude=5, num_magnitude_bins=31)]
+ic| self.x.shape: torch.Size([45000, 1, 27, 18])
+ic| self.x.shape: torch.Size([15000, 1, 27, 18])
+ic| 'data loaded'
+ic| f"Transform {idx}": 'Transform 3'
+ic| transform: [RandAugment(interpolation=InterpolationMode.NEAREST, num_ops=2, magnitude=1, num_magnitude_bins=31)]
+ic| self.x.shape: torch.Size([45000, 1, 27, 18])
+ic| self.x.shape: torch.Size([15000, 1, 27, 18])
+ic| 'data loaded'
+ic| f"Transform {idx}": 'Transform 4'
+ic| transform: [TrivialAugmentWide(interpolation=InterpolationMode.NEAREST, num_magnitude_bins=31)]
+ic| self.x.shape: torch.Size([45000, 1, 27, 18])
+ic| self.x.shape: torch.Size([15000, 1, 27, 18])
+ic| 'data loaded'
+ic| f"Transform {idx}": 'Transform 5'
+ic| transform: [TrivialAugmentWide(interpolation=InterpolationMode.NEAREST, num_magnitude_bins=15)]
+ic| self.x.shape: torch.Size([45000, 1, 27, 18])
+ic| self.x.shape: torch.Size([15000, 1, 27, 18])
+ic| 'data loaded'
+ic| f"Transform {idx}": 'Transform 6'
+ic| transform: [AugMix(interpolation=InterpolationMode.BILINEAR, severity=3, mixture_width=3, chain_depth=-1, alpha=1.0, all_ops=True)]
+ic| self.x.shape: torch.Size([45000, 1, 27, 18])
+ic| self.x.shape: torch.Size([15000, 1, 27, 18])
+ic| 'data loaded'
+ic| f"Transform {idx}": 'Transform 7'
+ic| transform: [AugMix(interpolation=InterpolationMode.BILINEAR, severity=1, mixture_width=3, chain_depth=-1, alpha=1.0, all_ops=True)]
+ic| self.x.shape: torch.Size([45000, 1, 27, 18])
+ic| self.x.shape: torch.Size([15000, 1, 27, 18])
+ic| 'data loaded'
+ic| f"Transform {idx}": 'Transform 8'
+ic| transform: [RandomHorizontalFlip(p=0.5), RandomVerticalFlip(p=0.5)]
+ic| self.x.shape: torch.Size([45000, 1, 27, 18])
+ic| self.x.shape: torch.Size([15000, 1, 27, 18])
+ic| 'data loaded'
+ic| f"Transform {idx}": 'Transform 9'
+ic| transform: [RandomErasing(p=0.2, scale=(0.05, 0.2), ratio=(0.3, 3.3), value=[0.0], inplace=False),
+                RandomHorizontalFlip(p=0.5),
+                RandomVerticalFlip(p=0.5)]
+ic| self.x.shape: torch.Size([45000, 1, 27, 18])
+ic| self.x.shape: torch.Size([15000, 1, 27, 18])
+ic| 'data loaded'
+ic| f"Transform {idx}": 'Transform 10'
+ic| transform: [RandomErasing(p=0.2, scale=(0.05, 0.2), ratio=(0.3, 3.3), value=[0.0], inplace=False)]
+ic| self.x.shape: torch.Size([45000, 1, 27, 18])
+ic| self.x.shape: torch.Size([15000, 1, 27, 18])
+ic| 'data loaded'
+ic| f"Transform {idx}": 'Transform 11'
+ic| transform: [RandomErasing(p=0.2, scale=(0.02, 0.2), ratio=(0.3, 3.3), value=[0.0], inplace=False),
+                RandomCrop(size=(27, 18), padding=[3, 3, 2, 2], pad_if_needed=False, fill=0, padding_mode=constant)]
+ic| self.x.shape: torch.Size([45000, 1, 27, 18])
+ic| self.x.shape: torch.Size([15000, 1, 27, 18])
+ic| 'data loaded'
+ic| f"Transform {idx}": 'Transform 12'
+ic| transform: [RandomCrop(size=(27, 18), padding=[3, 3, 2, 2], pad_if_needed=False, fill=0, padding_mode=constant)]
+ic| self.x.shape: torch.Size([45000, 1, 27, 18])
+ic| self.x.shape: torch.Size([15000, 1, 27, 18])
+ic| 'data loaded'
+ic| f"Transform {idx}": 'Transform 13'
+ic| transform: [RandomCrop(size=(27, 18), padding=[3, 3, 2, 2], pad_if_needed=False, fill=0, padding_mode=constant),
+                RandomHorizontalFlip(p=0.5),
+                RandomVerticalFlip(p=0.5)]
+ic| self.x.shape: torch.Size([45000, 1, 27, 18])
+ic| self.x.shape: torch.Size([15000, 1, 27, 18])
+ic| 'data loaded'
+ic| f"Transform {idx}": 'Transform 14'
+ic| transform: [RandomErasing(p=0.2, scale=(0.02, 0.2), ratio=(0.3, 3.3), value=[0.0], inplace=False),
+                RandomCrop(size=(27, 18), padding=[3, 3, 2, 2], pad_if_needed=False, fill=0, padding_mode=constant),
+                RandomHorizontalFlip(p=0.5)]
+ic| self.x.shape: torch.Size([45000, 1, 27, 18])
+ic| self.x.shape: torch.Size([15000, 1, 27, 18])
+ic| 'data loaded'
+ic| f"Transform {idx}": 'Transform 15'
+ic| transform: [<data_processor.RandomPixelChange object at 0x7fdb58be31f0>, ToTensor()]
+ic| self.x.shape: torch.Size([45000, 1, 27, 18])
+ic| self.x.shape: torch.Size([15000, 1, 27, 18])
+ic| 'data loaded'
+ic| f"Transform {idx}": 'Transform 16'
+ic| transform: [<data_processor.RandomPixelChange object at 0x7fdb58be3670>, ToTensor()]
+ic| self.x.shape: torch.Size([45000, 1, 27, 18])
+ic| self.x.shape: torch.Size([15000, 1, 27, 18])
+ic| 'data loaded'
+ic| f"Transform {idx}": 'Transform 17'
+ic| transform: [<data_processor.RandomPixelChange object at 0x7fdb58be1b70>, ToTensor()]
+ic| self.x.shape: torch.Size([45000, 1, 27, 18])
+ic| self.x.shape: torch.Size([15000, 1, 27, 18])
+ic| 'data loaded'
+ic| f"Transform {idx}": 'Transform 18'
+ic| transform: [<data_processor.RandomPixelChange object at 0x7fdb58be3910>,
+                ToTensor(),
+                RandomHorizontalFlip(p=0.5),
+                RandomVerticalFlip(p=0.5)]
+ic| self.x.shape: torch.Size([45000, 1, 27, 18])
+ic| self.x.shape: torch.Size([15000, 1, 27, 18])
+ic| 'data loaded'
+ic| f"Transform {idx}": 'Transform 19'
+ic| transform: [<data_processor.RandomPixelChange object at 0x7fdb58be09d0>,
+                ToTensor(),
+                RandomErasing(p=0.2, scale=(0.05, 0.2), ratio=(0.3, 3.3), value=[0.0], inplace=False)]
+ic| self.x.shape: torch.Size([45000, 1, 27, 18])
+ic| self.x.shape: torch.Size([15000, 1, 27, 18])
+ic| 'data loaded'
+ic| f"Transform {idx}": 'Transform 20'
+ic| transform: [<data_processor.RandomPixelChange object at 0x7fdb58be0610>,
+                ToTensor(),
+                RandomCrop(size=(27, 18), padding=[3, 3, 2, 2], pad_if_needed=False, fill=0, padding_mode=constant)]
+ic| self.x.shape: torch.Size([45000, 1, 27, 18])
+ic| self.x.shape: torch.Size([15000, 1, 27, 18])
+ic| 'data loaded'
+ic| f"Transform {idx}": 'Transform 21'
+ic| transform: [<data_processor.RandomPixelChange object at 0x7fdb58be02b0>,
+                ToTensor(),
+                RandomHorizontalFlip(p=0.5),
+                RandomVerticalFlip(p=0.5),
+                RandomErasing(p=0.2, scale=(0.05, 0.2), ratio=(0.3, 3.3), value=[0.0], inplace=False)]
+ic| self.x.shape: torch.Size([45000, 1, 27, 18])
+ic| self.x.shape: torch.Size([15000, 1, 27, 18])
+ic| 'data loaded'
+ic| f"selected transform {train_transform}": ('selected transform [<data_processor.RandomPixelChange object at '
+                                              '0x7fdb58be31f0>, ToTensor()]')
+ic| self.x.shape: torch.Size([45000, 1, 27, 18])
+ic| self.x.shape: torch.Size([15000, 1, 27, 18])
+ic| self.x.shape: torch.Size([6000, 1, 27, 18])
+ic| mode: 'T0'
+ic| f"Mode {mode}": 'Mode T0'
+ic| get_gpu_memory(0): 41012035584
+ic| self.total_generations: 3
+ic| 'Time remaining:'
+ic| metadata['time_remaining']: 86714.60306310654
+ic| self.zcost_nas: True
+ic| self.cfg: CfgNode({'MODEL': CfgNode({'TYPE': 'regnet', 'NUM_CLASSES': 6, 'ACTIVATION_FUN': 'relu', 'ACTIVATION_INPLACE': True, 'SCALING_TYPE': '', 'SCALING_FACTOR': 1.0}), 'REGNET': CfgNode({'STEM_TYPE': 'res_stem_cifar', 'INPUT_CHANNELS': 1, 'STEM_W': 18, 'BLOCK_TYPE': 'res_bottleneck_block', 'STRIDE': 2, 'SE_ON': True, 'SE_R': 0.25, 'DEPTH': 20, 'W0': 232, 'WA': 115.89, 'WM': 2.53, 'GROUP_W': 8, 'BOT_MUL': 1.0, 'HEAD_W': 0, 'DOWNSAMPLE': 'avg', 'DROP_RATE': 0.01, 'DROPOUT': 0.2}), 'BN': CfgNode({'EPS': 1e-05, 'MOM': 0.1, 'ZERO_INIT_FINAL_GAMMA': False}), 'LN': CfgNode({'EPS': 1e-05}), 'DESC': ''})
+ic| samples: 120
+/home/hpc/iwb3/iwb3021h/NAS_CHALLENGE/NAS_Challenge_AutoML_2024/.testvenv/lib/python3.10/site-packages/sklearn/base.py:376: InconsistentVersionWarning: Trying to unpickle estimator DecisionTreeRegressor from version 1.4.2 when using version 1.5.0. This might lead to breaking code or invalid results. Use at your own risk. For more info please refer to:
+https://scikit-learn.org/stable/model_persistence.html#security-maintainability-limitations
+  warnings.warn(
+/home/hpc/iwb3/iwb3021h/NAS_CHALLENGE/NAS_Challenge_AutoML_2024/.testvenv/lib/python3.10/site-packages/sklearn/base.py:376: InconsistentVersionWarning: Trying to unpickle estimator RandomForestRegressor from version 1.4.2 when using version 1.5.0. This might lead to breaking code or invalid results. Use at your own risk. For more info please refer to:
+https://scikit-learn.org/stable/model_persistence.html#security-maintainability-limitations
+  warnings.warn(
+/home/woody/iwb3/iwb3021h/THESIS_RESULTS/package0/search_space/RegNet.py:299: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  ranking_test_df[pred_column]=sgd_regressor.predict(X_test)
+ic| ranking_prediction_df:                       score
+                           mustard_capybara  97.457784
+ic| best_models.keys(): dict_keys(['mustard_capybara'])
+ic| self.initial_population_size: 120
+ic| metadata: {'benchmark': 40.98,
+               'codename': 'Gutenberg',
+               'experiment_name': 'augmentations_test/Gutenberg/aug_21',
+               'input_shape': [45000, 1, 27, 18],
+               'mode': 'NAS',
+               'num_classes': 6,
+               'test_type': 'T0_Resnet/seed_2',
+               'time_remaining': 86694.99997377396,
+               'train_config_path': 'configs/train/finetuning_generation_adam.yaml'}
+ic| cfg_path: 'configs/train/finetuning_generation_adam.yaml'
+ic| self.cfg.SOLVER.LR: 0.001
+ic| self.cfg.SOLVER.EPOCHS-self.cfg.SOLVER.SWA_START: 10
+ic| self.cfg.SOLVER.EPOCHS: 100
+/home/woody/iwb3/iwb3021h/THESIS_RESULTS/package0/trainer.py:41: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  checkpoint = torch.load(checkpoint_path, map_location=device)
+ic| self.select_augment: 'Resnet'
+/home/hpc/iwb3/iwb3021h/NAS_CHALLENGE/NAS_Challenge_AutoML_2024/.testvenv/lib/python3.10/site-packages/torchvision/transforms/v2/_deprecated.py:42: UserWarning: The transform `ToTensor()` is deprecated and will be removed in a future release. Instead, please use `v2.Compose([v2.ToImage(), v2.ToDtype(torch.float32, scale=True)])`.Output is equivalent up to float precision.
+  warnings.warn(
+ic| f"Transform {idx}": 'Transform 0'
+ic| transform: []
+ic| self.x.shape: torch.Size([45000, 3, 28, 28])
+ic| self.x.shape: torch.Size([15000, 3, 28, 28])
+ic| 'data loaded'
+ic| f"Transform {idx}": 'Transform 1'
+ic| transform: [RandAugment(interpolation=InterpolationMode.NEAREST, num_ops=2, magnitude=9, num_magnitude_bins=31)]
+ic| self.x.shape: torch.Size([45000, 3, 28, 28])
+ic| self.x.shape: torch.Size([15000, 3, 28, 28])
+ic| 'data loaded'
+ic| f"Transform {idx}": 'Transform 2'
+ic| transform: [RandAugment(interpolation=InterpolationMode.NEAREST, num_ops=2, magnitude=5, num_magnitude_bins=31)]
+ic| self.x.shape: torch.Size([45000, 3, 28, 28])
+ic| self.x.shape: torch.Size([15000, 3, 28, 28])
+ic| 'data loaded'
+ic| f"Transform {idx}": 'Transform 3'
+ic| transform: [RandAugment(interpolation=InterpolationMode.NEAREST, num_ops=2, magnitude=1, num_magnitude_bins=31)]
+ic| self.x.shape: torch.Size([45000, 3, 28, 28])
+ic| self.x.shape: torch.Size([15000, 3, 28, 28])
+ic| 'data loaded'
+ic| f"Transform {idx}": 'Transform 4'
+ic| transform: [TrivialAugmentWide(interpolation=InterpolationMode.NEAREST, num_magnitude_bins=31)]
+ic| self.x.shape: torch.Size([45000, 3, 28, 28])
+ic| self.x.shape: torch.Size([15000, 3, 28, 28])
+ic| 'data loaded'
+ic| f"Transform {idx}": 'Transform 5'
+ic| transform: [TrivialAugmentWide(interpolation=InterpolationMode.NEAREST, num_magnitude_bins=15)]
+ic| self.x.shape: torch.Size([45000, 3, 28, 28])
+ic| self.x.shape: torch.Size([15000, 3, 28, 28])
+ic| 'data loaded'
+ic| f"Transform {idx}": 'Transform 6'
+ic| transform: [AugMix(interpolation=InterpolationMode.BILINEAR, severity=3, mixture_width=3, chain_depth=-1, alpha=1.0, all_ops=True)]
+ic| self.x.shape: torch.Size([45000, 3, 28, 28])
+ic| self.x.shape: torch.Size([15000, 3, 28, 28])
+ic| 'data loaded'
+ic| f"Transform {idx}": 'Transform 7'
+ic| transform: [AugMix(interpolation=InterpolationMode.BILINEAR, severity=1, mixture_width=3, chain_depth=-1, alpha=1.0, all_ops=True)]
+ic| self.x.shape: torch.Size([45000, 3, 28, 28])
+ic| self.x.shape: torch.Size([15000, 3, 28, 28])
+ic| 'data loaded'
+ic| f"Transform {idx}": 'Transform 8'
+ic| transform: [RandomHorizontalFlip(p=0.5), RandomVerticalFlip(p=0.5)]
+ic| self.x.shape: torch.Size([45000, 3, 28, 28])
+ic| self.x.shape: torch.Size([15000, 3, 28, 28])
+ic| 'data loaded'
+ic| f"Transform {idx}": 'Transform 9'
+ic| transform: [RandomErasing(p=0.2, scale=(0.05, 0.2), ratio=(0.3, 3.3), value=[0.0], inplace=False),
+                RandomHorizontalFlip(p=0.5),
+                RandomVerticalFlip(p=0.5)]
+ic| self.x.shape: torch.Size([45000, 3, 28, 28])
+ic| self.x.shape: torch.Size([15000, 3, 28, 28])
+ic| 'data loaded'
+ic| f"Transform {idx}": 'Transform 10'
+ic| transform: [RandomErasing(p=0.2, scale=(0.05, 0.2), ratio=(0.3, 3.3), value=[0.0], inplace=False)]
+ic| self.x.shape: torch.Size([45000, 3, 28, 28])
+ic| self.x.shape: torch.Size([15000, 3, 28, 28])
+ic| 'data loaded'
+ic| f"Transform {idx}": 'Transform 11'
+ic| transform: [RandomErasing(p=0.2, scale=(0.02, 0.2), ratio=(0.3, 3.3), value=[0.0], inplace=False),
+                RandomCrop(size=(28, 28), padding=[3, 3, 3, 3], pad_if_needed=False, fill=0, padding_mode=constant)]
+ic| self.x.shape: torch.Size([45000, 3, 28, 28])
+ic| self.x.shape: torch.Size([15000, 3, 28, 28])
+ic| 'data loaded'
+ic| f"Transform {idx}": 'Transform 12'
+ic| transform: [RandomCrop(size=(28, 28), padding=[3, 3, 3, 3], pad_if_needed=False, fill=0, padding_mode=constant)]
+ic| self.x.shape: torch.Size([45000, 3, 28, 28])
+ic| self.x.shape: torch.Size([15000, 3, 28, 28])
+ic| 'data loaded'
+ic| f"Transform {idx}": 'Transform 13'
+ic| transform: [RandomCrop(size=(28, 28), padding=[3, 3, 3, 3], pad_if_needed=False, fill=0, padding_mode=constant),
+                RandomHorizontalFlip(p=0.5),
+                RandomVerticalFlip(p=0.5)]
+ic| self.x.shape: torch.Size([45000, 3, 28, 28])
+ic| self.x.shape: torch.Size([15000, 3, 28, 28])
+ic| 'data loaded'
+ic| f"Transform {idx}": 'Transform 14'
+ic| transform: [RandomErasing(p=0.2, scale=(0.02, 0.2), ratio=(0.3, 3.3), value=[0.0], inplace=False),
+                RandomCrop(size=(28, 28), padding=[3, 3, 3, 3], pad_if_needed=False, fill=0, padding_mode=constant),
+                RandomHorizontalFlip(p=0.5)]
+ic| self.x.shape: torch.Size([45000, 3, 28, 28])
+ic| self.x.shape: torch.Size([15000, 3, 28, 28])
+ic| 'data loaded'
+ic| f"Transform {idx}": 'Transform 15'
+ic| transform: [<data_processor.RandomPixelChange object at 0x7fdb599fd030>, ToTensor()]
+ic| self.x.shape: torch.Size([45000, 3, 28, 28])
+ic| self.x.shape: torch.Size([15000, 3, 28, 28])
+ic| 'data loaded'
+ic| f"Transform {idx}": 'Transform 16'
+ic| transform: [<data_processor.RandomPixelChange object at 0x7fdb599fcbe0>, ToTensor()]
+ic| self.x.shape: torch.Size([45000, 3, 28, 28])
+ic| self.x.shape: torch.Size([15000, 3, 28, 28])
+ic| 'data loaded'
+ic| f"Transform {idx}": 'Transform 17'
+ic| transform: [<data_processor.RandomPixelChange object at 0x7fdb599fd810>, ToTensor()]
+ic| self.x.shape: torch.Size([45000, 3, 28, 28])
+ic| self.x.shape: torch.Size([15000, 3, 28, 28])
+ic| 'data loaded'
+ic| f"Transform {idx}": 'Transform 18'
+ic| transform: [<data_processor.RandomPixelChange object at 0x7fdb599fda80>,
+                ToTensor(),
+                RandomHorizontalFlip(p=0.5),
+                RandomVerticalFlip(p=0.5)]
+ic| self.x.shape: torch.Size([45000, 3, 28, 28])
+ic| self.x.shape: torch.Size([15000, 3, 28, 28])
+ic| 'data loaded'
+ic| f"Transform {idx}": 'Transform 19'
+ic| transform: [<data_processor.RandomPixelChange object at 0x7fdb599fd0f0>,
+                ToTensor(),
+                RandomErasing(p=0.2, scale=(0.05, 0.2), ratio=(0.3, 3.3), value=[0.0], inplace=False)]
+ic| self.x.shape: torch.Size([45000, 3, 28, 28])
+ic| self.x.shape: torch.Size([15000, 3, 28, 28])
+ic| 'data loaded'
+ic| f"Transform {idx}": 'Transform 20'
+ic| transform: [<data_processor.RandomPixelChange object at 0x7fdb599fe3b0>,
+                ToTensor(),
+                RandomCrop(size=(28, 28), padding=[3, 3, 3, 3], pad_if_needed=False, fill=0, padding_mode=constant)]
+ic| self.x.shape: torch.Size([45000, 3, 28, 28])
+ic| self.x.shape: torch.Size([15000, 3, 28, 28])
+ic| 'data loaded'
+ic| f"Transform {idx}": 'Transform 21'
+ic| transform: [<data_processor.RandomPixelChange object at 0x7fdb599ff940>,
+                ToTensor(),
+                RandomHorizontalFlip(p=0.5),
+                RandomVerticalFlip(p=0.5),
+                RandomErasing(p=0.2, scale=(0.05, 0.2), ratio=(0.3, 3.3), value=[0.0], inplace=False)]
+ic| self.x.shape: torch.Size([45000, 3, 28, 28])
+ic| self.x.shape: torch.Size([15000, 3, 28, 28])
+ic| 'data loaded'
+ic| f"selected transform {train_transform}": ('selected transform [AugMix(interpolation=InterpolationMode.BILINEAR, '
+                                              'severity=3, mixture_width=3, chain_depth=-1, alpha=1.0, all_ops=True)]')
+ic| self.x.shape: torch.Size([45000, 3, 28, 28])
+ic| self.x.shape: torch.Size([15000, 3, 28, 28])
+ic| self.x.shape: torch.Size([10000, 3, 28, 28])
+ic| mode: 'T0'
+ic| f"Mode {mode}": 'Mode T0'
+ic| get_gpu_memory(0): 41676832768
+ic| self.total_generations: 3
+ic| 'Time remaining:'
+ic| metadata['time_remaining']: 72120.9028058052
+ic| self.zcost_nas: True
+ic| self.cfg: CfgNode({'MODEL': CfgNode({'TYPE': 'regnet', 'NUM_CLASSES': 20, 'ACTIVATION_FUN': 'relu', 'ACTIVATION_INPLACE': True, 'SCALING_TYPE': '', 'SCALING_FACTOR': 1.0}), 'REGNET': CfgNode({'STEM_TYPE': 'res_stem_cifar', 'INPUT_CHANNELS': 3, 'STEM_W': 28, 'BLOCK_TYPE': 'res_bottleneck_block', 'STRIDE': 2, 'SE_ON': True, 'SE_R': 0.25, 'DEPTH': 20, 'W0': 232, 'WA': 115.89, 'WM': 2.53, 'GROUP_W': 8, 'BOT_MUL': 1.0, 'HEAD_W': 0, 'DOWNSAMPLE': 'avg', 'DROP_RATE': 0.01, 'DROPOUT': 0.2}), 'BN': CfgNode({'EPS': 1e-05, 'MOM': 0.1, 'ZERO_INIT_FINAL_GAMMA': False}), 'LN': CfgNode({'EPS': 1e-05}), 'DESC': ''})
+ic| samples: 120
+/home/hpc/iwb3/iwb3021h/NAS_CHALLENGE/NAS_Challenge_AutoML_2024/.testvenv/lib/python3.10/site-packages/sklearn/base.py:376: InconsistentVersionWarning: Trying to unpickle estimator DecisionTreeRegressor from version 1.4.2 when using version 1.5.0. This might lead to breaking code or invalid results. Use at your own risk. For more info please refer to:
+https://scikit-learn.org/stable/model_persistence.html#security-maintainability-limitations
+  warnings.warn(
+/home/hpc/iwb3/iwb3021h/NAS_CHALLENGE/NAS_Challenge_AutoML_2024/.testvenv/lib/python3.10/site-packages/sklearn/base.py:376: InconsistentVersionWarning: Trying to unpickle estimator RandomForestRegressor from version 1.4.2 when using version 1.5.0. This might lead to breaking code or invalid results. Use at your own risk. For more info please refer to:
+https://scikit-learn.org/stable/model_persistence.html#security-maintainability-limitations
+  warnings.warn(
+/home/woody/iwb3/iwb3021h/THESIS_RESULTS/package0/search_space/RegNet.py:299: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  ranking_test_df[pred_column]=sgd_regressor.predict(X_test)
+ic| ranking_prediction_df:                   score
+                           elite_gerbil  85.543301
+ic| best_models.keys(): dict_keys(['elite_gerbil'])
+ic| self.initial_population_size: 120
+ic| metadata: {'benchmark': 89.85,
+               'codename': 'Adaline',
+               'experiment_name': 'augmentations_test/Adaline/aug_21',
+               'input_shape': [50000, 3, 28, 28],
+               'mode': 'NAS',
+               'num_classes': 20,
+               'test_type': 'T0_Resnet/seed_2',
+               'time_remaining': 72023.10699176788,
+               'train_config_path': 'configs/train/finetuning_generation_adam.yaml'}
+ic| cfg_path: 'configs/train/finetuning_generation_adam.yaml'
+ic| self.cfg.SOLVER.LR: 0.001
+ic| self.cfg.SOLVER.EPOCHS-self.cfg.SOLVER.SWA_START: 10
+ic| self.cfg.SOLVER.EPOCHS: 100
+/home/woody/iwb3/iwb3021h/THESIS_RESULTS/package0/trainer.py:41: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  checkpoint = torch.load(checkpoint_path, map_location=device)
+ic| self.select_augment: 'Resnet'
+/home/hpc/iwb3/iwb3021h/NAS_CHALLENGE/NAS_Challenge_AutoML_2024/.testvenv/lib/python3.10/site-packages/torchvision/transforms/v2/_deprecated.py:42: UserWarning: The transform `ToTensor()` is deprecated and will be removed in a future release. Instead, please use `v2.Compose([v2.ToImage(), v2.ToDtype(torch.float32, scale=True)])`.Output is equivalent up to float precision.
+  warnings.warn(
+ic| f"Transform {idx}": 'Transform 0'
+ic| transform: []
+ic| self.x.shape: torch.Size([49998, 12, 8, 8])
+ic| self.x.shape: torch.Size([9999, 12, 8, 8])
+ic| 'data loaded'
+ic| f"Transform {idx}": 'Transform 1'
+ic| transform: [RandAugment(interpolation=InterpolationMode.NEAREST, num_ops=2, magnitude=9, num_magnitude_bins=31)]
+ic| self.x.shape: torch.Size([49998, 12, 8, 8])
+ic| self.x.shape: torch.Size([9999, 12, 8, 8])
+ic| 'data loaded'
+ic| 'Aug not allowed'
+ic| idx: 1
+ic| f"Transform {idx}": 'Transform 2'
+ic| transform: [RandAugment(interpolation=InterpolationMode.NEAREST, num_ops=2, magnitude=5, num_magnitude_bins=31)]
+ic| self.x.shape: torch.Size([49998, 12, 8, 8])
+ic| self.x.shape: torch.Size([9999, 12, 8, 8])
+ic| 'data loaded'
+ic| 'Aug not allowed'
+ic| idx: 2
+ic| f"Transform {idx}": 'Transform 3'
+ic| transform: [RandAugment(interpolation=InterpolationMode.NEAREST, num_ops=2, magnitude=1, num_magnitude_bins=31)]
+ic| self.x.shape: torch.Size([49998, 12, 8, 8])
+ic| self.x.shape: torch.Size([9999, 12, 8, 8])
+ic| 'data loaded'
+ic| 'Aug not allowed'
+ic| idx: 3
+ic| f"Transform {idx}": 'Transform 4'
+ic| transform: [TrivialAugmentWide(interpolation=InterpolationMode.NEAREST, num_magnitude_bins=31)]
+ic| self.x.shape: torch.Size([49998, 12, 8, 8])
+ic| self.x.shape: torch.Size([9999, 12, 8, 8])
+ic| 'data loaded'
+ic| 'Aug not allowed'
+ic| idx: 4
+ic| f"Transform {idx}": 'Transform 5'
+ic| transform: [TrivialAugmentWide(interpolation=InterpolationMode.NEAREST, num_magnitude_bins=15)]
+ic| self.x.shape: torch.Size([49998, 12, 8, 8])
+ic| self.x.shape: torch.Size([9999, 12, 8, 8])
+ic| 'data loaded'
+ic| 'Aug not allowed'
+ic| idx: 5
+ic| f"Transform {idx}": 'Transform 6'
+ic| transform: [AugMix(interpolation=InterpolationMode.BILINEAR, severity=3, mixture_width=3, chain_depth=-1, alpha=1.0, all_ops=True)]
+ic| self.x.shape: torch.Size([49998, 12, 8, 8])
+ic| self.x.shape: torch.Size([9999, 12, 8, 8])
+ic| 'data loaded'
+ic| 'Aug not allowed'
+ic| idx: 6
+ic| f"Transform {idx}": 'Transform 7'
+ic| transform: [AugMix(interpolation=InterpolationMode.BILINEAR, severity=1, mixture_width=3, chain_depth=-1, alpha=1.0, all_ops=True)]
+ic| self.x.shape: torch.Size([49998, 12, 8, 8])
+ic| self.x.shape: torch.Size([9999, 12, 8, 8])
+ic| 'data loaded'
+ic| 'Aug not allowed'
+ic| idx: 7
+ic| f"Transform {idx}": 'Transform 8'
+ic| transform: [RandomHorizontalFlip(p=0.5), RandomVerticalFlip(p=0.5)]
+ic| self.x.shape: torch.Size([49998, 12, 8, 8])
+ic| self.x.shape: torch.Size([9999, 12, 8, 8])
+ic| 'data loaded'
+ic| f"Transform {idx}": 'Transform 9'
+ic| transform: [RandomErasing(p=0.2, scale=(0.05, 0.2), ratio=(0.3, 3.3), value=[0.0], inplace=False),
+                RandomHorizontalFlip(p=0.5),
+                RandomVerticalFlip(p=0.5)]
+ic| self.x.shape: torch.Size([49998, 12, 8, 8])
+ic| self.x.shape: torch.Size([9999, 12, 8, 8])
+ic| 'data loaded'
+ic| f"Transform {idx}": 'Transform 10'
+ic| transform: [RandomErasing(p=0.2, scale=(0.05, 0.2), ratio=(0.3, 3.3), value=[0.0], inplace=False)]
+ic| self.x.shape: torch.Size([49998, 12, 8, 8])
+ic| self.x.shape: torch.Size([9999, 12, 8, 8])
+ic| 'data loaded'
+ic| f"Transform {idx}": 'Transform 11'
+ic| transform: [RandomErasing(p=0.2, scale=(0.02, 0.2), ratio=(0.3, 3.3), value=[0.0], inplace=False),
+                RandomCrop(size=(8, 8), padding=[1, 1, 1, 1], pad_if_needed=False, fill=0, padding_mode=constant)]
+ic| self.x.shape: torch.Size([49998, 12, 8, 8])
+ic| self.x.shape: torch.Size([9999, 12, 8, 8])
+ic| 'data loaded'
+ic| f"Transform {idx}": 'Transform 12'
+ic| transform: [RandomCrop(size=(8, 8), padding=[1, 1, 1, 1], pad_if_needed=False, fill=0, padding_mode=constant)]
+ic| self.x.shape: torch.Size([49998, 12, 8, 8])
+ic| self.x.shape: torch.Size([9999, 12, 8, 8])
+ic| 'data loaded'
+ic| f"Transform {idx}": 'Transform 13'
+ic| transform: [RandomCrop(size=(8, 8), padding=[1, 1, 1, 1], pad_if_needed=False, fill=0, padding_mode=constant),
+                RandomHorizontalFlip(p=0.5),
+                RandomVerticalFlip(p=0.5)]
+ic| self.x.shape: torch.Size([49998, 12, 8, 8])
+ic| self.x.shape: torch.Size([9999, 12, 8, 8])
+ic| 'data loaded'
+ic| f"Transform {idx}": 'Transform 14'
+ic| transform: [RandomErasing(p=0.2, scale=(0.02, 0.2), ratio=(0.3, 3.3), value=[0.0], inplace=False),
+                RandomCrop(size=(8, 8), padding=[1, 1, 1, 1], pad_if_needed=False, fill=0, padding_mode=constant),
+                RandomHorizontalFlip(p=0.5)]
+ic| self.x.shape: torch.Size([49998, 12, 8, 8])
+ic| self.x.shape: torch.Size([9999, 12, 8, 8])
+ic| 'data loaded'
+ic| f"Transform {idx}": 'Transform 15'
+ic| transform: [<data_processor.RandomPixelChange object at 0x7fdb9aa006d0>, ToTensor()]
+ic| self.x.shape: torch.Size([49998, 12, 8, 8])
+ic| self.x.shape: torch.Size([9999, 12, 8, 8])
+ic| 'data loaded'
+ic| f"Transform {idx}": 'Transform 16'
+ic| transform: [<data_processor.RandomPixelChange object at 0x7fdb9aa004c0>, ToTensor()]
+ic| self.x.shape: torch.Size([49998, 12, 8, 8])
+ic| self.x.shape: torch.Size([9999, 12, 8, 8])
+ic| 'data loaded'
+ic| f"Transform {idx}": 'Transform 17'
+ic| transform: [<data_processor.RandomPixelChange object at 0x7fdbb2098ac0>, ToTensor()]
+ic| self.x.shape: torch.Size([49998, 12, 8, 8])
+ic| self.x.shape: torch.Size([9999, 12, 8, 8])
+ic| 'data loaded'
+ic| f"Transform {idx}": 'Transform 18'
+ic| transform: [<data_processor.RandomPixelChange object at 0x7fdbb2099300>,
+                ToTensor(),
+                RandomHorizontalFlip(p=0.5),
+                RandomVerticalFlip(p=0.5)]
+ic| self.x.shape: torch.Size([49998, 12, 8, 8])
+ic| self.x.shape: torch.Size([9999, 12, 8, 8])
+ic| 'data loaded'
+ic| f"Transform {idx}": 'Transform 19'
+ic| transform: [<data_processor.RandomPixelChange object at 0x7fdbb209a950>,
+                ToTensor(),
+                RandomErasing(p=0.2, scale=(0.05, 0.2), ratio=(0.3, 3.3), value=[0.0], inplace=False)]
+ic| self.x.shape: torch.Size([49998, 12, 8, 8])
+ic| self.x.shape: torch.Size([9999, 12, 8, 8])
+ic| 'data loaded'
+ic| f"Transform {idx}": 'Transform 20'
+ic| transform: [<data_processor.RandomPixelChange object at 0x7fdbb209a7d0>,
+                ToTensor(),
+                RandomCrop(size=(8, 8), padding=[1, 1, 1, 1], pad_if_needed=False, fill=0, padding_mode=constant)]
+ic| self.x.shape: torch.Size([49998, 12, 8, 8])
+ic| self.x.shape: torch.Size([9999, 12, 8, 8])
+ic| 'data loaded'
+ic| f"Transform {idx}": 'Transform 21'
+ic| transform: [<data_processor.RandomPixelChange object at 0x7fdbb2099480>,
+                ToTensor(),
+                RandomHorizontalFlip(p=0.5),
+                RandomVerticalFlip(p=0.5),
+                RandomErasing(p=0.2, scale=(0.05, 0.2), ratio=(0.3, 3.3), value=[0.0], inplace=False)]
+ic| self.x.shape: torch.Size([49998, 12, 8, 8])
+ic| self.x.shape: torch.Size([9999, 12, 8, 8])
+ic| 'data loaded'
+ic| f"selected transform {train_transform}": ('selected transform [RandomErasing(p=0.2, scale=(0.02, 0.2), ratio=(0.3, '
+                                              '3.3), value=[0.0], inplace=False), RandomCrop(size=(8, 8), padding=[1, 1, 1, '
+                                              '1], pad_if_needed=False, fill=0, padding_mode=constant), '
+                                              'RandomHorizontalFlip(p=0.5)]')
+ic| self.x.shape: torch.Size([49998, 12, 8, 8])
+ic| self.x.shape: torch.Size([9999, 12, 8, 8])
+ic| self.x.shape: torch.Size([9999, 12, 8, 8])
+ic| mode: 'T0'
+ic| f"Mode {mode}": 'Mode T0'
+ic| get_gpu_memory(0): 41699901440
+ic| self.total_generations: 3
+ic| 'Time remaining:'
+ic| metadata['time_remaining']: 60214.872797727585
+ic| self.zcost_nas: True
+ic| self.cfg: CfgNode({'MODEL': CfgNode({'TYPE': 'regnet', 'NUM_CLASSES': 3, 'ACTIVATION_FUN': 'relu', 'ACTIVATION_INPLACE': True, 'SCALING_TYPE': '', 'SCALING_FACTOR': 1.0}), 'REGNET': CfgNode({'STEM_TYPE': 'res_stem_cifar', 'INPUT_CHANNELS': 12, 'STEM_W': 8, 'BLOCK_TYPE': 'res_bottleneck_block', 'STRIDE': 2, 'SE_ON': True, 'SE_R': 0.25, 'DEPTH': 20, 'W0': 232, 'WA': 115.89, 'WM': 2.53, 'GROUP_W': 8, 'BOT_MUL': 1.0, 'HEAD_W': 0, 'DOWNSAMPLE': 'avg', 'DROP_RATE': 0.01, 'DROPOUT': 0.2}), 'BN': CfgNode({'EPS': 1e-05, 'MOM': 0.1, 'ZERO_INIT_FINAL_GAMMA': False}), 'LN': CfgNode({'EPS': 1e-05}), 'DESC': ''})
+ic| samples: 120
+/home/hpc/iwb3/iwb3021h/NAS_CHALLENGE/NAS_Challenge_AutoML_2024/.testvenv/lib/python3.10/site-packages/sklearn/base.py:376: InconsistentVersionWarning: Trying to unpickle estimator DecisionTreeRegressor from version 1.4.2 when using version 1.5.0. This might lead to breaking code or invalid results. Use at your own risk. For more info please refer to:
+https://scikit-learn.org/stable/model_persistence.html#security-maintainability-limitations
+  warnings.warn(
+/home/hpc/iwb3/iwb3021h/NAS_CHALLENGE/NAS_Challenge_AutoML_2024/.testvenv/lib/python3.10/site-packages/sklearn/base.py:376: InconsistentVersionWarning: Trying to unpickle estimator RandomForestRegressor from version 1.4.2 when using version 1.5.0. This might lead to breaking code or invalid results. Use at your own risk. For more info please refer to:
+https://scikit-learn.org/stable/model_persistence.html#security-maintainability-limitations
+  warnings.warn(
+/home/woody/iwb3/iwb3021h/THESIS_RESULTS/package0/search_space/RegNet.py:299: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  ranking_test_df[pred_column]=sgd_regressor.predict(X_test)
+ic| ranking_prediction_df:                       score
+                           enchanted_collie  97.123824
+ic| best_models.keys(): dict_keys(['enchanted_collie'])
+ic| self.initial_population_size: 120
+ic| metadata: {'benchmark': 57.826,
+               'codename': 'Chester',
+               'experiment_name': 'augmentations_test/Chester/aug_21',
+               'input_shape': [49998, 12, 8, 8],
+               'mode': 'NAS',
+               'num_classes': 3,
+               'test_type': 'T0_Resnet/seed_2',
+               'time_remaining': 60090.11056661606,
+               'train_config_path': 'configs/train/finetuning_generation_adam.yaml'}
+ic| cfg_path: 'configs/train/finetuning_generation_adam.yaml'
+ic| self.cfg.SOLVER.LR: 0.001
+ic| self.cfg.SOLVER.EPOCHS-self.cfg.SOLVER.SWA_START: 10
+ic| self.cfg.SOLVER.EPOCHS: 100
+/home/woody/iwb3/iwb3021h/THESIS_RESULTS/package0/trainer.py:41: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  checkpoint = torch.load(checkpoint_path, map_location=device)
+ic| self.select_augment: 'Resnet'
+/home/hpc/iwb3/iwb3021h/NAS_CHALLENGE/NAS_Challenge_AutoML_2024/.testvenv/lib/python3.10/site-packages/torchvision/transforms/v2/_deprecated.py:42: UserWarning: The transform `ToTensor()` is deprecated and will be removed in a future release. Instead, please use `v2.Compose([v2.ToImage(), v2.ToDtype(torch.float32, scale=True)])`.Output is equivalent up to float precision.
+  warnings.warn(
+ic| f"Transform {idx}": 'Transform 0'
+ic| transform: []
+ic| self.x.shape: torch.Size([43821, 3, 60, 60])
+ic| self.x.shape: torch.Size([8785, 3, 60, 60])
+ic| 'data loaded'
+ic| f"Transform {idx}": 'Transform 1'
+ic| transform: [RandAugment(interpolation=InterpolationMode.NEAREST, num_ops=2, magnitude=9, num_magnitude_bins=31)]
+ic| self.x.shape: torch.Size([43821, 3, 60, 60])
+ic| self.x.shape: torch.Size([8785, 3, 60, 60])
+ic| 'data loaded'
+ic| f"Transform {idx}": 'Transform 2'
+ic| transform: [RandAugment(interpolation=InterpolationMode.NEAREST, num_ops=2, magnitude=5, num_magnitude_bins=31)]
+ic| self.x.shape: torch.Size([43821, 3, 60, 60])
+ic| self.x.shape: torch.Size([8785, 3, 60, 60])
+ic| 'data loaded'
+ic| f"Transform {idx}": 'Transform 3'
+ic| transform: [RandAugment(interpolation=InterpolationMode.NEAREST, num_ops=2, magnitude=1, num_magnitude_bins=31)]
+ic| self.x.shape: torch.Size([43821, 3, 60, 60])
+ic| self.x.shape: torch.Size([8785, 3, 60, 60])
+ic| 'data loaded'
+ic| f"Transform {idx}": 'Transform 4'
+ic| transform: [TrivialAugmentWide(interpolation=InterpolationMode.NEAREST, num_magnitude_bins=31)]
+ic| self.x.shape: torch.Size([43821, 3, 60, 60])
+ic| self.x.shape: torch.Size([8785, 3, 60, 60])
+ic| 'data loaded'
+ic| f"Transform {idx}": 'Transform 5'
+ic| transform: [TrivialAugmentWide(interpolation=InterpolationMode.NEAREST, num_magnitude_bins=15)]
+ic| self.x.shape: torch.Size([43821, 3, 60, 60])
+ic| self.x.shape: torch.Size([8785, 3, 60, 60])
+ic| 'data loaded'
+ic| f"Transform {idx}": 'Transform 6'
+ic| transform: [AugMix(interpolation=InterpolationMode.BILINEAR, severity=3, mixture_width=3, chain_depth=-1, alpha=1.0, all_ops=True)]
+ic| self.x.shape: torch.Size([43821, 3, 60, 60])
+ic| self.x.shape: torch.Size([8785, 3, 60, 60])
+ic| 'data loaded'
+ic| f"Transform {idx}": 'Transform 7'
+ic| transform: [AugMix(interpolation=InterpolationMode.BILINEAR, severity=1, mixture_width=3, chain_depth=-1, alpha=1.0, all_ops=True)]
+ic| self.x.shape: torch.Size([43821, 3, 60, 60])
+ic| self.x.shape: torch.Size([8785, 3, 60, 60])
+ic| 'data loaded'
+ic| f"Transform {idx}": 'Transform 8'
+ic| transform: [RandomHorizontalFlip(p=0.5), RandomVerticalFlip(p=0.5)]
+ic| self.x.shape: torch.Size([43821, 3, 60, 60])
+ic| self.x.shape: torch.Size([8785, 3, 60, 60])
+ic| 'data loaded'
+ic| f"Transform {idx}": 'Transform 9'
+ic| transform: [RandomErasing(p=0.2, scale=(0.05, 0.2), ratio=(0.3, 3.3), value=[0.0], inplace=False),
+                RandomHorizontalFlip(p=0.5),
+                RandomVerticalFlip(p=0.5)]
+ic| self.x.shape: torch.Size([43821, 3, 60, 60])
+ic| self.x.shape: torch.Size([8785, 3, 60, 60])
+ic| 'data loaded'
+ic| f"Transform {idx}": 'Transform 10'
+ic| transform: [RandomErasing(p=0.2, scale=(0.05, 0.2), ratio=(0.3, 3.3), value=[0.0], inplace=False)]
+ic| self.x.shape: torch.Size([43821, 3, 60, 60])
+ic| self.x.shape: torch.Size([8785, 3, 60, 60])
+ic| 'data loaded'
+ic| f"Transform {idx}": 'Transform 11'
+ic| transform: [RandomErasing(p=0.2, scale=(0.02, 0.2), ratio=(0.3, 3.3), value=[0.0], inplace=False),
+                RandomCrop(size=(64, 64), padding=[8, 8, 8, 8], pad_if_needed=False, fill=0, padding_mode=constant)]
+ic| self.x.shape: torch.Size([43821, 3, 60, 60])
+ic| self.x.shape: torch.Size([8785, 3, 60, 60])
+ic| 'data loaded'
+ic| f"Transform {idx}": 'Transform 12'
+ic| transform: [RandomCrop(size=(64, 64), padding=[8, 8, 8, 8], pad_if_needed=False, fill=0, padding_mode=constant)]
+ic| self.x.shape: torch.Size([43821, 3, 60, 60])
+ic| self.x.shape: torch.Size([8785, 3, 60, 60])
+ic| 'data loaded'
+ic| f"Transform {idx}": 'Transform 13'
+ic| transform: [RandomCrop(size=(64, 64), padding=[8, 8, 8, 8], pad_if_needed=False, fill=0, padding_mode=constant),
+                RandomHorizontalFlip(p=0.5),
+                RandomVerticalFlip(p=0.5)]
+ic| self.x.shape: torch.Size([43821, 3, 60, 60])
+ic| self.x.shape: torch.Size([8785, 3, 60, 60])
+ic| 'data loaded'
+ic| f"Transform {idx}": 'Transform 14'
+ic| transform: [RandomErasing(p=0.2, scale=(0.02, 0.2), ratio=(0.3, 3.3), value=[0.0], inplace=False),
+                RandomCrop(size=(64, 64), padding=[8, 8, 8, 8], pad_if_needed=False, fill=0, padding_mode=constant),
+                RandomHorizontalFlip(p=0.5)]
+ic| self.x.shape: torch.Size([43821, 3, 60, 60])
+ic| self.x.shape: torch.Size([8785, 3, 60, 60])
+ic| 'data loaded'
+ic| f"Transform {idx}": 'Transform 15'
+ic| transform: [<data_processor.RandomPixelChange object at 0x7fdbb1e75e70>, ToTensor()]
+ic| self.x.shape: torch.Size([43821, 3, 60, 60])
+ic| self.x.shape: torch.Size([8785, 3, 60, 60])
+ic| 'data loaded'
+ic| f"Transform {idx}": 'Transform 16'
+ic| transform: [<data_processor.RandomPixelChange object at 0x7fdbb1e747c0>, ToTensor()]
+ic| self.x.shape: torch.Size([43821, 3, 60, 60])
+ic| self.x.shape: torch.Size([8785, 3, 60, 60])
+ic| 'data loaded'
+ic| f"Transform {idx}": 'Transform 17'
+ic| transform: [<data_processor.RandomPixelChange object at 0x7fdbb1e74580>, ToTensor()]
+ic| self.x.shape: torch.Size([43821, 3, 60, 60])
+ic| self.x.shape: torch.Size([8785, 3, 60, 60])
+ic| 'data loaded'
+ic| f"Transform {idx}": 'Transform 18'
+ic| transform: [<data_processor.RandomPixelChange object at 0x7fdbb1e76aa0>,
+                ToTensor(),
+                RandomHorizontalFlip(p=0.5),
+                RandomVerticalFlip(p=0.5)]
+ic| self.x.shape: torch.Size([43821, 3, 60, 60])
+ic| self.x.shape: torch.Size([8785, 3, 60, 60])
+ic| 'data loaded'
+ic| f"Transform {idx}": 'Transform 19'
+ic| transform: [<data_processor.RandomPixelChange object at 0x7fdbb1e74d90>,
+                ToTensor(),
+                RandomErasing(p=0.2, scale=(0.05, 0.2), ratio=(0.3, 3.3), value=[0.0], inplace=False)]
+ic| self.x.shape: torch.Size([43821, 3, 60, 60])
+ic| self.x.shape: torch.Size([8785, 3, 60, 60])
+ic| 'data loaded'
+ic| f"Transform {idx}": 'Transform 20'
+ic| transform: [<data_processor.RandomPixelChange object at 0x7fdbb1e75f90>,
+                ToTensor(),
+                RandomCrop(size=(64, 64), padding=[8, 8, 8, 8], pad_if_needed=False, fill=0, padding_mode=constant)]
+ic| self.x.shape: torch.Size([43821, 3, 60, 60])
+ic| self.x.shape: torch.Size([8785, 3, 60, 60])
+ic| 'data loaded'
+ic| f"Transform {idx}": 'Transform 21'
+ic| transform: [<data_processor.RandomPixelChange object at 0x7fdbb1e761d0>,
+                ToTensor(),
+                RandomHorizontalFlip(p=0.5),
+                RandomVerticalFlip(p=0.5),
+                RandomErasing(p=0.2, scale=(0.05, 0.2), ratio=(0.3, 3.3), value=[0.0], inplace=False)]
+ic| self.x.shape: torch.Size([43821, 3, 60, 60])
+ic| self.x.shape: torch.Size([8785, 3, 60, 60])
+ic| 'data loaded'
+ic| f"selected transform {train_transform}": ('selected transform [RandomErasing(p=0.2, scale=(0.05, 0.2), ratio=(0.3, '
+                                              '3.3), value=[0.0], inplace=False), RandomHorizontalFlip(p=0.5), '
+                                              'RandomVerticalFlip(p=0.5)]')
+ic| self.x.shape: torch.Size([43821, 3, 60, 60])
+ic| self.x.shape: torch.Size([8785, 3, 60, 60])
+ic| self.x.shape: torch.Size([8751, 3, 60, 60])
+ic| mode: 'T0'
+ic| f"Mode {mode}": 'Mode T0'
+ic| get_gpu_memory(0): 41454534656
+ic| self.total_generations: 3
+ic| 'Time remaining:'
+ic| metadata['time_remaining']: 45756.76392173767
+ic| self.zcost_nas: True
+ic| self.cfg: CfgNode({'MODEL': CfgNode({'TYPE': 'regnet', 'NUM_CLASSES': 10, 'ACTIVATION_FUN': 'relu', 'ACTIVATION_INPLACE': True, 'SCALING_TYPE': '', 'SCALING_FACTOR': 1.0}), 'REGNET': CfgNode({'STEM_TYPE': 'res_stem_cifar', 'INPUT_CHANNELS': 3, 'STEM_W': 64, 'BLOCK_TYPE': 'res_bottleneck_block', 'STRIDE': 2, 'SE_ON': True, 'SE_R': 0.25, 'DEPTH': 20, 'W0': 232, 'WA': 115.89, 'WM': 2.53, 'GROUP_W': 8, 'BOT_MUL': 1.0, 'HEAD_W': 0, 'DOWNSAMPLE': 'avg', 'DROP_RATE': 0.01, 'DROPOUT': 0.2}), 'BN': CfgNode({'EPS': 1e-05, 'MOM': 0.1, 'ZERO_INIT_FINAL_GAMMA': False}), 'LN': CfgNode({'EPS': 1e-05}), 'DESC': ''})
+ic| samples: 120
+/home/hpc/iwb3/iwb3021h/NAS_CHALLENGE/NAS_Challenge_AutoML_2024/.testvenv/lib/python3.10/site-packages/sklearn/base.py:376: InconsistentVersionWarning: Trying to unpickle estimator DecisionTreeRegressor from version 1.4.2 when using version 1.5.0. This might lead to breaking code or invalid results. Use at your own risk. For more info please refer to:
+https://scikit-learn.org/stable/model_persistence.html#security-maintainability-limitations
+  warnings.warn(
+/home/hpc/iwb3/iwb3021h/NAS_CHALLENGE/NAS_Challenge_AutoML_2024/.testvenv/lib/python3.10/site-packages/sklearn/base.py:376: InconsistentVersionWarning: Trying to unpickle estimator RandomForestRegressor from version 1.4.2 when using version 1.5.0. This might lead to breaking code or invalid results. Use at your own risk. For more info please refer to:
+https://scikit-learn.org/stable/model_persistence.html#security-maintainability-limitations
+  warnings.warn(
+/home/woody/iwb3/iwb3021h/THESIS_RESULTS/package0/search_space/RegNet.py:299: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  ranking_test_df[pred_column]=sgd_regressor.predict(X_test)
+ic| ranking_prediction_df:                   score
+                           quixotic_emu  83.994768
+ic| best_models.keys(): dict_keys(['quixotic_emu'])
+ic| self.initial_population_size: 120
+ic| metadata: {'benchmark': 80.33,
+               'codename': 'Sadie',
+               'experiment_name': 'augmentations_test/Sadie/aug_21',
+               'input_shape': [50000, 3, 64, 64],
+               'mode': 'NAS',
+               'num_classes': 10,
+               'test_type': 'T0_Resnet/seed_2',
+               'time_remaining': 45490.040791749954,
+               'train_config_path': 'configs/train/finetuning_generation_adam.yaml'}
+ic| cfg_path: 'configs/train/finetuning_generation_adam.yaml'
+ic| self.cfg.SOLVER.LR: 0.001
+ic| self.cfg.SOLVER.EPOCHS-self.cfg.SOLVER.SWA_START: 10
+ic| self.cfg.SOLVER.EPOCHS: 100
+/home/woody/iwb3/iwb3021h/THESIS_RESULTS/package0/trainer.py:41: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  checkpoint = torch.load(checkpoint_path, map_location=device)
+ic| self.select_augment: 'Resnet'
+/home/hpc/iwb3/iwb3021h/NAS_CHALLENGE/NAS_Challenge_AutoML_2024/.testvenv/lib/python3.10/site-packages/torchvision/transforms/v2/_deprecated.py:42: UserWarning: The transform `ToTensor()` is deprecated and will be removed in a future release. Instead, please use `v2.Compose([v2.ToImage(), v2.ToDtype(torch.float32, scale=True)])`.Output is equivalent up to float precision.
+  warnings.warn(
+ic| f"Transform {idx}": 'Transform 0'
+ic| transform: []
+ic| self.x.shape: torch.Size([50000, 3, 28, 28])
+ic| self.x.shape: torch.Size([10000, 3, 28, 28])
+ic| 'data loaded'
+ic| f"Transform {idx}": 'Transform 1'
+ic| transform: [RandAugment(interpolation=InterpolationMode.NEAREST, num_ops=2, magnitude=9, num_magnitude_bins=31)]
+ic| self.x.shape: torch.Size([50000, 3, 28, 28])
+ic| self.x.shape: torch.Size([10000, 3, 28, 28])
+ic| 'data loaded'
+ic| f"Transform {idx}": 'Transform 2'
+ic| transform: [RandAugment(interpolation=InterpolationMode.NEAREST, num_ops=2, magnitude=5, num_magnitude_bins=31)]
+ic| self.x.shape: torch.Size([50000, 3, 28, 28])
+ic| self.x.shape: torch.Size([10000, 3, 28, 28])
+ic| 'data loaded'
+ic| f"Transform {idx}": 'Transform 3'
+ic| transform: [RandAugment(interpolation=InterpolationMode.NEAREST, num_ops=2, magnitude=1, num_magnitude_bins=31)]
+ic| self.x.shape: torch.Size([50000, 3, 28, 28])
+ic| self.x.shape: torch.Size([10000, 3, 28, 28])
+ic| 'data loaded'
+ic| f"Transform {idx}": 'Transform 4'
+ic| transform: [TrivialAugmentWide(interpolation=InterpolationMode.NEAREST, num_magnitude_bins=31)]
+ic| self.x.shape: torch.Size([50000, 3, 28, 28])
+ic| self.x.shape: torch.Size([10000, 3, 28, 28])
+ic| 'data loaded'
+ic| f"Transform {idx}": 'Transform 5'
+ic| transform: [TrivialAugmentWide(interpolation=InterpolationMode.NEAREST, num_magnitude_bins=15)]
+ic| self.x.shape: torch.Size([50000, 3, 28, 28])
+ic| self.x.shape: torch.Size([10000, 3, 28, 28])
+ic| 'data loaded'
+ic| f"Transform {idx}": 'Transform 6'
+ic| transform: [AugMix(interpolation=InterpolationMode.BILINEAR, severity=3, mixture_width=3, chain_depth=-1, alpha=1.0, all_ops=True)]
+ic| self.x.shape: torch.Size([50000, 3, 28, 28])
+ic| self.x.shape: torch.Size([10000, 3, 28, 28])
+ic| 'data loaded'
+ic| f"Transform {idx}": 'Transform 7'
+ic| transform: [AugMix(interpolation=InterpolationMode.BILINEAR, severity=1, mixture_width=3, chain_depth=-1, alpha=1.0, all_ops=True)]
+ic| self.x.shape: torch.Size([50000, 3, 28, 28])
+ic| self.x.shape: torch.Size([10000, 3, 28, 28])
+ic| 'data loaded'
+ic| f"Transform {idx}": 'Transform 8'
+ic| transform: [RandomHorizontalFlip(p=0.5), RandomVerticalFlip(p=0.5)]
+ic| self.x.shape: torch.Size([50000, 3, 28, 28])
+ic| self.x.shape: torch.Size([10000, 3, 28, 28])
+ic| 'data loaded'
+ic| f"Transform {idx}": 'Transform 9'
+ic| transform: [RandomErasing(p=0.2, scale=(0.05, 0.2), ratio=(0.3, 3.3), value=[0.0], inplace=False),
+                RandomHorizontalFlip(p=0.5),
+                RandomVerticalFlip(p=0.5)]
+ic| self.x.shape: torch.Size([50000, 3, 28, 28])
+ic| self.x.shape: torch.Size([10000, 3, 28, 28])
+ic| 'data loaded'
+ic| f"Transform {idx}": 'Transform 10'
+ic| transform: [RandomErasing(p=0.2, scale=(0.05, 0.2), ratio=(0.3, 3.3), value=[0.0], inplace=False)]
+ic| self.x.shape: torch.Size([50000, 3, 28, 28])
+ic| self.x.shape: torch.Size([10000, 3, 28, 28])
+ic| 'data loaded'
+ic| f"Transform {idx}": 'Transform 11'
+ic| transform: [RandomErasing(p=0.2, scale=(0.02, 0.2), ratio=(0.3, 3.3), value=[0.0], inplace=False),
+                RandomCrop(size=(28, 28), padding=[3, 3, 3, 3], pad_if_needed=False, fill=0, padding_mode=constant)]
+ic| self.x.shape: torch.Size([50000, 3, 28, 28])
+ic| self.x.shape: torch.Size([10000, 3, 28, 28])
+ic| 'data loaded'
+ic| f"Transform {idx}": 'Transform 12'
+ic| transform: [RandomCrop(size=(28, 28), padding=[3, 3, 3, 3], pad_if_needed=False, fill=0, padding_mode=constant)]
+ic| self.x.shape: torch.Size([50000, 3, 28, 28])
+ic| self.x.shape: torch.Size([10000, 3, 28, 28])
+ic| 'data loaded'
+ic| f"Transform {idx}": 'Transform 13'
+ic| transform: [RandomCrop(size=(28, 28), padding=[3, 3, 3, 3], pad_if_needed=False, fill=0, padding_mode=constant),
+                RandomHorizontalFlip(p=0.5),
+                RandomVerticalFlip(p=0.5)]
+ic| self.x.shape: torch.Size([50000, 3, 28, 28])
+ic| self.x.shape: torch.Size([10000, 3, 28, 28])
+ic| 'data loaded'
+ic| f"Transform {idx}": 'Transform 14'
+ic| transform: [RandomErasing(p=0.2, scale=(0.02, 0.2), ratio=(0.3, 3.3), value=[0.0], inplace=False),
+                RandomCrop(size=(28, 28), padding=[3, 3, 3, 3], pad_if_needed=False, fill=0, padding_mode=constant),
+                RandomHorizontalFlip(p=0.5)]
+ic| self.x.shape: torch.Size([50000, 3, 28, 28])
+ic| self.x.shape: torch.Size([10000, 3, 28, 28])
+ic| 'data loaded'
+ic| f"Transform {idx}": 'Transform 15'
+ic| transform: [<data_processor.RandomPixelChange object at 0x7fdb9aa02fb0>, ToTensor()]
+ic| self.x.shape: torch.Size([50000, 3, 28, 28])
+ic| self.x.shape: torch.Size([10000, 3, 28, 28])
+ic| 'data loaded'
+ic| f"Transform {idx}": 'Transform 16'
+ic| transform: [<data_processor.RandomPixelChange object at 0x7fdb9aa00340>, ToTensor()]
+ic| self.x.shape: torch.Size([50000, 3, 28, 28])
+ic| self.x.shape: torch.Size([10000, 3, 28, 28])
+ic| 'data loaded'
+ic| f"Transform {idx}": 'Transform 17'
+ic| transform: [<data_processor.RandomPixelChange object at 0x7fdb9aa027a0>, ToTensor()]
+ic| self.x.shape: torch.Size([50000, 3, 28, 28])
+ic| self.x.shape: torch.Size([10000, 3, 28, 28])
+ic| 'data loaded'
+ic| f"Transform {idx}": 'Transform 18'
+ic| transform: [<data_processor.RandomPixelChange object at 0x7fdb9aa02e00>,
+                ToTensor(),
+                RandomHorizontalFlip(p=0.5),
+                RandomVerticalFlip(p=0.5)]
+ic| self.x.shape: torch.Size([50000, 3, 28, 28])
+ic| self.x.shape: torch.Size([10000, 3, 28, 28])
+ic| 'data loaded'
+ic| f"Transform {idx}": 'Transform 19'
+ic| transform: [<data_processor.RandomPixelChange object at 0x7fdb9aa00100>,
+                ToTensor(),
+                RandomErasing(p=0.2, scale=(0.05, 0.2), ratio=(0.3, 3.3), value=[0.0], inplace=False)]
+ic| self.x.shape: torch.Size([50000, 3, 28, 28])
+ic| self.x.shape: torch.Size([10000, 3, 28, 28])
+ic| 'data loaded'
+ic| f"Transform {idx}": 'Transform 20'
+ic| transform: [<data_processor.RandomPixelChange object at 0x7fdb9aa004f0>,
+                ToTensor(),
+                RandomCrop(size=(28, 28), padding=[3, 3, 3, 3], pad_if_needed=False, fill=0, padding_mode=constant)]
+ic| self.x.shape: torch.Size([50000, 3, 28, 28])
+ic| self.x.shape: torch.Size([10000, 3, 28, 28])
+ic| 'data loaded'
+ic| f"Transform {idx}": 'Transform 21'
+ic| transform: [<data_processor.RandomPixelChange object at 0x7fdb9aa01d20>,
+                ToTensor(),
+                RandomHorizontalFlip(p=0.5),
+                RandomVerticalFlip(p=0.5),
+                RandomErasing(p=0.2, scale=(0.05, 0.2), ratio=(0.3, 3.3), value=[0.0], inplace=False)]
+ic| self.x.shape: torch.Size([50000, 3, 28, 28])
+ic| self.x.shape: torch.Size([10000, 3, 28, 28])
+ic| 'data loaded'
+ic| f"selected transform {train_transform}": ('selected transform [AugMix(interpolation=InterpolationMode.BILINEAR, '
+                                              'severity=3, mixture_width=3, chain_depth=-1, alpha=1.0, all_ops=True)]')
+ic| self.x.shape: torch.Size([50000, 3, 28, 28])
+ic| self.x.shape: torch.Size([10000, 3, 28, 28])
+ic| self.x.shape: torch.Size([10000, 3, 28, 28])
+ic| mode: 'T0'
+ic| f"Mode {mode}": 'Mode T0'
+ic| get_gpu_memory(0): 41280471040
+ic| self.total_generations: 3
+ic| 'Time remaining:'
+ic| metadata['time_remaining']: 29018.55943918228
+ic| self.zcost_nas: True
+ic| self.cfg: CfgNode({'MODEL': CfgNode({'TYPE': 'regnet', 'NUM_CLASSES': 10, 'ACTIVATION_FUN': 'relu', 'ACTIVATION_INPLACE': True, 'SCALING_TYPE': '', 'SCALING_FACTOR': 1.0}), 'REGNET': CfgNode({'STEM_TYPE': 'res_stem_cifar', 'INPUT_CHANNELS': 3, 'STEM_W': 28, 'BLOCK_TYPE': 'res_bottleneck_block', 'STRIDE': 2, 'SE_ON': True, 'SE_R': 0.25, 'DEPTH': 20, 'W0': 232, 'WA': 115.89, 'WM': 2.53, 'GROUP_W': 8, 'BOT_MUL': 1.0, 'HEAD_W': 0, 'DOWNSAMPLE': 'avg', 'DROP_RATE': 0.01, 'DROPOUT': 0.2}), 'BN': CfgNode({'EPS': 1e-05, 'MOM': 0.1, 'ZERO_INIT_FINAL_GAMMA': False}), 'LN': CfgNode({'EPS': 1e-05}), 'DESC': ''})
+ic| samples: 120
+/home/hpc/iwb3/iwb3021h/NAS_CHALLENGE/NAS_Challenge_AutoML_2024/.testvenv/lib/python3.10/site-packages/sklearn/base.py:376: InconsistentVersionWarning: Trying to unpickle estimator DecisionTreeRegressor from version 1.4.2 when using version 1.5.0. This might lead to breaking code or invalid results. Use at your own risk. For more info please refer to:
+https://scikit-learn.org/stable/model_persistence.html#security-maintainability-limitations
+  warnings.warn(
+/home/hpc/iwb3/iwb3021h/NAS_CHALLENGE/NAS_Challenge_AutoML_2024/.testvenv/lib/python3.10/site-packages/sklearn/base.py:376: InconsistentVersionWarning: Trying to unpickle estimator RandomForestRegressor from version 1.4.2 when using version 1.5.0. This might lead to breaking code or invalid results. Use at your own risk. For more info please refer to:
+https://scikit-learn.org/stable/model_persistence.html#security-maintainability-limitations
+  warnings.warn(
+/home/woody/iwb3/iwb3021h/THESIS_RESULTS/package0/search_space/RegNet.py:299: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  ranking_test_df[pred_column]=sgd_regressor.predict(X_test)
+ic| ranking_prediction_df:                  score
+                           greedy_clam  90.192628
+ic| best_models.keys(): dict_keys(['greedy_clam'])
+ic| self.initial_population_size: 120
+ic| metadata: {'benchmark': 90.87,
+               'codename': 'Mateo',
+               'experiment_name': 'augmentations_test/Mateo/aug_21',
+               'input_shape': [50000, 3, 28, 28],
+               'mode': 'NAS',
+               'num_classes': 10,
+               'test_type': 'T0_Resnet/seed_2',
+               'time_remaining': 28911.989700078964,
+               'train_config_path': 'configs/train/finetuning_generation_adam.yaml'}
+ic| cfg_path: 'configs/train/finetuning_generation_adam.yaml'
+ic| self.cfg.SOLVER.LR: 0.001
+ic| self.cfg.SOLVER.EPOCHS-self.cfg.SOLVER.SWA_START: 10
+ic| self.cfg.SOLVER.EPOCHS: 100
+/home/woody/iwb3/iwb3021h/THESIS_RESULTS/package0/trainer.py:41: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  checkpoint = torch.load(checkpoint_path, map_location=device)
+ic| self.select_augment: 'Resnet'
+/home/hpc/iwb3/iwb3021h/NAS_CHALLENGE/NAS_Challenge_AutoML_2024/.testvenv/lib/python3.10/site-packages/torchvision/transforms/v2/_deprecated.py:42: UserWarning: The transform `ToTensor()` is deprecated and will be removed in a future release. Instead, please use `v2.Compose([v2.ToImage(), v2.ToDtype(torch.float32, scale=True)])`.Output is equivalent up to float precision.
+  warnings.warn(
+ic| f"Transform {idx}": 'Transform 0'
+ic| transform: []
+ic| self.x.shape: torch.Size([45000, 3, 64, 64])
+ic| self.x.shape: torch.Size([15000, 3, 64, 64])
+ic| 'data loaded'
+slurmstepd: error: *** JOB 912956 ON tg094 CANCELLED AT 2024-10-16T08:59:47 DUE TO TIME LIMIT ***
+=== JOB_STATISTICS ===
+=== current date     : Wed 16 Oct 2024 09:01:26 AM CEST
+= Job-ID             : 912956 on tinygpu
+= Job-Name           : /home/woody/iwb3/iwb3021h/THESIS_RESULTS/hpcruns/evonas
+= Job-Command        : /home/hpc/iwb3/iwb3021h/NAS_CHALLENGE/NAS_Challenge_AutoML_2024/evonas_job_full_main_0.sh
+= Initial workdir    : /home/hpc/iwb3/iwb3021h/NAS_CHALLENGE/NAS_Challenge_AutoML_2024
+= Queue/Partition    : a100
+= Slurm account      : iwb3 with QOS=normal
+= Requested resources:  for 23:59:00
+= Elapsed runtime    : 23:59:15
+= Total RAM usage    : 8.1 GiB of requested  GiB (%)   
+= Node list          : tg094
+= Subm/Elig/Start/End: 2024-10-15T09:00:31 / 2024-10-15T09:00:31 / 2024-10-15T09:00:32 / 2024-10-16T08:59:47
+======================
+=== Quota infos ======
+    Path              Used     SoftQ    HardQ    Gracetime  Filec    FileQ    FiHaQ    FileGrace    
+!!! /home/hpc          105.9G   104.9G   209.7G  -29692days     196K     500K   1,000K        N/A !!!
+    /home/woody        808.6G  1000.0G  1500.0G        N/A     245K   5,000K   7,500K        N/A    
+======================
+=== GPU utilization ==

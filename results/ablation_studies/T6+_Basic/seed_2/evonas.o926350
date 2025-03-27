@@ -1,0 +1,148 @@
+### Starting TaskPrologue of job 926350 on tg096 at Tue 05 Nov 2024 04:49:46 PM CET
+Running on cores 32-63 with governor ondemand
+Tue Nov  5 16:49:46 2024       
++-----------------------------------------------------------------------------------------+
+| NVIDIA-SMI 560.35.03              Driver Version: 560.35.03      CUDA Version: 12.6     |
+|-----------------------------------------+------------------------+----------------------+
+| GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |
+|                                         |                        |               MIG M. |
+|=========================================+========================+======================|
+|   0  NVIDIA A100-SXM4-40GB          On  |   00000000:41:00.0 Off |                    0 |
+| N/A   37C    P0             54W /  400W |       1MiB /  40960MiB |      0%      Default |
+|                                         |                        |             Disabled |
++-----------------------------------------+------------------------+----------------------+
+                                                                                         
++-----------------------------------------------------------------------------------------+
+| Processes:                                                                              |
+|  GPU   GI   CI        PID   Type   Process name                              GPU Memory |
+|        ID   ID                                                               Usage      |
+|=========================================================================================|
+|  No running processes found                                                             |
++-----------------------------------------------------------------------------------------+
+### Finished TaskPrologue
+
+Loading python/pytorch-1.13py3.10
+  Loading requirement: cuda/11.6.1
+rm -Rf /home/woody/iwb3/iwb3021h/THESIS_RESULTS/scoring5
+mkdir /home/woody/iwb3/iwb3021h/THESIS_RESULTS/scoring5
+mkdir /home/woody/iwb3/iwb3021h/THESIS_RESULTS/scoring5/labels
+mkdir /home/woody/iwb3/iwb3021h/THESIS_RESULTS/scoring5/predictions
+rsync -avr --exclude='**/*x.npy' --exclude='**/train*.npy' --exclude='**/valid*.npy'   --include='**/test_y.npy' datasets/* /home/woody/iwb3/iwb3021h/THESIS_RESULTS/scoring5/labels/
+sending incremental file list
+CIFAR10/
+CIFAR10/cifar-10-python.tar.gz
+CIFAR10/metadata
+CIFAR10/test_y.npy
+ImageNet16-120/
+ImageNet16-120/metadata
+ImageNet16-120/test_y.npy
+Sudoku/
+Sudoku/Example Image with Corresponding Sudoku Grid.png
+Sudoku/README
+Sudoku/metadata
+Sudoku/test_y.npy
+Sudoku/Sokoto/
+Sudoku/Sokoto/augmentation_results.json
+Sudoku/Sokoto/aug_0/
+Sudoku/Sokoto/aug_0/student_best
+Sudoku/Sokoto/aug_0/worklog.txt
+Sudoku/Sokoto/aug_0/.ipynb_checkpoints/
+Sudoku/Sokoto/aug_0/.ipynb_checkpoints/worklog-checkpoint.txt
+Sudoku/Sokoto/aug_1/
+Sudoku/Sokoto/aug_1/student_best
+Sudoku/Sokoto/aug_1/worklog.txt
+Sudoku/Sokoto/aug_1/.ipynb_checkpoints/
+Sudoku/Sokoto/aug_1/.ipynb_checkpoints/worklog-checkpoint.txt
+Sudoku/Sokoto/aug_2/
+Sudoku/Sokoto/aug_2/student_best
+Sudoku/Sokoto/aug_2/worklog.txt
+Sudoku/Sokoto/aug_2/.ipynb_checkpoints/
+Sudoku/Sokoto/aug_2/.ipynb_checkpoints/worklog-checkpoint.txt
+Sudoku/Sokoto/aug_3/
+Sudoku/Sokoto/aug_3/student_best
+Sudoku/Sokoto/aug_3/worklog.txt
+Sudoku/Sokoto/aug_3/.ipynb_checkpoints/
+Sudoku/Sokoto/aug_3/.ipynb_checkpoints/worklog-checkpoint.txt
+Sudoku/Sokoto/aug_4/
+Sudoku/Sokoto/aug_4/student_best
+Sudoku/Sokoto/aug_4/worklog.txt
+Sudoku/Sokoto/aug_5/
+Sudoku/Sokoto/aug_5/student_best
+Sudoku/Sokoto/aug_5/worklog.txt
+Sudoku/Sokoto/aug_5/.ipynb_checkpoints/
+Sudoku/Sokoto/aug_5/.ipynb_checkpoints/worklog-checkpoint.txt
+Sudoku/Sokoto/aug_6/
+Sudoku/Sokoto/aug_6/student_best
+Sudoku/Sokoto/aug_6/worklog.txt
+Sudoku/Sokoto/aug_6/.ipynb_checkpoints/
+Sudoku/Sokoto/aug_6/.ipynb_checkpoints/worklog-checkpoint.txt
+Sudoku/Sokoto/aug_7/
+Sudoku/Sokoto/aug_7/student_best
+Sudoku/Sokoto/aug_7/worklog.txt
+Sudoku/Sokoto/aug_8/
+Sudoku/Sokoto/aug_8/student_best
+Sudoku/Sokoto/aug_8/worklog.txt
+Sudoku/Sokoto/aug_8/.ipynb_checkpoints/
+Sudoku/Sokoto/aug_8/.ipynb_checkpoints/worklog-checkpoint.txt
+Sudoku/Sokoto/aug_9/
+Sudoku/Sokoto/aug_9/student_best
+Sudoku/Sokoto/aug_9/worklog.txt
+Sudoku/Sokoto/aug_9/.ipynb_checkpoints/
+Sudoku/Sokoto/aug_9/.ipynb_checkpoints/worklog-checkpoint.txt
+Voxel/
+Voxel/Rendered Examples.png
+Voxel/metadata
+Voxel/test_y.npy
+
+sent 620,487,017 bytes  received 951 bytes  137,886,215.11 bytes/sec
+total size is 620,331,646  speedup is 1.00
+cp -R /home/woody/iwb3/iwb3021h/THESIS_RESULTS/package5/predictions /home/woody/iwb3/iwb3021h/THESIS_RESULTS/scoring5
+cp evaluation/score.py /home/woody/iwb3/iwb3021h/THESIS_RESULTS/scoring5/score.py
+cd /home/woody/iwb3/iwb3021h/THESIS_RESULTS/scoring5; python3 score.py
+===========================================================================
+=============    Your Unseen Data 2024 Submission is scoring     =============
+===========================================================================
+== Scoring Voxel ==
+Raw Score:    83.760
+Adj Score:    4.332
+Model Params: 16,968,074
+Runtime:      12,775.8s
+== Scoring ImageNet16-120 ==
+Raw Score:    45.100
+Adj Score:    -0.239
+Model Params: 9,947,756
+Runtime:      26,833.3s
+== Scoring Sudoku ==
+Raw Score:    90.440
+Adj Score:    9.044
+Model Params: 9,721,470
+Runtime:      10,948.7s
+== Scoring CIFAR10 ==
+Raw Score:    94.120
+Adj Score:    3.711
+Model Params: 60,605,428
+Runtime:      14,023.3s
+===========================
+Final Score: 16.848
+=== JOB_STATISTICS ===
+=== current date     : Tue 05 Nov 2024 04:49:53 PM CET
+= Job-ID             : 926350 on tinygpu
+= Job-Name           : /home/woody/iwb3/iwb3021h/THESIS_RESULTS/hpcruns/evonas
+= Job-Command        : /home/hpc/iwb3/iwb3021h/NAS_CHALLENGE/NAS_Challenge_AutoML_2024/evonas_job_full_main_5.sh
+= Initial workdir    : /home/hpc/iwb3/iwb3021h/NAS_CHALLENGE/NAS_Challenge_AutoML_2024
+= Queue/Partition    : a100
+= Slurm account      : iwb3 with QOS=normal
+= Requested resources:  for 23:59:00
+= Elapsed runtime    : 00:00:09
+= Total RAM usage    : 0.0 GiB of requested  GiB (%)   
+= Node list          : tg096
+= Subm/Elig/Start/End: 2024-11-05T16:49:43 / 2024-11-05T16:49:43 / 2024-11-05T16:49:44 / 2024-11-05T16:49:53
+======================
+=== Quota infos ======
+    Path              Used     SoftQ    HardQ    Gracetime  Filec    FileQ    FiHaQ    FileGrace    
+    /home/hpc          103.9G   104.9G   209.7G        N/A     200K     500K   1,000K        N/A    
+    /home/woody        984.2G  1000.0G  1500.0G        N/A     245K   5,000K   7,500K        N/A    
+======================
+=== GPU utilization ==
+gpu_name, gpu_bus_id, pid, gpu_utilization [%], mem_utilization [%], max_memory_usage [MiB], time [ms]

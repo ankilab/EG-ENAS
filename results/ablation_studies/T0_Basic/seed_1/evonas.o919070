@@ -1,0 +1,430 @@
+### Starting TaskPrologue of job 919070 on tg093 at Fri 25 Oct 2024 12:28:03 AM CEST
+Running on cores 96-127 with governor ondemand
+Fri Oct 25 00:28:03 2024       
++-----------------------------------------------------------------------------------------+
+| NVIDIA-SMI 560.28.03              Driver Version: 560.28.03      CUDA Version: 12.6     |
+|-----------------------------------------+------------------------+----------------------+
+| GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |
+|                                         |                        |               MIG M. |
+|=========================================+========================+======================|
+|   0  NVIDIA A100-SXM4-40GB          On  |   00000000:C1:00.0 Off |                    0 |
+| N/A   32C    P0             52W /  400W |       1MiB /  40960MiB |      0%      Default |
+|                                         |                        |             Disabled |
++-----------------------------------------+------------------------+----------------------+
+                                                                                         
++-----------------------------------------------------------------------------------------+
+| Processes:                                                                              |
+|  GPU   GI   CI        PID   Type   Process name                              GPU Memory |
+|        ID   ID                                                               Usage      |
+|=========================================================================================|
+|  No running processes found                                                             |
++-----------------------------------------------------------------------------------------+
+### Finished TaskPrologue
+
+Loading python/pytorch-1.13py3.10
+  Loading requirement: cuda/11.6.1
+rm -Rf /home/woody/iwb3/iwb3021h/THESIS_RESULTS/scoring0
+rm -Rf /home/woody/iwb3/iwb3021h/THESIS_RESULTS/package0
+rm -Rf /home/woody/iwb3/iwb3021h/THESIS_RESULTS/package0
+mkdir /home/woody/iwb3/iwb3021h/THESIS_RESULTS/package0
+mkdir /home/woody/iwb3/iwb3021h/THESIS_RESULTS/package0/predictions
+mkdir /home/woody/iwb3/iwb3021h/THESIS_RESULTS/package0/datasets
+rsync -ar --exclude='**/test_y.npy' datasets/* /home/woody/iwb3/iwb3021h/THESIS_RESULTS/package0/datasets/
+cp -R evaluation/main.py /home/woody/iwb3/iwb3021h/THESIS_RESULTS/package0/main.py
+cp -R anki_lab_submission/* /home/woody/iwb3/iwb3021h/THESIS_RESULTS/package0
+cd /home/woody/iwb3/iwb3021h/THESIS_RESULTS/package0; python3 main.py --mode T0 --select_augment Basic
+ic| self.select_augment: 'Basic'
+ic| f"selected transform {train_transform}": ('selected transform [RandomErasing(p=0.2, scale=(0.02, 0.2), ratio=(0.3, '
+                                              '3.3), value=[0.0], inplace=False), RandomCrop(size=(16, 16), padding=[2, 2, '
+                                              '2, 2], pad_if_needed=False, fill=0, padding_mode=constant), '
+                                              'RandomHorizontalFlip(p=0.5)]')
+ic| self.x.shape: torch.Size([148700, 3, 16, 16])
+ic| self.x.shape: torch.Size([3000, 3, 16, 16])
+ic| self.x.shape: torch.Size([3000, 3, 16, 16])
+ic| mode: 'T0'
+ic| f"Mode {mode}": 'Mode T0'
+ic| get_gpu_memory(0): 42404610048
+ic| self.total_generations: 3
+ic| 'Time remaining:'
+ic| metadata['time_remaining']: 107997.77915239334
+ic| self.zcost_nas: True
+ic| self.cfg: CfgNode({'MODEL': CfgNode({'TYPE': 'regnet', 'NUM_CLASSES': 120, 'ACTIVATION_FUN': 'relu', 'ACTIVATION_INPLACE': True, 'SCALING_TYPE': '', 'SCALING_FACTOR': 1.0}), 'REGNET': CfgNode({'STEM_TYPE': 'res_stem_cifar', 'INPUT_CHANNELS': 3, 'STEM_W': 16, 'BLOCK_TYPE': 'res_bottleneck_block', 'STRIDE': 2, 'SE_ON': True, 'SE_R': 0.25, 'DEPTH': 20, 'W0': 232, 'WA': 115.89, 'WM': 2.53, 'GROUP_W': 8, 'BOT_MUL': 1.0, 'HEAD_W': 0, 'DOWNSAMPLE': 'avg', 'DROP_RATE': 0.01, 'DROPOUT': 0.2}), 'BN': CfgNode({'EPS': 1e-05, 'MOM': 0.1, 'ZERO_INIT_FINAL_GAMMA': False}), 'LN': CfgNode({'EPS': 1e-05}), 'DESC': ''})
+ic| samples: 120
+/home/hpc/iwb3/iwb3021h/NAS_CHALLENGE/NAS_Challenge_AutoML_2024/.testvenv/lib/python3.10/site-packages/sklearn/base.py:376: InconsistentVersionWarning: Trying to unpickle estimator SGDRegressor from version 1.4.2 when using version 1.5.0. This might lead to breaking code or invalid results. Use at your own risk. For more info please refer to:
+https://scikit-learn.org/stable/model_persistence.html#security-maintainability-limitations
+  warnings.warn(
+/home/woody/iwb3/iwb3021h/THESIS_RESULTS/package0/search_space/RegNet.py:299: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  ranking_test_df[pred_column]=sgd_regressor.predict(X_test)
+ic| ranking_prediction_df:                        score
+                           important_badger  157.077958
+ic| best_models.keys(): dict_keys(['important_badger'])
+ic| self.initial_population_size: 120
+ic| metadata: {'benchmark': 46.38,
+               'codename': 'in16',
+               'input_shape': [148700, 3, 16, 16],
+               'mode': 'NAS',
+               'num_classes': 120,
+               'test_type': 'T0_Basic/seed_3',
+               'time_remaining': 107979.51050710678,
+               'train_config_path': 'configs/train/finetuning_generation_adam.yaml'}
+ic| cfg_path: 'configs/train/finetuning_generation_adam.yaml'
+ic| self.cfg.SOLVER.LR: 0.001
+ic| self.cfg.SOLVER.EPOCHS-self.cfg.SOLVER.SWA_START: 10
+ic| self.cfg.SOLVER.EPOCHS: 100
+/home/woody/iwb3/iwb3021h/THESIS_RESULTS/package0/trainer.py:41: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  checkpoint = torch.load(checkpoint_path, map_location=device)
+ic| self.select_augment: 'Basic'
+ic| f"selected transform {train_transform}": ('selected transform [RandomErasing(p=0.2, scale=(0.02, 0.2), ratio=(0.3, '
+                                              '3.3), value=[0.0], inplace=False), RandomCrop(size=(20, 20), padding=[2, 2, '
+                                              '2, 2], pad_if_needed=False, fill=0, padding_mode=constant), '
+                                              'RandomHorizontalFlip(p=0.5)]')
+ic| self.x.shape: torch.Size([50000, 20, 20, 20])
+ic| self.x.shape: torch.Size([10000, 20, 20, 20])
+ic| self.x.shape: torch.Size([10000, 20, 20, 20])
+ic| mode: 'T0'
+ic| f"Mode {mode}": 'Mode T0'
+ic| get_gpu_memory(0): 36899520512
+ic| self.total_generations: 3
+ic| 'Time remaining:'
+ic| metadata['time_remaining']: 105434.70955061913
+ic| self.zcost_nas: True
+ic| self.cfg: CfgNode({'MODEL': CfgNode({'TYPE': 'regnet', 'NUM_CLASSES': 7, 'ACTIVATION_FUN': 'relu', 'ACTIVATION_INPLACE': True, 'SCALING_TYPE': '', 'SCALING_FACTOR': 1.0}), 'REGNET': CfgNode({'STEM_TYPE': 'res_stem_cifar', 'INPUT_CHANNELS': 20, 'STEM_W': 20, 'BLOCK_TYPE': 'res_bottleneck_block', 'STRIDE': 2, 'SE_ON': True, 'SE_R': 0.25, 'DEPTH': 20, 'W0': 232, 'WA': 115.89, 'WM': 2.53, 'GROUP_W': 8, 'BOT_MUL': 1.0, 'HEAD_W': 0, 'DOWNSAMPLE': 'avg', 'DROP_RATE': 0.01, 'DROPOUT': 0.2}), 'BN': CfgNode({'EPS': 1e-05, 'MOM': 0.1, 'ZERO_INIT_FINAL_GAMMA': False}), 'LN': CfgNode({'EPS': 1e-05}), 'DESC': ''})
+ic| samples: 120
+/home/hpc/iwb3/iwb3021h/NAS_CHALLENGE/NAS_Challenge_AutoML_2024/.testvenv/lib/python3.10/site-packages/sklearn/base.py:376: InconsistentVersionWarning: Trying to unpickle estimator SGDRegressor from version 1.4.2 when using version 1.5.0. This might lead to breaking code or invalid results. Use at your own risk. For more info please refer to:
+https://scikit-learn.org/stable/model_persistence.html#security-maintainability-limitations
+  warnings.warn(
+/home/woody/iwb3/iwb3021h/THESIS_RESULTS/package0/search_space/RegNet.py:299: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  ranking_test_df[pred_column]=sgd_regressor.predict(X_test)
+ic| ranking_prediction_df:                       score
+                           piquant_gharial  184.148917
+ic| best_models.keys(): dict_keys(['piquant_gharial'])
+ic| self.initial_population_size: 120
+ic| metadata: {'benchmark': 71.35,
+               'codename': 'Volga',
+               'input_shape': [50000, 20, 20, 20],
+               'mode': 'NAS',
+               'num_classes': 7,
+               'test_type': 'T0_Basic/seed_3',
+               'time_remaining': 105420.89721441269,
+               'train_config_path': 'configs/train/finetuning_generation_adam.yaml'}
+ic| cfg_path: 'configs/train/finetuning_generation_adam.yaml'
+ic| self.cfg.SOLVER.LR: 0.001
+ic| self.cfg.SOLVER.EPOCHS-self.cfg.SOLVER.SWA_START: 10
+ic| self.cfg.SOLVER.EPOCHS: 100
+/home/woody/iwb3/iwb3021h/THESIS_RESULTS/package0/trainer.py:41: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  checkpoint = torch.load(checkpoint_path, map_location=device)
+ic| self.select_augment: 'Basic'
+ic| f"selected transform {train_transform}": ('selected transform [RandomErasing(p=0.2, scale=(0.02, 0.2), ratio=(0.3, '
+                                              '3.3), value=[0.0], inplace=False), RandomCrop(size=(9, 9), padding=[1, 1, 1, '
+                                              '1], pad_if_needed=False, fill=0, padding_mode=constant), '
+                                              'RandomHorizontalFlip(p=0.5)]')
+ic| self.x.shape: torch.Size([50000, 1, 9, 9])
+ic| self.x.shape: torch.Size([10000, 1, 9, 9])
+ic| self.x.shape: torch.Size([10000, 1, 9, 9])
+ic| mode: 'T0'
+ic| f"Mode {mode}": 'Mode T0'
+ic| get_gpu_memory(0): 36777885696
+ic| self.total_generations: 3
+ic| 'Time remaining:'
+ic| metadata['time_remaining']: 103251.00860381126
+ic| self.zcost_nas: True
+ic| self.cfg: CfgNode({'MODEL': CfgNode({'TYPE': 'regnet', 'NUM_CLASSES': 9, 'ACTIVATION_FUN': 'relu', 'ACTIVATION_INPLACE': True, 'SCALING_TYPE': '', 'SCALING_FACTOR': 1.0}), 'REGNET': CfgNode({'STEM_TYPE': 'res_stem_cifar', 'INPUT_CHANNELS': 1, 'STEM_W': 9, 'BLOCK_TYPE': 'res_bottleneck_block', 'STRIDE': 2, 'SE_ON': True, 'SE_R': 0.25, 'DEPTH': 20, 'W0': 232, 'WA': 115.89, 'WM': 2.53, 'GROUP_W': 8, 'BOT_MUL': 1.0, 'HEAD_W': 0, 'DOWNSAMPLE': 'avg', 'DROP_RATE': 0.01, 'DROPOUT': 0.2}), 'BN': CfgNode({'EPS': 1e-05, 'MOM': 0.1, 'ZERO_INIT_FINAL_GAMMA': False}), 'LN': CfgNode({'EPS': 1e-05}), 'DESC': ''})
+ic| samples: 120
+/home/hpc/iwb3/iwb3021h/NAS_CHALLENGE/NAS_Challenge_AutoML_2024/.testvenv/lib/python3.10/site-packages/sklearn/base.py:376: InconsistentVersionWarning: Trying to unpickle estimator SGDRegressor from version 1.4.2 when using version 1.5.0. This might lead to breaking code or invalid results. Use at your own risk. For more info please refer to:
+https://scikit-learn.org/stable/model_persistence.html#security-maintainability-limitations
+  warnings.warn(
+/home/woody/iwb3/iwb3021h/THESIS_RESULTS/package0/search_space/RegNet.py:299: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  ranking_test_df[pred_column]=sgd_regressor.predict(X_test)
+ic| ranking_prediction_df:                        score
+                           spiked_cassowary  154.421834
+ic| best_models.keys(): dict_keys(['spiked_cassowary'])
+ic| self.initial_population_size: 120
+ic| metadata: {'benchmark': 0.0,
+               'codename': 'Sokoto',
+               'input_shape': [50000, 1, 9, 9],
+               'mode': 'NAS',
+               'num_classes': 9,
+               'test_type': 'T0_Basic/seed_3',
+               'time_remaining': 103235.62836313248,
+               'train_config_path': 'configs/train/finetuning_generation_adam.yaml'}
+ic| cfg_path: 'configs/train/finetuning_generation_adam.yaml'
+ic| self.cfg.SOLVER.LR: 0.001
+ic| self.cfg.SOLVER.EPOCHS-self.cfg.SOLVER.SWA_START: 10
+ic| self.cfg.SOLVER.EPOCHS: 100
+/home/woody/iwb3/iwb3021h/THESIS_RESULTS/package0/trainer.py:41: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  checkpoint = torch.load(checkpoint_path, map_location=device)
+ic| self.select_augment: 'Basic'
+ic| f"selected transform {train_transform}": ('selected transform [RandomErasing(p=0.2, scale=(0.02, 0.2), ratio=(0.3, '
+                                              '3.3), value=[0.0], inplace=False), RandomCrop(size=(32, 32), padding=[4, 4, '
+                                              '4, 4], pad_if_needed=False, fill=0, padding_mode=constant), '
+                                              'RandomHorizontalFlip(p=0.5)]')
+ic| self.x.shape: torch.Size([40000, 3, 32, 32])
+ic| self.x.shape: torch.Size([10000, 3, 32, 32])
+ic| self.x.shape: torch.Size([10000, 3, 32, 32])
+ic| mode: 'T0'
+ic| f"Mode {mode}": 'Mode T0'
+ic| get_gpu_memory(0): 36777885696
+ic| self.total_generations: 3
+ic| 'Time remaining:'
+ic| metadata['time_remaining']: 100623.91710209846
+ic| self.zcost_nas: True
+ic| self.cfg: CfgNode({'MODEL': CfgNode({'TYPE': 'regnet', 'NUM_CLASSES': 10, 'ACTIVATION_FUN': 'relu', 'ACTIVATION_INPLACE': True, 'SCALING_TYPE': '', 'SCALING_FACTOR': 1.0}), 'REGNET': CfgNode({'STEM_TYPE': 'res_stem_cifar', 'INPUT_CHANNELS': 3, 'STEM_W': 32, 'BLOCK_TYPE': 'res_bottleneck_block', 'STRIDE': 2, 'SE_ON': True, 'SE_R': 0.25, 'DEPTH': 20, 'W0': 232, 'WA': 115.89, 'WM': 2.53, 'GROUP_W': 8, 'BOT_MUL': 1.0, 'HEAD_W': 0, 'DOWNSAMPLE': 'avg', 'DROP_RATE': 0.01, 'DROPOUT': 0.2}), 'BN': CfgNode({'EPS': 1e-05, 'MOM': 0.1, 'ZERO_INIT_FINAL_GAMMA': False}), 'LN': CfgNode({'EPS': 1e-05}), 'DESC': ''})
+ic| samples: 120
+/home/hpc/iwb3/iwb3021h/NAS_CHALLENGE/NAS_Challenge_AutoML_2024/.testvenv/lib/python3.10/site-packages/sklearn/base.py:376: InconsistentVersionWarning: Trying to unpickle estimator SGDRegressor from version 1.4.2 when using version 1.5.0. This might lead to breaking code or invalid results. Use at your own risk. For more info please refer to:
+https://scikit-learn.org/stable/model_persistence.html#security-maintainability-limitations
+  warnings.warn(
+/home/woody/iwb3/iwb3021h/THESIS_RESULTS/package0/search_space/RegNet.py:299: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  ranking_test_df[pred_column]=sgd_regressor.predict(X_test)
+ic| ranking_prediction_df:                        score
+                           succinct_antelope  182.92659
+ic| best_models.keys(): dict_keys(['succinct_antelope'])
+ic| self.initial_population_size: 120
+ic| metadata: {'benchmark': 90.65,
+               'codename': 'CIFAR10',
+               'input_shape': [50000, 3, 32, 32],
+               'mode': 'NAS',
+               'num_classes': 10,
+               'test_type': 'T0_Basic/seed_3',
+               'time_remaining': 100607.02670073509,
+               'train_config_path': 'configs/train/finetuning_generation_adam.yaml'}
+ic| cfg_path: 'configs/train/finetuning_generation_adam.yaml'
+ic| self.cfg.SOLVER.LR: 0.001
+ic| self.cfg.SOLVER.EPOCHS-self.cfg.SOLVER.SWA_START: 10
+ic| self.cfg.SOLVER.EPOCHS: 100
+/home/woody/iwb3/iwb3021h/THESIS_RESULTS/package0/trainer.py:41: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  checkpoint = torch.load(checkpoint_path, map_location=device)
+Mode: T0
+===========================================================================
+=============    Your Unseen Data 2024 Submission is running     =============
+===========================================================================
+========== Dataset    in16    =============================================
+  Metadata:
+   - input_shape         : [148700, 3, 16, 16]
+   - codename            : in16
+   - benchmark           : 46.38
+   - num_classes         : 120
+   - time_remaining      : 107999.47532558441
+
+=== Processing Data ===
+  Allotted compute time remaining: ~29h,59m,59s
+
+=== Performing NAS ===
+  Allotted compute time remaining: ~29h,59m,57s
+None
+
+=== Training ===
+  Allotted compute time remaining: ~29h,59m,39s
+Early stopping at epoch 42
+[31m[EVAL] Best accuracy:38.5[0m
+
+=== Predicting ===
+  Allotted compute time remaining: ~29h,17m,22s
+
+========== Dataset   Volga    =============================================
+  Metadata:
+   - input_shape         : [50000, 20, 20, 20]
+   - codename            : Volga
+   - benchmark           : 71.35
+   - num_classes         : 7
+   - time_remaining      : 105436.21535539627
+
+=== Processing Data ===
+  Allotted compute time remaining: ~29h,17m,16s
+
+=== Performing NAS ===
+  Allotted compute time remaining: ~29h,17m,14s
+spawn
+
+=== Training ===
+  Allotted compute time remaining: ~29h,17m,0s
+[31m[EVAL] Best accuracy:83.16999816894531[0m
+
+=== Predicting ===
+  Allotted compute time remaining: ~28h,40m,52s
+
+========== Dataset   Sokoto   =============================================
+  Metadata:
+   - input_shape         : [50000, 1, 9, 9]
+   - codename            : Sokoto
+   - benchmark           : 0.0
+   - num_classes         : 9
+   - time_remaining      : 103251.04405617714
+
+=== Processing Data ===
+  Allotted compute time remaining: ~28h,40m,51s
+
+=== Performing NAS ===
+  Allotted compute time remaining: ~28h,40m,51s
+spawn
+
+=== Training ===
+  Allotted compute time remaining: ~28h,40m,35s
+Early stopping at epoch 96
+[31m[EVAL] Best accuracy:64.36000061035156[0m
+
+=== Predicting ===
+  Allotted compute time remaining: ~27h,57m,9s
+
+========== Dataset  CIFAR10   =============================================
+  Metadata:
+   - input_shape         : [50000, 3, 32, 32]
+   - codename            : CIFAR10
+   - benchmark           : 90.65
+   - num_classes         : 10
+   - time_remaining      : 100624.89848804474
+
+=== Processing Data ===
+  Allotted compute time remaining: ~27h,57m,4s
+
+=== Performing NAS ===
+  Allotted compute time remaining: ~27h,57m,3s
+spawn
+
+=== Training ===
+  Allotted compute time remaining: ~27h,56m,47s
+Early stopping at epoch 87
+[31m[EVAL] Best accuracy:92.70999908447266[0m
+
+=== Predicting ===
+  Allotted compute time remaining: ~27h,30m,7s
+
+rm -Rf /home/woody/iwb3/iwb3021h/THESIS_RESULTS/scoring0
+mkdir /home/woody/iwb3/iwb3021h/THESIS_RESULTS/scoring0
+mkdir /home/woody/iwb3/iwb3021h/THESIS_RESULTS/scoring0/labels
+mkdir /home/woody/iwb3/iwb3021h/THESIS_RESULTS/scoring0/predictions
+rsync -avr --exclude='**/*x.npy' --exclude='**/train*.npy' --exclude='**/valid*.npy'   --include='**/test_y.npy' datasets/* /home/woody/iwb3/iwb3021h/THESIS_RESULTS/scoring0/labels/
+sending incremental file list
+CIFAR10/
+CIFAR10/cifar-10-python.tar.gz
+CIFAR10/metadata
+CIFAR10/test_y.npy
+ImageNet16-120/
+ImageNet16-120/metadata
+ImageNet16-120/test_y.npy
+Sudoku/
+Sudoku/Example Image with Corresponding Sudoku Grid.png
+Sudoku/README
+Sudoku/metadata
+Sudoku/test_y.npy
+Sudoku/Sokoto/
+Sudoku/Sokoto/augmentation_results.json
+Sudoku/Sokoto/aug_0/
+Sudoku/Sokoto/aug_0/student_best
+Sudoku/Sokoto/aug_0/worklog.txt
+Sudoku/Sokoto/aug_0/.ipynb_checkpoints/
+Sudoku/Sokoto/aug_0/.ipynb_checkpoints/worklog-checkpoint.txt
+Sudoku/Sokoto/aug_1/
+Sudoku/Sokoto/aug_1/student_best
+Sudoku/Sokoto/aug_1/worklog.txt
+Sudoku/Sokoto/aug_1/.ipynb_checkpoints/
+Sudoku/Sokoto/aug_1/.ipynb_checkpoints/worklog-checkpoint.txt
+Sudoku/Sokoto/aug_2/
+Sudoku/Sokoto/aug_2/student_best
+Sudoku/Sokoto/aug_2/worklog.txt
+Sudoku/Sokoto/aug_2/.ipynb_checkpoints/
+Sudoku/Sokoto/aug_2/.ipynb_checkpoints/worklog-checkpoint.txt
+Sudoku/Sokoto/aug_3/
+Sudoku/Sokoto/aug_3/student_best
+Sudoku/Sokoto/aug_3/worklog.txt
+Sudoku/Sokoto/aug_3/.ipynb_checkpoints/
+Sudoku/Sokoto/aug_3/.ipynb_checkpoints/worklog-checkpoint.txt
+Sudoku/Sokoto/aug_4/
+Sudoku/Sokoto/aug_4/student_best
+Sudoku/Sokoto/aug_4/worklog.txt
+Sudoku/Sokoto/aug_5/
+Sudoku/Sokoto/aug_5/student_best
+Sudoku/Sokoto/aug_5/worklog.txt
+Sudoku/Sokoto/aug_5/.ipynb_checkpoints/
+Sudoku/Sokoto/aug_5/.ipynb_checkpoints/worklog-checkpoint.txt
+Sudoku/Sokoto/aug_6/
+Sudoku/Sokoto/aug_6/student_best
+Sudoku/Sokoto/aug_6/worklog.txt
+Sudoku/Sokoto/aug_6/.ipynb_checkpoints/
+Sudoku/Sokoto/aug_6/.ipynb_checkpoints/worklog-checkpoint.txt
+Sudoku/Sokoto/aug_7/
+Sudoku/Sokoto/aug_7/student_best
+Sudoku/Sokoto/aug_7/worklog.txt
+Sudoku/Sokoto/aug_8/
+Sudoku/Sokoto/aug_8/student_best
+Sudoku/Sokoto/aug_8/worklog.txt
+Sudoku/Sokoto/aug_8/.ipynb_checkpoints/
+Sudoku/Sokoto/aug_8/.ipynb_checkpoints/worklog-checkpoint.txt
+Sudoku/Sokoto/aug_9/
+Sudoku/Sokoto/aug_9/student_best
+Sudoku/Sokoto/aug_9/worklog.txt
+Sudoku/Sokoto/aug_9/.ipynb_checkpoints/
+Sudoku/Sokoto/aug_9/.ipynb_checkpoints/worklog-checkpoint.txt
+Voxel/
+Voxel/Rendered Examples.png
+Voxel/metadata
+Voxel/test_y.npy
+
+sent 620,487,017 bytes  received 951 bytes  177,282,276.57 bytes/sec
+total size is 620,331,646  speedup is 1.00
+cp -R /home/woody/iwb3/iwb3021h/THESIS_RESULTS/package0/predictions /home/woody/iwb3/iwb3021h/THESIS_RESULTS/scoring0
+cp evaluation/score.py /home/woody/iwb3/iwb3021h/THESIS_RESULTS/scoring0/score.py
+cd /home/woody/iwb3/iwb3021h/THESIS_RESULTS/scoring0; python3 score.py
+===========================================================================
+=============    Your Unseen Data 2024 Submission is scoring     =============
+===========================================================================
+== Scoring Voxel ==
+Raw Score:    83.390
+Adj Score:    4.202
+Model Params: 1,494,266
+Runtime:      2,184.9s
+== Scoring ImageNet16-120 ==
+Raw Score:    38.167
+Adj Score:    -1.532
+Model Params: 3,667,766
+Runtime:      2,557.2s
+== Scoring Sudoku ==
+Raw Score:    64.390
+Adj Score:    6.439
+Model Params: 4,838,416
+Runtime:      2,623.4s
+== Scoring CIFAR10 ==
+Raw Score:    92.790
+Adj Score:    2.289
+Model Params: 2,640,270
+Runtime:      1,619.0s
+===========================
+Final Score: 11.398
+=== JOB_STATISTICS ===
+=== current date     : Fri 25 Oct 2024 02:59:00 AM CEST
+= Job-ID             : 919070 on tinygpu
+= Job-Name           : /home/woody/iwb3/iwb3021h/THESIS_RESULTS/hpcruns/evonas
+= Job-Command        : /home/hpc/iwb3/iwb3021h/NAS_CHALLENGE/NAS_Challenge_AutoML_2024/evonas_job_full_main_0.sh
+= Initial workdir    : /home/hpc/iwb3/iwb3021h/NAS_CHALLENGE/NAS_Challenge_AutoML_2024
+= Queue/Partition    : a100
+= Slurm account      : iwb3 with QOS=normal
+= Requested resources:  for 23:59:00
+= Elapsed runtime    : 02:31:02
+= Total RAM usage    : 5.3 GiB of requested  GiB (%)   
+= Node list          : tg093
+= Subm/Elig/Start/End: 2024-10-25T00:27:58 / 2024-10-25T00:27:58 / 2024-10-25T00:27:58 / 2024-10-25T02:59:00
+======================
+=== Quota infos ======
+    Path              Used     SoftQ    HardQ    Gracetime  Filec    FileQ    FiHaQ    FileGrace    
+    /home/hpc          102.9G   104.9G   209.7G        N/A     196K     500K   1,000K        N/A    
+    /home/woody        908.9G  1000.0G  1500.0G        N/A     265K   5,000K   7,500K        N/A    
+======================
+=== GPU utilization ==
+gpu_name, gpu_bus_id, pid, gpu_utilization [%], mem_utilization [%], max_memory_usage [MiB], time [ms]
+NVIDIA A100-SXM4-40GB, 00000000:C1:00.0, 2670003, 25 %, 5 %, 6012 MiB, 8998056 ms

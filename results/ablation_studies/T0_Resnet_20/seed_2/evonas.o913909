@@ -1,0 +1,378 @@
+### Starting TaskPrologue of job 913909 on tg092 at Wed 16 Oct 2024 09:15:06 AM CEST
+Running on cores 64-95 with governor ondemand
+Wed Oct 16 09:15:06 2024       
++-----------------------------------------------------------------------------------------+
+| NVIDIA-SMI 560.28.03              Driver Version: 560.28.03      CUDA Version: 12.6     |
+|-----------------------------------------+------------------------+----------------------+
+| GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |
+|                                         |                        |               MIG M. |
+|=========================================+========================+======================|
+|   0  NVIDIA A100-SXM4-40GB          On  |   00000000:81:00.0 Off |                    0 |
+| N/A   33C    P0             54W /  400W |       1MiB /  40960MiB |      0%      Default |
+|                                         |                        |             Disabled |
++-----------------------------------------+------------------------+----------------------+
+                                                                                         
++-----------------------------------------------------------------------------------------+
+| Processes:                                                                              |
+|  GPU   GI   CI        PID   Type   Process name                              GPU Memory |
+|        ID   ID                                                               Usage      |
+|=========================================================================================|
+|  No running processes found                                                             |
++-----------------------------------------------------------------------------------------+
+### Finished TaskPrologue
+
+[07;1;31;43m WARNING: You are over quota on at least one filesystem![0m
+    Path              Used     SoftQ    HardQ    Gracetime  Filecount  FileQuota  FileHardQ  FileGrace    
+[07;1;31;43m!!! /home/hpc          105.9G   104.9G   209.7G  -29692days     196K     500K   1,000K        N/A !!![0m
+Loading python/pytorch-1.13py3.10
+  Loading requirement: cuda/11.6.1
+rm -Rf /home/woody/iwb3/iwb3021h/THESIS_RESULTS/scoring0
+rm -Rf /home/woody/iwb3/iwb3021h/THESIS_RESULTS/package0
+rm -Rf /home/woody/iwb3/iwb3021h/THESIS_RESULTS/package0
+mkdir /home/woody/iwb3/iwb3021h/THESIS_RESULTS/package0
+mkdir /home/woody/iwb3/iwb3021h/THESIS_RESULTS/package0/predictions
+mkdir /home/woody/iwb3/iwb3021h/THESIS_RESULTS/package0/datasets
+rsync -ar --exclude='**/test_y.npy' datasets/* /home/woody/iwb3/iwb3021h/THESIS_RESULTS/package0/datasets/
+cp -R evaluation/main.py /home/woody/iwb3/iwb3021h/THESIS_RESULTS/package0/main.py
+cp -R anki_lab_submission/* /home/woody/iwb3/iwb3021h/THESIS_RESULTS/package0
+cd /home/woody/iwb3/iwb3021h/THESIS_RESULTS/package0; python3 main.py --mode T0 --select_augment Resnet
+ic| self.select_augment: 'Resnet'
+/home/hpc/iwb3/iwb3021h/NAS_CHALLENGE/NAS_Challenge_AutoML_2024/.testvenv/lib/python3.10/site-packages/torchvision/transforms/v2/_deprecated.py:42: UserWarning: The transform `ToTensor()` is deprecated and will be removed in a future release. Instead, please use `v2.Compose([v2.ToImage(), v2.ToDtype(torch.float32, scale=True)])`.Output is equivalent up to float precision.
+  warnings.warn(
+ic| f"Transform {idx}": 'Transform 0'
+ic| transform: []
+ic| self.x.shape: torch.Size([45000, 3, 64, 64])
+ic| self.x.shape: torch.Size([15000, 3, 64, 64])
+ic| 'data loaded'
+ic| f"Transform {idx}": 'Transform 1'
+ic| transform: [RandAugment(interpolation=InterpolationMode.NEAREST, num_ops=2, magnitude=9, num_magnitude_bins=31)]
+ic| self.x.shape: torch.Size([45000, 3, 64, 64])
+ic| self.x.shape: torch.Size([15000, 3, 64, 64])
+ic| 'data loaded'
+ic| f"Transform {idx}": 'Transform 2'
+ic| transform: [RandAugment(interpolation=InterpolationMode.NEAREST, num_ops=2, magnitude=5, num_magnitude_bins=31)]
+ic| self.x.shape: torch.Size([45000, 3, 64, 64])
+ic| self.x.shape: torch.Size([15000, 3, 64, 64])
+ic| 'data loaded'
+ic| f"Transform {idx}": 'Transform 3'
+ic| transform: [RandAugment(interpolation=InterpolationMode.NEAREST, num_ops=2, magnitude=1, num_magnitude_bins=31)]
+ic| self.x.shape: torch.Size([45000, 3, 64, 64])
+ic| self.x.shape: torch.Size([15000, 3, 64, 64])
+ic| 'data loaded'
+ic| f"Transform {idx}": 'Transform 4'
+ic| transform: [TrivialAugmentWide(interpolation=InterpolationMode.NEAREST, num_magnitude_bins=31)]
+ic| self.x.shape: torch.Size([45000, 3, 64, 64])
+ic| self.x.shape: torch.Size([15000, 3, 64, 64])
+ic| 'data loaded'
+ic| f"Transform {idx}": 'Transform 5'
+ic| transform: [TrivialAugmentWide(interpolation=InterpolationMode.NEAREST, num_magnitude_bins=15)]
+ic| self.x.shape: torch.Size([45000, 3, 64, 64])
+ic| self.x.shape: torch.Size([15000, 3, 64, 64])
+ic| 'data loaded'
+ic| f"Transform {idx}": 'Transform 6'
+ic| transform: [AugMix(interpolation=InterpolationMode.BILINEAR, severity=3, mixture_width=3, chain_depth=-1, alpha=1.0, all_ops=True)]
+ic| self.x.shape: torch.Size([45000, 3, 64, 64])
+ic| self.x.shape: torch.Size([15000, 3, 64, 64])
+ic| 'data loaded'
+ic| f"Transform {idx}": 'Transform 7'
+ic| transform: [AugMix(interpolation=InterpolationMode.BILINEAR, severity=1, mixture_width=3, chain_depth=-1, alpha=1.0, all_ops=True)]
+ic| self.x.shape: torch.Size([45000, 3, 64, 64])
+ic| self.x.shape: torch.Size([15000, 3, 64, 64])
+ic| 'data loaded'
+ic| f"Transform {idx}": 'Transform 8'
+ic| transform: [RandomHorizontalFlip(p=0.5), RandomVerticalFlip(p=0.5)]
+ic| self.x.shape: torch.Size([45000, 3, 64, 64])
+ic| self.x.shape: torch.Size([15000, 3, 64, 64])
+ic| 'data loaded'
+ic| f"Transform {idx}": 'Transform 9'
+ic| transform: [RandomErasing(p=0.2, scale=(0.05, 0.2), ratio=(0.3, 3.3), value=[0.0], inplace=False),
+                RandomHorizontalFlip(p=0.5),
+                RandomVerticalFlip(p=0.5)]
+ic| self.x.shape: torch.Size([45000, 3, 64, 64])
+ic| self.x.shape: torch.Size([15000, 3, 64, 64])
+ic| 'data loaded'
+ic| f"Transform {idx}": 'Transform 10'
+ic| transform: [RandomErasing(p=0.2, scale=(0.05, 0.2), ratio=(0.3, 3.3), value=[0.0], inplace=False)]
+ic| self.x.shape: torch.Size([45000, 3, 64, 64])
+ic| self.x.shape: torch.Size([15000, 3, 64, 64])
+ic| 'data loaded'
+ic| f"Transform {idx}": 'Transform 11'
+ic| transform: [RandomErasing(p=0.2, scale=(0.02, 0.2), ratio=(0.3, 3.3), value=[0.0], inplace=False),
+                RandomCrop(size=(64, 64), padding=[8, 8, 8, 8], pad_if_needed=False, fill=0, padding_mode=constant)]
+ic| self.x.shape: torch.Size([45000, 3, 64, 64])
+ic| self.x.shape: torch.Size([15000, 3, 64, 64])
+ic| 'data loaded'
+ic| f"Transform {idx}": 'Transform 12'
+ic| transform: [RandomCrop(size=(64, 64), padding=[8, 8, 8, 8], pad_if_needed=False, fill=0, padding_mode=constant)]
+ic| self.x.shape: torch.Size([45000, 3, 64, 64])
+ic| self.x.shape: torch.Size([15000, 3, 64, 64])
+ic| 'data loaded'
+ic| f"Transform {idx}": 'Transform 13'
+ic| transform: [RandomCrop(size=(64, 64), padding=[8, 8, 8, 8], pad_if_needed=False, fill=0, padding_mode=constant),
+                RandomHorizontalFlip(p=0.5),
+                RandomVerticalFlip(p=0.5)]
+ic| self.x.shape: torch.Size([45000, 3, 64, 64])
+ic| self.x.shape: torch.Size([15000, 3, 64, 64])
+ic| 'data loaded'
+ic| f"Transform {idx}": 'Transform 14'
+ic| transform: [RandomErasing(p=0.2, scale=(0.02, 0.2), ratio=(0.3, 3.3), value=[0.0], inplace=False),
+                RandomCrop(size=(64, 64), padding=[8, 8, 8, 8], pad_if_needed=False, fill=0, padding_mode=constant),
+                RandomHorizontalFlip(p=0.5)]
+ic| self.x.shape: torch.Size([45000, 3, 64, 64])
+ic| self.x.shape: torch.Size([15000, 3, 64, 64])
+ic| 'data loaded'
+ic| f"Transform {idx}": 'Transform 15'
+ic| transform: [<data_processor.RandomPixelChange object at 0x7f963dd6fdf0>, ToTensor()]
+ic| self.x.shape: torch.Size([45000, 3, 64, 64])
+ic| self.x.shape: torch.Size([15000, 3, 64, 64])
+ic| 'data loaded'
+ic| f"Transform {idx}": 'Transform 16'
+ic| transform: [<data_processor.RandomPixelChange object at 0x7f963dd6e0b0>, ToTensor()]
+ic| self.x.shape: torch.Size([45000, 3, 64, 64])
+ic| self.x.shape: torch.Size([15000, 3, 64, 64])
+ic| 'data loaded'
+ic| f"Transform {idx}": 'Transform 17'
+ic| transform: [<data_processor.RandomPixelChange object at 0x7f963dd6df90>, ToTensor()]
+ic| self.x.shape: torch.Size([45000, 3, 64, 64])
+ic| self.x.shape: torch.Size([15000, 3, 64, 64])
+ic| 'data loaded'
+ic| f"Transform {idx}": 'Transform 18'
+ic| transform: [<data_processor.RandomPixelChange object at 0x7f963dd6e050>,
+                ToTensor(),
+                RandomHorizontalFlip(p=0.5),
+                RandomVerticalFlip(p=0.5)]
+ic| self.x.shape: torch.Size([45000, 3, 64, 64])
+ic| self.x.shape: torch.Size([15000, 3, 64, 64])
+ic| 'data loaded'
+ic| f"Transform {idx}": 'Transform 19'
+ic| transform: [<data_processor.RandomPixelChange object at 0x7f963dd09780>,
+                ToTensor(),
+                RandomErasing(p=0.2, scale=(0.05, 0.2), ratio=(0.3, 3.3), value=[0.0], inplace=False)]
+ic| self.x.shape: torch.Size([45000, 3, 64, 64])
+ic| self.x.shape: torch.Size([15000, 3, 64, 64])
+ic| 'data loaded'
+ic| f"Transform {idx}": 'Transform 20'
+ic| transform: [<data_processor.RandomPixelChange object at 0x7f963dd08ee0>,
+                ToTensor(),
+                RandomCrop(size=(64, 64), padding=[8, 8, 8, 8], pad_if_needed=False, fill=0, padding_mode=constant)]
+ic| self.x.shape: torch.Size([45000, 3, 64, 64])
+ic| self.x.shape: torch.Size([15000, 3, 64, 64])
+ic| 'data loaded'
+ic| f"Transform {idx}": 'Transform 21'
+ic| transform: [<data_processor.RandomPixelChange object at 0x7f963dd6d1e0>,
+                ToTensor(),
+                RandomHorizontalFlip(p=0.5),
+                RandomVerticalFlip(p=0.5),
+                RandomErasing(p=0.2, scale=(0.05, 0.2), ratio=(0.3, 3.3), value=[0.0], inplace=False)]
+ic| self.x.shape: torch.Size([45000, 3, 64, 64])
+ic| self.x.shape: torch.Size([15000, 3, 64, 64])
+ic| 'data loaded'
+ic| f"selected transform {train_transform}": ('selected transform [RandomErasing(p=0.2, scale=(0.02, 0.2), ratio=(0.3, '
+                                              '3.3), value=[0.0], inplace=False), RandomCrop(size=(64, 64), padding=[8, 8, '
+                                              '8, 8], pad_if_needed=False, fill=0, padding_mode=constant)]')
+ic| self.x.shape: torch.Size([45000, 3, 64, 64])
+ic| self.x.shape: torch.Size([15000, 3, 64, 64])
+ic| self.x.shape: torch.Size([10000, 3, 64, 64])
+ic| mode: 'T0'
+ic| f"Mode {mode}": 'Mode T0'
+ic| get_gpu_memory(0): 41813147648
+ic| self.total_generations: 3
+ic| 'Time remaining:'
+ic| metadata['time_remaining']: 95410.4351990223
+ic| self.zcost_nas: True
+ic| self.cfg: CfgNode({'MODEL': CfgNode({'TYPE': 'regnet', 'NUM_CLASSES': 4, 'ACTIVATION_FUN': 'relu', 'ACTIVATION_INPLACE': True, 'SCALING_TYPE': '', 'SCALING_FACTOR': 1.0}), 'REGNET': CfgNode({'STEM_TYPE': 'res_stem_cifar', 'INPUT_CHANNELS': 3, 'STEM_W': 64, 'BLOCK_TYPE': 'res_bottleneck_block', 'STRIDE': 2, 'SE_ON': True, 'SE_R': 0.25, 'DEPTH': 20, 'W0': 232, 'WA': 115.89, 'WM': 2.53, 'GROUP_W': 8, 'BOT_MUL': 1.0, 'HEAD_W': 0, 'DOWNSAMPLE': 'avg', 'DROP_RATE': 0.01, 'DROPOUT': 0.2}), 'BN': CfgNode({'EPS': 1e-05, 'MOM': 0.1, 'ZERO_INIT_FINAL_GAMMA': False}), 'LN': CfgNode({'EPS': 1e-05}), 'DESC': ''})
+ic| samples: 120
+/home/hpc/iwb3/iwb3021h/NAS_CHALLENGE/NAS_Challenge_AutoML_2024/.testvenv/lib/python3.10/site-packages/sklearn/base.py:376: InconsistentVersionWarning: Trying to unpickle estimator DecisionTreeRegressor from version 1.4.2 when using version 1.5.0. This might lead to breaking code or invalid results. Use at your own risk. For more info please refer to:
+https://scikit-learn.org/stable/model_persistence.html#security-maintainability-limitations
+  warnings.warn(
+/home/hpc/iwb3/iwb3021h/NAS_CHALLENGE/NAS_Challenge_AutoML_2024/.testvenv/lib/python3.10/site-packages/sklearn/base.py:376: InconsistentVersionWarning: Trying to unpickle estimator RandomForestRegressor from version 1.4.2 when using version 1.5.0. This might lead to breaking code or invalid results. Use at your own risk. For more info please refer to:
+https://scikit-learn.org/stable/model_persistence.html#security-maintainability-limitations
+  warnings.warn(
+/home/woody/iwb3/iwb3021h/THESIS_RESULTS/package0/search_space/RegNet.py:299: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  ranking_test_df[pred_column]=sgd_regressor.predict(X_test)
+ic| ranking_prediction_df:                       score
+                           hilarious_galago  80.993003
+ic| best_models.keys(): dict_keys(['hilarious_galago'])
+ic| self.initial_population_size: 120
+ic| metadata: {'benchmark': 47.008,
+               'codename': 'Caitie',
+               'experiment_name': 'augmentations_test/Caitie/aug_21',
+               'input_shape': [49260, 3, 64, 64],
+               'mode': 'NAS',
+               'num_classes': 4,
+               'test_type': 'T0_Resnet/seed_2',
+               'time_remaining': 95391.30262470245,
+               'train_config_path': 'configs/train/finetuning_generation_adam.yaml'}
+ic| cfg_path: 'configs/train/finetuning_generation_adam.yaml'
+ic| self.cfg.SOLVER.LR: 0.001
+ic| self.cfg.SOLVER.EPOCHS-self.cfg.SOLVER.SWA_START: 10
+ic| self.cfg.SOLVER.EPOCHS: 100
+/home/woody/iwb3/iwb3021h/THESIS_RESULTS/package0/trainer.py:41: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  checkpoint = torch.load(checkpoint_path, map_location=device)
+Mode: T0
+===========================================================================
+=============    Your Unseen Data 2024 Submission is running     =============
+===========================================================================
+========== Dataset   Caitie   =============================================
+  Metadata:
+   - num_classes         : 4
+   - input_shape         : [49260, 3, 64, 64]
+   - codename            : Caitie
+   - benchmark           : 47.008
+   - time_remaining      : 107991.46650481224
+
+=== Processing Data ===
+  Allotted compute time remaining: ~29h,59m,51s
+{'num_classes': 4, 'input_shape': [49260, 3, 64, 64], 'codename': 'Caitie', 'benchmark': 47.008, 'time_remaining': 107991.46650481224, 'train_config_path': 'configs/train/augmentations_adam.yaml'}
+[31m[EVAL] Best accuracy:48.59333419799805[0m
+70.377045
+48.593334
+[31m[EVAL] Best accuracy:47.86000061035156[0m
+43.629807
+47.86
+[31m[EVAL] Best accuracy:50.81999969482422[0m
+46.191685
+50.82
+[31m[EVAL] Best accuracy:49.61333465576172[0m
+49.4302
+49.613335
+[31m[EVAL] Best accuracy:49.040000915527344[0m
+42.74172
+49.04
+[31m[EVAL] Best accuracy:49.42000198364258[0m
+42.18305
+49.420002
+[31m[EVAL] Best accuracy:46.366668701171875[0m
+55.66239
+46.36667
+[31m[EVAL] Best accuracy:47.686668395996094[0m
+53.587963
+47.68667
+[31m[EVAL] Best accuracy:53.17333221435547[0m
+55.893875
+53.173332
+[31m[EVAL] Best accuracy:54.20000076293945[0m
+55.06143
+54.2
+[31m[EVAL] Best accuracy:48.073333740234375[0m
+65.16872
+48.073334
+[31m[EVAL] Best accuracy:57.14666748046875[0m
+56.97338
+57.146667
+[31m[EVAL] Best accuracy:56.17333221435547[0m
+58.072918
+56.173332
+[31m[EVAL] Best accuracy:49.33333206176758[0m
+48.13034
+49.333332
+[31m[EVAL] Best accuracy:54.400001525878906[0m
+53.823895
+54.4
+[31m[EVAL] Best accuracy:25.853334426879883[0m
+54.62295
+25.853334
+[31m[EVAL] Best accuracy:28.479999542236328[0m
+42.935364
+28.48
+[31m[EVAL] Best accuracy:28.393333435058594[0m
+31.245548
+28.393333
+[31m[EVAL] Best accuracy:27.746667861938477[0m
+53.087162
+27.746668
+[31m[EVAL] Best accuracy:25.853334426879883[0m
+52.99145
+25.853334
+[31m[EVAL] Best accuracy:26.84000015258789[0m
+55.304043
+26.84
+[31m[EVAL] Best accuracy:29.220001220703125[0m
+51.484596
+29.220001
+First best key: 11
+Second best key: 12
+The key with the maximum value is "11" with a value of 57.14666748046875.
+
+=== Performing NAS ===
+  Allotted compute time remaining: ~26h,30m,10s
+None
+
+=== Training ===
+  Allotted compute time remaining: ~26h,29m,51s
+[31m[EVAL] Best accuracy:79.87999725341797[0m
+
+=== Predicting ===
+  Allotted compute time remaining: ~25h,38m,20s
+
+rm -Rf /home/woody/iwb3/iwb3021h/THESIS_RESULTS/scoring0
+mkdir /home/woody/iwb3/iwb3021h/THESIS_RESULTS/scoring0
+mkdir /home/woody/iwb3/iwb3021h/THESIS_RESULTS/scoring0/labels
+mkdir /home/woody/iwb3/iwb3021h/THESIS_RESULTS/scoring0/predictions
+rsync -avr --exclude='**/*x.npy' --exclude='**/train*.npy' --exclude='**/valid*.npy'   --include='**/test_y.npy' datasets/* /home/woody/iwb3/iwb3021h/THESIS_RESULTS/scoring0/labels/
+sending incremental file list
+AddNIST/
+AddNIST/README
+AddNIST/metadata
+AddNIST/test_y.npy
+CIFARTile/
+CIFARTile/README.txt
+CIFARTile/metadata
+CIFARTile/test_y.npy
+Chesseract/
+Chesseract/README
+Chesseract/metadata
+Chesseract/test_y.npy
+GeoClassing/
+GeoClassing/metadata
+GeoClassing/test_y.npy
+Gutenberg/
+Gutenberg/metadata
+Gutenberg/test_y.npy
+Language/
+Language/README
+Language/metadata
+Language/test_y.npy
+MultNIST/
+MultNIST/README
+MultNIST/metadata
+MultNIST/test_y.npy
+
+sent 528,449 bytes  received 429 bytes  1,057,756.00 bytes/sec
+total size is 526,780  speedup is 1.00
+cp -R /home/woody/iwb3/iwb3021h/THESIS_RESULTS/package0/predictions /home/woody/iwb3/iwb3021h/THESIS_RESULTS/scoring0
+cp evaluation/score.py /home/woody/iwb3/iwb3021h/THESIS_RESULTS/scoring0/score.py
+cd /home/woody/iwb3/iwb3021h/THESIS_RESULTS/scoring0; python3 score.py
+===========================================================================
+=============    Your Unseen Data 2024 Submission is scoring     =============
+===========================================================================
+== Scoring Language ==
+list index out of range
+=== JOB_STATISTICS ===
+=== current date     : Wed 16 Oct 2024 01:39:47 PM CEST
+= Job-ID             : 913909 on tinygpu
+= Job-Name           : /home/woody/iwb3/iwb3021h/THESIS_RESULTS/hpcruns/evonas
+= Job-Command        : /home/hpc/iwb3/iwb3021h/NAS_CHALLENGE/NAS_Challenge_AutoML_2024/evonas_job_full_main_0.sh
+= Initial workdir    : /home/hpc/iwb3/iwb3021h/NAS_CHALLENGE/NAS_Challenge_AutoML_2024
+= Queue/Partition    : a100
+= Slurm account      : iwb3 with QOS=normal
+= Requested resources:  for 23:59:00
+= Elapsed runtime    : 04:24:53
+= Total RAM usage    : 7.6 GiB of requested  GiB (%)   
+= Node list          : tg092
+= Subm/Elig/Start/End: 2024-10-16T09:14:53 / 2024-10-16T09:14:53 / 2024-10-16T09:14:54 / 2024-10-16T13:39:47
+======================
+=== Quota infos ======
+    Path              Used     SoftQ    HardQ    Gracetime  Filec    FileQ    FiHaQ    FileGrace    
+!!! /home/hpc          105.8G   104.9G   209.7G  -29692days     196K     500K   1,000K        N/A !!!
+    /home/vault        984.8G  1048.6G  2097.2G        N/A     180K     200K     400K        N/A    
+    /home/woody        813.1G  1000.0G  1500.0G        N/A     246K   5,000K   7,500K        N/A    
+======================
+=== GPU utilization ==
+gpu_name, gpu_bus_id, pid, gpu_utilization [%], mem_utilization [%], max_memory_usage [MiB], time [ms]
+NVIDIA A100-SXM4-40GB, 00000000:81:00.0, 3032130, 23 %, 13 %, 13730 MiB, 15705531 ms

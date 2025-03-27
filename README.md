@@ -9,7 +9,7 @@ It aligns with the constraints set by the [NAS Unseen Data Challenge](https://gi
 ## Installation
 
 ### Google Colab
-If you want an easy way to test our repo, you can use Google Colab with GPU and run the code in *notebooks/EG_ENAS*.ipynb. This works for our low-cost mode (T0) (~1 hour) and (T1-T3) (~4-8 hours) per dataset, or for finding the best augmentation for your dataset using our zero-cost selection method (P) with the *get_augmentations_rank.sh* script.
+If you want an easy way to test our repo, you can use Google Colab with GPU and run the code in *notebooks/EG_ENAS*.ipynb. This works for our low-cost mode (T0) (~1 hour) and (T1-T3) (~4-8 hours) per dataset, or for finding the best augmentation for your dataset using our zero-cost selection method (P) with the *get_augmentations_rank.sh* script. Results for each Test and seed are shown in *results* folder.
 
 ### Linux
 Our pipeline runs on Linux with Python 3.10 or higher. Follow these steps to set up the project in a virtual environment:
@@ -42,12 +42,11 @@ Our pipeline runs on Linux with Python 3.10 or higher. Follow these steps to set
    deactivate
    ```
 
-Now, your environment is set up, and you are ready to run the project.
 
 ## Usage 
 
 ### 1. Datasets
-To use our NAS framework, add image classification datasets to be tested in the folder **datasets**. As a default example, we include the [Sokoto dataset](https://data.ncl.ac.uk/articles/dataset/Sudoku_Dataset/26976121/1) [3], which is small, novel, and was used in the NAS Unseen Data Challenge 2024. The image below shos the datasets we tested with our EG-ENAS. In **Configuration and Reproducibility** we provide the links for download them.
+To use our NAS framework, add image classification datasets to be tested in the folder **datasets**. As a default example, we include the [Sudoku dataset](https://data.ncl.ac.uk/articles/dataset/Sudoku_Dataset/26976121/1) [3], which is small, novel, and was used in the NAS Unseen Data Challenge 2024. As no benchmark score is provided for Sudoku dataset, we train a ResNet18 model and use the test_accuracy as benchmark. The image below shows the datasets we tested with our EG-ENAS. In **Configuration and Reproducibility** we provide the links for download them.
 
 ![Figure 2: Datasets](images/datasets_finish.png)
 *Figure 2: Datasets tested in our pipeline*
@@ -102,8 +101,7 @@ For modes T4, T6, and T7, we use a weight transfer strategy for our RegNet searc
 We recommend starting the initial tests with the low-cost (T0) and T3 modes that don't require the pretrained weights.
 
 ## Configuration and Reproducibility  
-We did our test in an A100 GPU, then times could change depending on the GPU used. 
-The base scripts for running experiments are located in the `scripts` folder and are named after each mode. To reproduce **T0 with proxy-based (P) augmentation selection (T0_P)** for validation datasets (Table 1 in following section), follow these steps:  
+We conducted our tests on an A100 GPU. The execution times may vary depending on the GPU used. Results for each test and seed are available in the *results* folder. The main scripts for running experiments are located in the `scripts` folder and are named after each mode. To reproduce **T0** with proxy-based (P) augmentation selection **(T0_P)** for validation datasets (Table 1 in following section), follow these steps:  
 
 ### 1. Download Required Datasets  
 Download the following datasets: [LaMelo](data.ncl.ac.uk/articles/dataset/Language_Dataset/24574729), [Gutenberg](data.ncl.ac.uk/articles/dataset/Gutenberg_Dataset/24574753), [Adaline](data.ncl.ac.uk/articles/dataset/AddNIST_Dataset/24574354), [Chester](data.ncl.ac.uk/articles/dataset/Chesseract_Dataset/24118743), [Sadie](data.ncl.ac.uk/articles/dataset/GeoClassing_Dataset/24050256), [Mateo](data.ncl.ac.uk/articles/dataset/MultNIST_Dataset/24574678), [Caitie](data.ncl.ac.uk/articles/dataset/CIFARTile_Dataset/24551539). Save each one in a separate subfolder inside the **datasets** directory. Remove any other folders or datasets inside **datasets** .  
@@ -188,7 +186,7 @@ This will return the estimated ranking of augmentation methods in the **EGENAS_R
 | **Random DARTS**| -                           | 90.12  | 47.72     | 97.07   | 59.16   | 95.54  | 96.55  | 90.74  | 34.10            |
 
 *Table 1: Test Accuracy and Relative Scores for Validation Datasets*  
-The first section summarizes eight of our studies (mean of three seeds), the second lists various CNN models, and the third compares NAS methods with the top scores from the NAS Unseen Data Challenge 2023[1]. Note that computation times for these scores are unavailable, limiting fair efficiency comparisons.
+The first section summarizes eight of our studies (mean of three seeds), the second lists various CNN models, and the third compares NAS methods with the top scores from the NAS Unseen Data Challenge 2023[1]. Note that computation times for these scores are unavailable, limiting fair efficiency comparisons. Results for each test and seed are available in the *results* folder.
 
 
 ## References

@@ -1,0 +1,127 @@
+### Starting TaskPrologue of job 926139 on tg06a at Tue 05 Nov 2024 12:17:49 PM CET
+Running on cores 2-3,10-11,18-19,26-27 with governor ondemand
+Tue Nov  5 12:17:49 2024       
++-----------------------------------------------------------------------------------------+
+| NVIDIA-SMI 560.35.03              Driver Version: 560.35.03      CUDA Version: 12.6     |
+|-----------------------------------------+------------------------+----------------------+
+| GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |
+|                                         |                        |               MIG M. |
+|=========================================+========================+======================|
+|   0  NVIDIA GeForce RTX 2080 Ti     On  |   00000000:3B:00.0 Off |                  N/A |
+| 27%   28C    P8             18W /  250W |       1MiB /  11264MiB |      0%      Default |
+|                                         |                        |                  N/A |
++-----------------------------------------+------------------------+----------------------+
+                                                                                         
++-----------------------------------------------------------------------------------------+
+| Processes:                                                                              |
+|  GPU   GI   CI        PID   Type   Process name                              GPU Memory |
+|        ID   ID                                                               Usage      |
+|=========================================================================================|
+|  No running processes found                                                             |
++-----------------------------------------------------------------------------------------+
+### Finished TaskPrologue
+
+Loading python/pytorch-1.13py3.10
+  Loading requirement: cuda/11.6.1
+rm -Rf /home/woody/iwb3/iwb3021h/THESIS_RESULTS/scoring3
+mkdir /home/woody/iwb3/iwb3021h/THESIS_RESULTS/scoring3
+mkdir /home/woody/iwb3/iwb3021h/THESIS_RESULTS/scoring3/labels
+mkdir /home/woody/iwb3/iwb3021h/THESIS_RESULTS/scoring3/predictions
+rsync -avr --exclude='**/*x.npy' --exclude='**/train*.npy' --exclude='**/valid*.npy'   --include='**/test_y.npy' datasets/* /home/woody/iwb3/iwb3021h/THESIS_RESULTS/scoring3/labels/
+sending incremental file list
+AddNIST/
+AddNIST/README
+AddNIST/metadata
+AddNIST/test_y.npy
+CIFARTile/
+CIFARTile/README.txt
+CIFARTile/metadata
+CIFARTile/test_y.npy
+Chesseract/
+Chesseract/README
+Chesseract/metadata
+Chesseract/test_y.npy
+GeoClassing/
+GeoClassing/README GeoClassing Dataset.txt
+GeoClassing/metadata
+GeoClassing/test_y.npy
+Gutenberg/
+Gutenberg/metadata
+Gutenberg/test_y.npy
+Language/
+Language/README
+Language/metadata
+Language/test_y.npy
+MultNIST/
+MultNIST/README
+MultNIST/metadata
+MultNIST/test_y.npy
+
+sent 529,436 bytes  received 448 bytes  1,059,768.00 bytes/sec
+total size is 527,679  speedup is 1.00
+cp -R /home/woody/iwb3/iwb3021h/THESIS_RESULTS/package3/predictions /home/woody/iwb3/iwb3021h/THESIS_RESULTS/scoring3
+cp evaluation/score.py /home/woody/iwb3/iwb3021h/THESIS_RESULTS/scoring3/score.py
+cd /home/woody/iwb3/iwb3021h/THESIS_RESULTS/scoring3; python3 score.py
+===========================================================================
+=============    Your Unseen Data 2024 Submission is scoring     =============
+===========================================================================
+== Scoring Language ==
+Raw Score:    78.340
+Adj Score:    -4.635
+Model Params: 9,311,880
+Runtime:      9,328.0s
+== Scoring Gutenberg ==
+Raw Score:    45.383
+Adj Score:    0.746
+Model Params: 6,545,636
+Runtime:      9,085.1s
+== Scoring AddNIST ==
+Raw Score:    96.450
+Adj Score:    6.502
+Model Params: 12,141,481
+Runtime:      10,347.1s
+== Scoring Chesseract ==
+Raw Score:    60.616
+Adj Score:    0.662
+Model Params: 1,619,441
+Runtime:      8,491.0s
+== Scoring GeoClassing ==
+Raw Score:    95.406
+Adj Score:    7.665
+Model Params: 5,596,334
+Runtime:      11,920.1s
+== Scoring MultNIST ==
+Raw Score:    95.900
+Adj Score:    5.509
+Model Params: 7,999,295
+Runtime:      10,181.5s
+== Scoring CIFARTile ==
+Raw Score:    86.330
+Adj Score:    7.420
+Model Params: 9,258,144
+Runtime:      15,802.8s
+===========================
+Final Score: 23.869
+=== JOB_STATISTICS ===
+=== current date     : Tue 05 Nov 2024 12:17:56 PM CET
+= Job-ID             : 926139 on tinygpu
+= Job-Name           : /home/woody/iwb3/iwb3021h/THESIS_RESULTS/hpcruns/evonas
+= Job-Command        : /home/hpc/iwb3/iwb3021h/NAS_CHALLENGE/NAS_Challenge_AutoML_2024/evonas_job_full_main_3.sh
+= Initial workdir    : /home/hpc/iwb3/iwb3021h/NAS_CHALLENGE/NAS_Challenge_AutoML_2024
+= Queue/Partition    : work
+= Slurm account      : iwb3 with QOS=normal
+= Requested resources:  for 23:59:00
+= Elapsed runtime    : 00:00:10
+= Total RAM usage    : 0.0 GiB of requested  GiB (%)   
+= Node list          : tg06a
+= Subm/Elig/Start/End: 2024-11-05T12:17:45 / 2024-11-05T12:17:45 / 2024-11-05T12:17:46 / 2024-11-05T12:17:56
+======================
+=== Quota infos ======
+    Path              Used     SoftQ    HardQ    Gracetime  Filec    FileQ    FiHaQ    FileGrace    
+    /home/hpc          103.9G   104.9G   209.7G        N/A     200K     500K   1,000K        N/A    
+    /home/vault        984.8G  1048.6G  2097.2G        N/A     180K     200K     400K        N/A    
+    /home/woody        956.8G  1000.0G  1500.0G        N/A     244K   5,000K   7,500K        N/A    
+======================
+=== GPU utilization ==
+gpu_name, gpu_bus_id, pid, gpu_utilization [%], mem_utilization [%], max_memory_usage [MiB], time [ms]
