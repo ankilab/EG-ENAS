@@ -1,0 +1,11 @@
+The Sudoku dataset is constructed of algorithmically generated Sudoku grids, with different levels of masking (number of missing numbers). Sudokus grids can range from simple to difficult in terms of difficulty for humans and we wanted to see how Machine Learning handles the problem.
+
+This dataset is one of the three hidden datasets used by the 2024 NAS Unseen-Data Challenge.
+
+The images include 70,000 generated sudoku grids. Instead of regular sudoku, where the goal is to fill in the grid, we developed a classification task about identifying the number of a single square. The grids are generated at different levels of masking (number of missing values). Each grid is stored as a NumPy array, where the normal sudoku numbers (1-9) are stored at 0.1 - 0.9, respectively. Missing cells are stored as 0, and the target cell is labelled as 1.
+
+The data is stored in a channels-first format with a shape of (n, 1, 9, 9) where n is the number of samples in the corresponding set (50,000 for training, 10,000 for validation, and 10,000 for testing).
+
+For each class (Sudoku cell value), we generated 7,777 samples evenly distributed among the three sets. To round out the number of samples in the sets, we randomly selected class labels and generated a single sudoku grid of that label so that no label had more than 7,778 samples among the three sets.
+
+The labels for this dataset are the possible sudoku cell values (1, 2, 3, 4, 5, 6, 7, 8, and 9). However, due to zero-indexing, we subtract one from the cell value to get the label. (I.e., a label of 1 means the target cell should be a 2.)
