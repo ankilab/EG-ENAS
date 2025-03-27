@@ -164,8 +164,7 @@ class NAS:
         self.multiprocessing=False
         #if self.multiprocessing:
         current_method = mp.get_start_method(allow_none=True)
-        print(current_method)
-        if current_method!="spawn":
+        if current_method!="spawn" and self.multiprocessing!=False:
                 nvmlInit()
                 # Set the start method if it hasn't been set yet
                 mp.set_start_method("spawn")
@@ -174,8 +173,7 @@ class NAS:
         #    ic(self.metadata["codename"])
         
         self.population_size=20
-        self.total_generations=3 if (get_gpu_memory(0) / (1024 ** 3)) > 15.0 else 1
-        ic(get_gpu_memory(0))
+        self.total_generations=3
         ic(self.total_generations)
         self.num_best_parents=5
         self.sim_threshold=0.1

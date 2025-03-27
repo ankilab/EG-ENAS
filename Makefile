@@ -11,7 +11,7 @@ ifndef augment
   $(error "augment is undefined")
 endif
 ifndef pretrained_pool_path
-  $(error "pretrained pool path is undefined")
+  pretrained_pool_path="../../pretrained_pool"
 endif
 ifdef only_processor
     ONLY_PROCESSOR_FLAG=--only_processor
@@ -23,7 +23,7 @@ build:
 	rm -Rf $(save_folder)/package
 	mkdir -p $(save_folder)
 	mkdir $(save_folder)/package
-	mkdir $(save_folder)/package/augmentations_test
+	mkdir $(save_folder)/augmentations_test
 	mkdir $(save_folder)/package/predictions
 	mkdir $(save_folder)/package/datasets
 	rsync -ar --exclude='**/test_y.npy' datasets/* $(save_folder)/package/datasets/

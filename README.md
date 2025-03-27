@@ -70,6 +70,8 @@ The `metadata` file should be a dictionary with the following fields. Here’s a
   "benchmark": 89.850
 }
 ```
+You can download the datasets from the UNSEEN-NAS-CHALLENGE following the links avaialible in the NAS CHALLENGE repository:
+[NAS Unseen Data Challenge](https://github.com/Towers-D/NAS-Unseen-Datasets)
 
 ### Modes
 The names of the tests combine **(Mode + AugmentationStrategy)** and include a "+" if the extended search space is used. Below is a description of each mode and augmentation selection strategy:
