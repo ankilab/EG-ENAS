@@ -9,7 +9,7 @@ fi
 source .venv/bin/activate
 make -f Makefile save_folder=EGENAS_RESULTS \
         submission=egenas \
-        mode=T0+ \
+        mode=T0 \
         augment=Basic \
         seed=1 \
         all

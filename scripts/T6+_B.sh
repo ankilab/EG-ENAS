@@ -10,7 +10,7 @@ if [ ! -d "pretrained_pool" ]; then
     echo "❌ Folder pretrained_pool has not been downloaded. Exiting..."
     exit 1  # Stop the script
 fi
-# Basic: RandomErasing+ RandomCrop + HorizontalFlip
+# (RandomErasing + RandomCrop + RandomHflip) augmentation
 make -f Makefile save_folder=EGENAS_RESULTS \
         submission=egenas \
         mode=T6 \
