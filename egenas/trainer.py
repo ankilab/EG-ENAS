@@ -391,11 +391,7 @@ class Trainer(TrainerDistillation):
         self.cfg.DATASET.CLASSES=metadata["num_classes"]
         self.cfg.DATASET.INPUT_SHAPE=metadata["input_shape"]
         
-        #if not self.metadata["experiment_name"]
-        #if "experiment_name" in list(metadata.keys()):
-        #        self.cfg.EXPERIMENT.NAME=metadata["experiment_name"]
-        #else:
-        SAVE_PATH=f"{os.getenv('WORK')}/THESIS_RESULTS/full_training_evonas"
+        SAVE_PATH="../best_model_training"
         self.cfg.EXPERIMENT.NAME=f"{SAVE_PATH}/finetuning/{metadata['codename']}/{metadata['test_type']}"
         self.log_path=self.cfg.EXPERIMENT.NAME
 

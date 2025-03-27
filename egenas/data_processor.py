@@ -545,7 +545,7 @@ class DataProcessor:
             except:
                 ic("error in col")
                 df_rank[col]=0
-        df_rank.to_csv(f"augmentations_test/ranks_{self.metadata['codename']}_seed{self.seed}.csv")
+        df_rank.to_csv(f"../augmentations_test/ranks_{self.metadata['codename']}_seed{self.seed}.csv")
 
         #############################################################################################
         df_final_rank_jacob_fisher=pd.DataFrame(df_rank.aug.unique(), columns=["aug"])
@@ -568,7 +568,9 @@ class DataProcessor:
 
         #########################################################################
         df_final_rank_jacob_fisher=pd.DataFrame(df_final_rank_jacob_fisher.set_index("aug").mean(axis=1).rank(ascending=True, method='dense')).rename(columns={0:"jacob_fisher_rank"})
+        df_final_rank_jacob_fisher.to_csv(f"../augmentations_test/augmentations_positions_{self.metadata['codename']}_seed{self.seed}.csv")
         best_aug=int(df_final_rank_jacob_fisher[df_final_rank_jacob_fisher.jacob_fisher_rank==1.0].index[0])
+
 
 
         if best_aug==0:
