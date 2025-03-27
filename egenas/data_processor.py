@@ -471,6 +471,7 @@ class DataProcessor:
     
         tot_dfs=[]
         current_transforms=train_loader.dataset.transform.transforms
+        device = "cuda" if torch.cuda.is_available() else "cpu"
         for aug in range(len(poss_augs)):
 
             train_loader.dataset.transform=v2.Compose(poss_augs[aug]+[current_transforms[-1]])
@@ -515,7 +516,7 @@ class DataProcessor:
                             model_aux, _=regnet_space.create_model(params=params_dict[individual],save_folder=None, name=individual, gen=None, config_updates=None)
                             #syn_scores[individual]=find_measures(model_aux.to("cuda"), new_valid_loader, ("random",len(new_valid_loader),self.metadata["num_classes"]), "cuda", F.cross_entropy, measures )
 
-                            device = "cuda" if torch.cuda.is_available() else "cpu"
+                            
                             model_aux.to(device)
 
                             syn_scores[individual] = find_measures(

@@ -18,7 +18,6 @@ make -f Makefile save_folder=/home/woody/iwb3/iwb3021h/EGENAS_RESULTS \
         mode=T0+ \
         augment=Proxy \
         seed=4 \
-        pretrained_pool_path=/home/woody/iwb3/iwb3021h/NAS_COMPETITION_RESULTS/pretrained_pool/ \
         all
 
 deactivate

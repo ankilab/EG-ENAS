@@ -112,7 +112,7 @@ if __name__ == '__main__':
     #########################################
     parser.add_argument('--select_augment', type=str, required=True, help='Augmentation selection strategy')
     parser.add_argument('--seed', type=str, required=False, default=None, help='Starting point for the random number generator')
-    parser.add_argument('--pretrained_pool_path', type=str, required=False, default=None, help='Pretrained pool path')    
+    parser.add_argument('--pretrained_pool_path', type=str, required=False, default="../../pretrained_pool", help='Pretrained pool path')    
     parser.add_argument('--only_processor', action='store_true', help='Only process data to get best augmentation')
 
     args = parser.parse_args()

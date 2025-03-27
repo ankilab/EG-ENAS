@@ -23,6 +23,7 @@ build:
 	rm -Rf $(save_folder)/package
 	mkdir -p $(save_folder)
 	mkdir $(save_folder)/package
+	mkdir $(save_folder)/package/augmentations_test
 	mkdir $(save_folder)/package/predictions
 	mkdir $(save_folder)/package/datasets
 	rsync -ar --exclude='**/test_y.npy' datasets/* $(save_folder)/package/datasets/
