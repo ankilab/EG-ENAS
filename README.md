@@ -42,6 +42,12 @@ Our pipeline runs on Linux with Python 3.10 or higher. Follow these steps to set
    deactivate
    ```
 
+6. **Download Population Initialization Ranking Regressors**
+Due to anonymity, you need to replace the current *Regressors* folder with the folder from the following link:
+
+[Download Regressors](https://zenodo.org/records/15104783?token=eyJhbGciOiJIUzUxMiIsImlhdCI6MTc0MzQyMjIzOSwiZXhwIjoxNzU4NzU4Mzk5fQ.eyJpZCI6IjRlNDY3Nzc0LWEwOWMtNGVjMy04MmM4LWMwYTYwYmNmMjU2NCIsImRhdGEiOnt9LCJyYW5kb20iOiIwOGY0OWYwODAzNGRkYWM0YmQ2NTNmMTE2ZWFkMDk3ZiJ9.9qvWC4owoVj4-imndX8XxiF5q-4MAVZe4dreJnxsYdAQ2OzARtjDiZT0-v2YZ7ken_SJZMDBIDZgbI5mZ6Yrtg)
+
+These regressors are necessary for running modes T0, T3, T6 and T7 of our EG-ENAS.
 
 ## Usage 
 
