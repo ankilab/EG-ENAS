@@ -96,7 +96,7 @@ The components of these modes are illustrated in the figure below:
 *Figure 3: EG-ENAS test modes and augmentation selection strategies*
 
 ### 4. Pretrained stages pool
-For modes T4, T6, and T7, we use a weight transfer strategy for our RegNet search space from a pretrained pool of weights. This helps to boost the population training process. However, the pretrained pool weighs 54GB and can be downloaded here. The files and folders inside it must be placed in the *pretrained_pool* folder. The current file *pretrained_pool/df_blocks_pool.csv* contains only the information and metadata of the model weights and their locations but not the weights themselves.
+For modes T4, T6, and T7, we use a weight transfer strategy for our RegNet search space from a pretrained pool of weights. This helps accelerate the population training process and will be available on Zenodo. However, the pretrained pool weighs 54GB and can be downloaded here. The files and folders inside it must be placed in the *pretrained_pool* folder. The current file *pretrained_pool/df_blocks_pool.csv* contains only the information and metadata of the model weights and their locations but not the weights themselves.
 
 We recommend starting the initial tests with the low-cost (T0) and T3 modes that don't require the pretrained weights.
 
