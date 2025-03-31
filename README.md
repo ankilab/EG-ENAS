@@ -14,11 +14,10 @@ If you want an easy way to test our repo, you can use Google Colab with GPU and 
 ### Linux
 Our pipeline runs on Linux with Python 3.10 or higher. Follow these steps to set up the project in a virtual environment:
 
-1. **Clone the repository**:
-   ```bash
-   git clone https://github.com/ankilab/EG-ENAS.git
-   cd EG-ENAS
-   ```
+   1. **Download this [Repository](https://anonymous.4open.science/r/EG-ENAS-6890) and unzip. Then**:
+      ```bash
+      cd EG-ENAS
+      ```
 
 2. **Create a virtual environment** (optional but recommended):
    ```bash
@@ -102,9 +101,11 @@ The components of these modes are illustrated in the figure below:
 *Figure 3: EG-ENAS test modes and augmentation selection strategies*
 
 ### 4. Pretrained stages pool
-For modes T4, T6, and T7, we use a weight transfer strategy for our RegNet search space from a pretrained pool of weights. This helps accelerate the population training process and will be available on Zenodo. However, the pretrained pool weighs 54GB and can be downloaded here. The files and folders inside it must be placed in the *pretrained_pool* folder. The current file *pretrained_pool/df_blocks_pool.csv* contains only the information and metadata of the model weights and their locations but not the weights themselves.
+For modes T4, T6, and T7, we use a weight transfer strategy for our RegNet search space from a pretrained pool of weights. This helps accelerate the population training process and will be available on Zenodo via this [Link](https://zenodo.org/records/15113247?preview=1&token=eyJhbGciOiJIUzUxMiIsImlhdCI6MTc0MzQyOTI3NSwiZXhwIjoxNzU4NzU4Mzk5fQ.eyJpZCI6IjExNmM3YmFhLTkxODYtNDQ3ZS04ODVmLTJmYTFjZTFmZWI2NCIsImRhdGEiOnt9LCJyYW5kb20iOiJhZjRjOGQ3M2ZmYzJlNThjNTg5YTJhMmE2ZmMxZTE5MyJ9.5Y63TLnrJXpvFZgcoslyZZACxPXQWKqP4qxXOYrbFuW-bl4SowUEQuJDLcwZ3QjpyB1pkPazvUUpFLhpKVXCGw). Replace the *pretrained_pool* folder with the downloaded *pretrained_pool* folder.
 
-We recommend starting the initial tests with the low-cost (T0) and T3 modes that don't require the pretrained weights.
+However, the pretrained pool weighs 54GB and we recommend starting the initial tests with the low-cost (T0) and T3 modes that don't require the pretrained weights. The files and folders inside it must be placed in the *pretrained_pool* folder. The current file *pretrained_pool/df_blocks_pool.csv* contains only the information and metadata of the model weights and their locations but not the weights themselves.
+
+
 
 ## Configuration and Reproducibility  
 We conducted our tests on an A100 GPU. The execution times may vary depending on the GPU used. Results for each test and seed are available in the *results* folder. The main scripts for running experiments are located in the `scripts` folder and are named after each mode. To reproduce **T0** with proxy-based (P) augmentation selection **(T0_P)** for validation datasets (Table 1 in following section), follow these steps:  
