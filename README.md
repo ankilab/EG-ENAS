@@ -9,7 +9,7 @@ It aligns with the constraints set by the [NAS Unseen Data Challenge](https://gi
 ## Installation
 
 ### Google Colab
-If you want an easy way to test our repo, you can use Google Colab with GPU and run the code in *notebooks/EG_ENAS*.ipynb. This works for our low-cost mode (T0) (~1 hour) and (T1-T3) (~4-8 hours) per dataset, or for finding the best augmentation for your dataset using our zero-cost selection method (P) with the *get_augmentations_rank.sh* script. Results for each Test and seed are shown in *results* folder.
+If you want an easy way to test our repo, you can use Google Colab with GPU and run the code in *notebooks/EG_ENAS*.ipynb. This works for our low-cost mode (T0) (0-2 hours) and (T1-T3) (4-8 hours) per dataset, or for finding the best augmentation for your dataset using our zero-cost selection method (P) with the *get_augmentations_rank.sh* script. Results for each Test and seed are shown in *results* folder.
 
 ### Linux
 Our pipeline runs on Linux with Python 3.10 or higher. Follow these steps to set up the project in a virtual environment:
